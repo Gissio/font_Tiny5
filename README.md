@@ -2,7 +2,7 @@
 
 # Tiny5
 
-Tiny5 is a 5-pixel variable font inspired by the graphing calculators and digital gadgets of the 1980s-90s, where the constraints of limited pixel space demanded efficient and minimalist design.
+Tiny5 is a 5-pixel font inspired by the graphing calculators and digital gadgets of the 1980s-90s, where the constraints of limited pixel space demanded efficient and minimalist design.
 
 It features three variable axes: pixel volume, roundness and bleed. These allow to mimic the visual characteristics of LCD screens, CRT monitors and dot matrix printouts.
 

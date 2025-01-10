@@ -1,4 +1,4 @@
-# BDF2UFO
+# bdf2ufo
 # Converts a .bdf pixel font to a .ufo variable vector font
 #
 # (C) 2024-2025 Gissio
@@ -33,65 +33,35 @@ import ufoLib2.objects.anchor
 log_level = 1
 bdf2ufo_version = '1.0.1'
 
-weight_from_weight_name = {
-    'thin': 100,
-    'extralight': 200,
-    'ultralight': 200,
-    'light': 300,
-    'normal': 400,
-    'regular': 400,
-    'medium': 500,
-    'demibold': 600,
-    'semibold': 600,
-    'bold': 700,
-    'extrabold': 800,
-    'ultrabold': 800,
-    'black': 900,
-    'heavy': 900,
+width_class_from_name = {
+    'UltraCondensed': 1,
+    'ExtraCondensed': 2,
+    'Condensed': 3,
+    'SemiCondensed': 4,
+    'Normak': 5,
+    'SemiExpanded': 6,
+    'Expanded': 7,
+    'ExtraExpanded': 8,
+    'UltraExpanded': 9,
 }
 
-weight_name_from_weight = {
-    100: 'Thin',
-    200: 'ExtraLight',
-    300: 'Light',
-    400: 'Regular',
-    500: 'Medium',
-    600: 'SemiBold',
-    700: 'Bold',
-    800: 'ExtraBold',
-    900: 'Black',
+weight_class_from_name = {
+    'Thin': 100,
+    'ExtraLight': 200,
+    'Light': 300,
+    'Regular': 400,
+    'Medium': 500,
+    'SemiBold': 600,
+    'Bold': 700,
+    'ExtraBold': 800,
+    'Black': 900
 }
 
 slope_from_slant = {
-    'R': '',
     'I': 'Italic',
     'RI': 'Italic',
     'O': 'Oblique',
     'RO': 'Oblique',
-}
-
-width_class_from_setwidth_name = {
-    'ultracondensed': 1,
-    'extracondensed': 2,
-    'condensed': 3,
-    'semicondensed': 4,
-    'normal': 5,
-    'semiexpanded': 6,
-    'expanded': 7,
-    'extraexpanded': 8,
-    'ultraexpanded': 9,
-}
-
-width_name_from_width_class = {
-    1: 'UltraCondensed',
-    2: 'ExtraCondensed',
-    3: 'Condensed',
-    4: 'SemiCondensed',
-    5: 'Normal',
-    6: 'SemiExpanded',
-    7: 'Expanded',
-    8: 'ExtraExpanded',
-    9: 'UltraExpanded',
 }
 
 combining_infos = {
@@ -312,6 +282,7 @@ axes_info = {
 }
 
 
+# Helper functions
 class Object(object):
     pass
 
@@ -322,19 +293,23 @@ def auto_int(x):
 
 def log_info(message):
     if log_level <= 0:
-        print("info: " + message)
+        print('info: ' + message)
 
 
 def log_warning(message):
     if log_level <= 1:
-        print("warning: " + message)
+        print('warning: ' + message)
 
 
 def log_error(message):
     if log_level <= 2:
-        print("error: " + message)
+        print('error: ' + message)
 
     sys.exit(1)
+
+
+def combine_strings(a, b):
+    return (a + ' ' + b).strip()
 
 
 def get_unicode_string(codepoint):
@@ -381,14 +356,46 @@ def filter_name(name):
     return ''.join([c for c in name.lower() if c.isalpha()])
 
 
-def set_bdf_property(bdf_font, config, key, default_value):
+def set_font_property(font, config, key, default_value):
     value = getattr(config, key)
 
     if value is not None:
-        setattr(bdf_font, key, value)
+        setattr(font, key, value)
 
     else:
-        setattr(bdf_font, key, default_value)
+        setattr(font, key, default_value)
+
+
+def get_file_name(family_name, style_name):
+    return family_name.replace(' ', '') + '-' +\
+        style_name.replace(' ', '')
+
+
+def get_style_map_names(family_name, style_name):
+    style_map_family_names = [family_name]
+    bold = False
+    italic = False
+
+    for style in style_name.split(' '):
+        if style == 'Bold':
+            bold = True
+        elif style == 'Italic':
+            italic = True
+        elif style != 'Regular':
+            style_map_family_names.append(style)
+
+    if not bold:
+        if not italic:
+            style_map_style_name = 'regular'
+        else:
+            style_map_style_name = 'italic'
+    else:
+        if not italic:
+            style_map_style_name = 'bold'
+        else:
+            style_map_style_name = 'bold italic'
+
+    return ' '.join(style_map_family_names), style_map_style_name
 
 
 def parse_axes_string(axes_string):
@@ -416,26 +423,27 @@ def parse_axes_string(axes_string):
     return axes
 
 
-def load_bdf(config):
-    bdf_boundingbox0 = [sys.maxsize, sys.maxsize]
-    bdf_boundingbox1 = [-sys.maxsize, -sys.maxsize]
+# Main functions
+def load_font(config):
+    font_boundingbox0 = [sys.maxsize, sys.maxsize]
+    font_boundingbox1 = [-sys.maxsize, -sys.maxsize]
 
-    bdf_font = Object()
+    font = Object()
 
-    with open(config.input, "rb") as handle:
+    with open(config.input, 'rb') as handle:
         bdf = bdflib.reader.read_bdf(handle)
 
-        bdf_font.glyphs = {}
-        bdf_font.codepoints = {}
+        font.glyphs = {}
+        font.codepoints = {}
 
         cap_height = bdf.ptSize
         x_height = bdf.ptSize
 
         # Set font glyphs
-        for bdf_glyph in bdf.glyphs:
-            codepoint = bdf_glyph.codepoint
+        for glyph in bdf.glyphs:
+            codepoint = glyph.codepoint
 
-            name = bdf_glyph.name.decode('utf-8')
+            name = glyph.name.decode('utf-8')
 
             if codepoint == config.notdef_codepoint:
                 name = '.notdef'
@@ -451,15 +459,15 @@ def load_bdf(config):
                 name = ''.join(
                     [c if (c.isalnum() or c == '.') else '_' for c in name])
 
-                while name in bdf_font.glyphs:
+                while name in font.glyphs:
                     name += '_'
 
             # Build bitmap
-            bitmap = np.zeros((bdf_glyph.bbH, bdf_glyph.bbW), np.uint8)
-            for y in range(bdf_glyph.bbH):
-                value = bdf_glyph.data[y]
-                for x in range(bdf_glyph.bbW):
-                    bitmap[y][x] = (value >> (bdf_glyph.bbW - x - 1)) & 1
+            bitmap = np.zeros((glyph.bbH, glyph.bbW), np.uint8)
+            for y in range(glyph.bbH):
+                value = glyph.data[y]
+                for x in range(glyph.bbW):
+                    bitmap[y][x] = (value >> (glyph.bbW - x - 1)) & 1
 
             # Crop bitmap
             if bitmap.any():
@@ -477,42 +485,42 @@ def load_bdf(config):
                             x_min:x_max]
 
             # Update font bounding box
-            boundingbox0 = (bdf_glyph.bbY + int(y_min),
-                            bdf_glyph.bbX + int(x_min))
+            boundingbox0 = (glyph.bbY + int(y_min),
+                            glyph.bbX + int(x_min))
             boundingbox1 = (boundingbox0[0] + bitmap.shape[0],
                             boundingbox0[1] + bitmap.shape[1])
 
-            bdf_boundingbox0[0] = min(bdf_boundingbox0[0], boundingbox0[0])
-            bdf_boundingbox0[1] = min(bdf_boundingbox0[1], boundingbox0[1])
-            bdf_boundingbox1[0] = max(bdf_boundingbox1[0], boundingbox1[0])
-            bdf_boundingbox1[1] = max(bdf_boundingbox1[1], boundingbox1[1])
+            font_boundingbox0[0] = min(font_boundingbox0[0], boundingbox0[0])
+            font_boundingbox0[1] = min(font_boundingbox0[1], boundingbox0[1])
+            font_boundingbox1[0] = max(font_boundingbox1[0], boundingbox1[0])
+            font_boundingbox1[1] = max(font_boundingbox1[1], boundingbox1[1])
 
-            advance = bdf_glyph.advance
+            advance = glyph.advance
 
             # Build glyph
-            bdf_glyph = Object()
-            bdf_glyph.codepoint = codepoint
-            bdf_glyph.bitmap = bitmap
-            bdf_glyph.offset = boundingbox0
-            bdf_glyph.advance = advance
+            glyph = Object()
+            glyph.codepoint = codepoint
+            glyph.bitmap = bitmap
+            glyph.offset = boundingbox0
+            glyph.advance = advance
 
             if codepoint == 0x41:
                 cap_height = bitmap.shape[0]
             elif codepoint == 0x78:
                 x_height = bitmap.shape[0]
 
-            bdf_font.glyphs[name] = bdf_glyph
-            bdf_font.codepoints[codepoint] = name
+            font.glyphs[name] = glyph
+            font.codepoints[codepoint] = name
 
         # Add undefined combining glyphs
         for combining_codepoint in combining_infos:
             _, _, modifier_codepoint = combining_infos[combining_codepoint]
 
-            if modifier_codepoint in bdf_font.codepoints and\
-                    combining_codepoint not in bdf_font.codepoints and\
+            if modifier_codepoint in font.codepoints and\
+                    combining_codepoint not in font.codepoints and\
             match_codepoint(config.codepoint_subset, combining_codepoint):
-                modifier_name = bdf_font.codepoints[modifier_codepoint]
-                modifier_glyph = bdf_font.glyphs[modifier_name]
+                modifier_name = font.codepoints[modifier_codepoint]
+                modifier_glyph = font.glyphs[modifier_name]
 
                 combining_name = f'uni{combining_codepoint:04x}'
 
@@ -522,123 +530,123 @@ def load_bdf(config):
                 combining_glyph.offset = modifier_glyph.offset
                 combining_glyph.advance = modifier_glyph.advance
 
-                bdf_font.glyphs[combining_name] = combining_glyph
-                bdf_font.codepoints[combining_codepoint] = combining_name
+                font.glyphs[combining_name] = combining_glyph
+                font.codepoints[combining_codepoint] = combining_name
 
         # Set font info
-        set_bdf_property(bdf_font, config, 'font_version',
-                         get_bdf_property(bdf, 'FONT_VERSION', ''))
-        set_bdf_property(bdf_font, config, 'family_name',
-                         get_bdf_property(bdf, 'FAMILY_NAME', bdf.name.decode('utf-8')))
+        set_font_property(font, config, 'font_version',
+                          get_bdf_property(bdf, 'FONT_VERSION', ''))
+        set_font_property(font, config, 'family_name',
+                          get_bdf_property(bdf, 'FAMILY_NAME', bdf.name.decode('utf-8')))
+
+        style_name = ''
+
+        # Style width
+        setwidth_name = filter_name(get_bdf_property(bdf, 'SETWIDTH_NAME', ''))
+        style_component = ''
+        for name in width_class_from_name:
+            if name.lower() == setwidth_name:
+                style_component = name
+                break
+        style_name = combine_strings(style_name, style_component)
+
+        # Style weight
         weight_name = filter_name(get_bdf_property(bdf, 'WEIGHT_NAME', ''))
-        if weight_name in weight_from_weight_name:
-            weight = weight_from_weight_name[weight_name]
-        else:
-            weight = 400
-        set_bdf_property(bdf_font, config, 'weight', weight)
-        slant = get_bdf_property(bdf, 'SLANT', '').upper()
+        style_component = 'Regular'
+        for name in weight_class_from_name:
+            if name.lower() == weight_name:
+                style_component = name
+                break
+        style_name = combine_strings(style_name, style_component)
+
+        # Style slope
+        slant = filter_name(get_bdf_property(bdf, 'SLANT', ''))
         if slant in slope_from_slant:
-            slope = slope_from_slant[slant]
-        else:
-            slope = ''
-        set_bdf_property(bdf_font, config, 'slope', slope)
-        setwidth_name = filter_name(
-            get_bdf_property(bdf, 'SETWIDTH_NAME', ''))
-        if setwidth_name in width_class_from_setwidth_name:
-            width_class = width_class_from_setwidth_name[setwidth_name]
-        else:
-            width_class = 5
-        set_bdf_property(bdf_font, config, 'width_class', width_class)
+            style_name = combine_strings(style_name, slope_from_slant[slant])
+        set_font_property(font, config, 'style_name', style_name)
 
-        set_bdf_property(bdf_font, config, 'copyright',
-                         get_bdf_property(bdf, 'COPYRIGHT',
-                                          '\n'.join([s.decode('utf-8')
-                                                     for s in bdf.comments])))
-        set_bdf_property(bdf_font, config, 'designer', '')
-        set_bdf_property(bdf_font, config, 'designer_url', '')
-        set_bdf_property(bdf_font, config, 'manufacturer',
-                         get_bdf_property(bdf, 'FOUNDRY', ''))
-        set_bdf_property(bdf_font, config, 'manufacturer_url', '')
-        set_bdf_property(bdf_font, config, 'license', '')
-        set_bdf_property(bdf_font, config, 'license_url', '')
+        # Font properties
+        copyright = '\n'.join([s.decode('utf-8') for s in bdf.comments])
+        set_font_property(font, config, 'copyright',
+                          get_bdf_property(bdf, 'COPYRIGHT',
+                                           copyright))
+        set_font_property(font, config, 'designer', '')
+        set_font_property(font, config, 'designer_url', '')
+        set_font_property(font, config, 'manufacturer',
+                          get_bdf_property(bdf, 'FOUNDRY', ''))
+        set_font_property(font, config, 'manufacturer_url', '')
+        set_font_property(font, config, 'license', '')
+        set_font_property(font, config, 'license_url', '')
 
-        set_bdf_property(bdf_font, config, 'ascent',
-                         get_bdf_property(bdf, 'FONT_ASCENT', bdf.ptSize))
-        set_bdf_property(bdf_font, config, 'descent',
-                         -get_bdf_property(bdf, 'FONT_DESCENT', 0))
-        set_bdf_property(bdf_font, config, 'cap_height',
-                         get_bdf_property(bdf, 'CAP_HEIGHT', cap_height))
-        set_bdf_property(bdf_font, config, 'x_height',
-                         get_bdf_property(bdf, 'X_HEIGHT', x_height))
+        set_font_property(font, config, 'ascent',
+                          get_bdf_property(bdf, 'FONT_ASCENT', bdf.ptSize))
+        set_font_property(font, config, 'descent',
+                          -get_bdf_property(bdf, 'FONT_DESCENT', 0))
+        set_font_property(font, config, 'cap_height',
+                          get_bdf_property(bdf, 'CAP_HEIGHT', cap_height))
+        set_font_property(font, config, 'x_height',
+                          get_bdf_property(bdf, 'X_HEIGHT', x_height))
 
-        set_bdf_property(bdf_font, config, 'underline_position',
-                         get_bdf_property(bdf, 'UNDERLINE_POSITION', 0))
-        set_bdf_property(bdf_font, config, 'underline_thickness',
-                         get_bdf_property(bdf, 'UNDERLINE_THICKNESS', 0))
-        set_bdf_property(bdf_font, config, 'strikeout_position',
-                         get_bdf_property(bdf, 'STRIKEOUT_ASCENT', 0))
-        set_bdf_property(bdf_font, config, 'strikeout_thickness',
-                         get_bdf_property(bdf, 'STRIKEOUT_DESCENT', 0))
+        set_font_property(font, config, 'underline_position',
+                          get_bdf_property(bdf, 'UNDERLINE_POSITION', 0))
+        set_font_property(font, config, 'underline_thickness',
+                          get_bdf_property(bdf, 'UNDERLINE_THICKNESS', 0))
+        set_font_property(font, config, 'strikeout_position',
+                          get_bdf_property(bdf, 'STRIKEOUT_ASCENT', 0))
+        set_font_property(font, config, 'strikeout_thickness',
+                          get_bdf_property(bdf, 'STRIKEOUT_DESCENT', 0))
 
-        set_bdf_property(bdf_font, config, 'superscript_size',
-                         get_bdf_property(bdf, 'SUPERSCRIPT_SIZE',
-                                          int(0.6 * bdf_font.cap_height)))
-        set_bdf_property(bdf_font, config, 'superscript_x',
-                         get_bdf_property(bdf, 'SUPERSCRIPT_X',
-                                          bdf_font.cap_height - bdf_font.superscript_size))
-        set_bdf_property(bdf_font, config, 'superscript_y',
-                         get_bdf_property(bdf, 'SUPERSCRIPT_Y',
-                                          bdf_font.cap_height - bdf_font.superscript_size))
-        set_bdf_property(bdf_font, config, 'subscript_size',
-                         get_bdf_property(bdf, 'SUBSCRIPT_SIZE',
-                                          int(0.6 * bdf_font.cap_height)))
-        set_bdf_property(bdf_font, config, 'subscript_x',
-                         get_bdf_property(bdf, 'SUBSCRIPT_X',
-                                          bdf_font.cap_height - bdf_font.subscript_size))
-        set_bdf_property(bdf_font, config, 'subscript_y',
-                         get_bdf_property(bdf, 'SUBSCRIPT_Y',
-                                          bdf_font.cap_height - bdf_font.subscript_size))
+        set_font_property(font, config, 'superscript_scale_x', 0.6)
+        set_font_property(font, config, 'superscript_scale_y', 0.6)
+        set_font_property(font, config, 'superscript_offset_x', 0)
+        set_font_property(font, config, 'superscript_offset_y',
+                          font.cap_height * font.superscript_scale_y)
+        set_font_property(font, config, 'subscript_scale_x', 0.6)
+        set_font_property(font, config, 'subscript_scale_y', 0.6)
+        set_font_property(font, config, 'subscript_offset_x', 0)
+        set_font_property(font, config, 'subscript_offset_y', 0)
 
-        bdf_font.boundingbox = (bdf_boundingbox0, bdf_boundingbox1)
-        bdf_font.glyph_offset_x = config.glyph_offset_x
-        bdf_font.glyph_offset_y = config.glyph_offset_y
-        bdf_font.units_per_em = config.units_per_em
+        font.boundingbox = (font_boundingbox0, font_boundingbox1)
+        font.glyph_scale_x = config.glyph_scale_x
+        font.glyph_scale_y = config.glyph_scale_y
+        font.glyph_offset_x = config.glyph_offset_x
+        font.glyph_offset_y = config.glyph_offset_y
+        font.units_per_em = config.units_per_em
+        font.strike_num = 2 if config.double_strike else 1
 
-        bdf_font.variable_axes = [
+        font.variable_axes = [
             key for key in parse_axes_string(config.variable_axes)]
 
-        bdf_font.variable_instances = []
-        if len(bdf_font.variable_axes) > 0:
+        font.variable_instances = []
+        if len(font.variable_axes) > 0:
             for instance_string in config.variable_instance:
-                variable_instance = Object()
+                instance = Object()
 
                 components = instance_string.split(',')
-                variable_instance.name = components[0]
-                variable_instance.location = parse_axes_string(
+                instance.name = components[0]
+                instance.location = parse_axes_string(
                     ','.join(components[1:]))
 
-                bdf_font.variable_instances.append(variable_instance)
+                font.variable_instances.append(instance)
 
         else:
-            variable_instance = Object()
-            variable_instance.name = ''
-            variable_instance.location = []
+            instance = Object()
+            instance.name = ''
+            instance.location = []
 
-            bdf_font.variable_instances.append(variable_instance)
+            font.variable_instances.append(instance)
 
-        bdf_font.location = {}
+        font.location = {}
         for axis in axes_info:
-            bdf_font.location[axis] = axes_info[axis]['default']
+            font.location[axis] = axes_info[axis]['default']
         location = parse_axes_string(config.static_axes)
         for axis in location:
-            bdf_font.location[axis] = location[axis]
+            font.location[axis] = location[axis]
 
-        bdf_font.units_per_element_y = int(bdf_font.units_per_em /
-                                           (bdf_font.ascent - bdf_font.descent))
+        font.units_per_element_y = int(font.units_per_em /
+                                       (font.ascent - font.descent))
 
-        bdf_font.custom_style_name = config.custom_style_name
-
-    return bdf_font
+    return font
 
 
 def add_offset(a, b):
@@ -649,56 +657,31 @@ def subtract_offset(a, b):
     return (a[0] - b[0], a[1] - b[1])
 
 
-def get_units_per_element_x(bdf_font):
-    return bdf_font.location['XESP'] * bdf_font.units_per_element_y
+def get_units_per_element_x(font):
+    return font.location['XESP'] * font.glyph_scale_x * font.units_per_element_y
 
 
-def get_style_name(bdf_font, instance_name=''):
-    style_name = ''
-
-    if bdf_font.custom_style_name != '':
-        style_name += bdf_font.custom_style_name + ' '
-
-    if instance_name != '':
-        style_name += instance_name + ' '
-
-    if bdf_font.width_class != 5:
-        style_name = width_name_from_width_class() + ' '
-
-    style_name += weight_name_from_weight[bdf_font.weight]
-
-    if bdf_font.slope != '':
-        style_name += ' ' + bdf_font.slope
-
-    return style_name
-
-
-def get_file_name(bdf_font, sub_style_name=''):
-    return bdf_font.family_name.replace(' ', '') + '-' + sub_style_name +\
-        get_style_name(bdf_font).replace(' ', '')
-
-
-def set_ufo_info(ufo_font, bdf_font):
+def set_ufo_info(ufo_font, font):
     # Ascenders and descenders
-    line_ascender = bdf_font.ascent * bdf_font.units_per_element_y
-    line_descender = bdf_font.descent * bdf_font.units_per_element_y
+    line_ascender = font.ascent * font.units_per_element_y
+    line_descender = font.descent * font.units_per_element_y
     line_height = line_ascender - line_descender
 
     em_descender = line_descender - \
-        int((bdf_font.units_per_em - line_height) / 2)
-    em_ascender = bdf_font.units_per_em + em_descender
+        int((font.units_per_em - line_height) / 2)
+    em_ascender = font.units_per_em + em_descender
 
-    # Style map style name
-    if bdf_font.weight == 700:
-        style_map_style_name = 'bold'
-    else:
-        style_map_style_name = 'regular'
-
-    if bdf_font.slope != '':
-        style_map_style_name += ' italic'
+    # Width and weight class
+    width_class = 5
+    weight_class = 400
+    for style_component in font.style_name.split(' '):
+        if style_component in width_class_from_name:
+            width_class = width_class_from_name[style_component]
+        if style_component in weight_class_from_name:
+            weight_class = weight_class_from_name[style_component]
 
     # Version
-    version_components = bdf_font.font_version.split(';', 2)
+    version_components = font.font_version.split(';', 2)
     if version_components[0].startswith('Version '):
         version_components[0] = version_components[8:]
     font_version = 'Version ' + ';'.join(version_components)
@@ -716,15 +699,17 @@ def set_ufo_info(ufo_font, bdf_font):
     # Set info
     ufo_info = ufo_font.info
 
-    ufo_info.familyName = bdf_font.family_name
-    ufo_info.styleName = get_style_name(bdf_font)
+    ufo_info.familyName = font.family_name
+    ufo_info.styleName = font.style_name
+    ufo_info.styleMapFamilyName, ufo_info.styleMapStyleName = get_style_map_names(
+        font.family_name, font.style_name)
     ufo_info.versionMajor, ufo_info.versionMinor = version_majorminor
 
-    ufo_info.copyright = bdf_font.copyright
-    ufo_info.unitsPerEm = bdf_font.units_per_em
+    ufo_info.copyright = font.copyright
+    ufo_info.unitsPerEm = font.units_per_em
     ufo_info.descender = em_descender
-    ufo_info.xHeight = bdf_font.x_height * bdf_font.units_per_element_y
-    ufo_info.capHeight = bdf_font.cap_height * bdf_font.units_per_element_y
+    ufo_info.xHeight = font.x_height * font.units_per_element_y
+    ufo_info.capHeight = font.cap_height * font.units_per_element_y
     ufo_info.ascender = em_ascender
 
     ufo_info.guidelines = []
@@ -733,59 +718,60 @@ def set_ufo_info(ufo_font, bdf_font):
     ufo_info.openTypeHheaDescender = line_descender
     ufo_info.openTypeHheaLineGap = 0
 
-    ufo_info.openTypeNameDesigner = bdf_font.designer
-    ufo_info.openTypeNameDesignerURL = bdf_font.designer_url
-    ufo_info.openTypeNameManufacturer = bdf_font.manufacturer
-    ufo_info.openTypeNameManufacturerURL = bdf_font.manufacturer_url
-    ufo_info.openTypeNameLicense = bdf_font.license
-    ufo_info.openTypeNameLicenseURL = bdf_font.license_url
+    ufo_info.openTypeNameDesigner = font.designer
+    ufo_info.openTypeNameDesignerURL = font.designer_url
+    ufo_info.openTypeNameManufacturer = font.manufacturer
+    ufo_info.openTypeNameManufacturerURL = font.manufacturer_url
+    ufo_info.openTypeNameLicense = font.license
+    ufo_info.openTypeNameLicenseURL = font.license_url
     ufo_info.openTypeNameVersion = font_version
 
-    ufo_info.openTypeOS2WidthClass = bdf_font.width_class
-    ufo_info.openTypeOS2WeightClass = bdf_font.weight
-    ufo_info.openTypeOS2VendorID = "B2UF"
+    ufo_info.openTypeOS2WidthClass = width_class
+    ufo_info.openTypeOS2WeightClass = weight_class
+    ufo_info.openTypeOS2VendorID = 'B2UF'
     ufo_info.openTypeOS2TypoAscender = ufo_info.openTypeHheaAscender
     ufo_info.openTypeOS2TypoDescender = ufo_info.openTypeHheaDescender
     ufo_info.openTypeOS2TypoLineGap = ufo_info.openTypeHheaLineGap
     ufo_info.openTypeOS2WinAscent = max(
-        bdf_font.boundingbox[1][0] * bdf_font.units_per_element_y, 0)
+        font.boundingbox[1][0] * font.units_per_element_y, 0)
     ufo_info.openTypeOS2WinDescent = max(
-        -bdf_font.boundingbox[0][0] * bdf_font.units_per_element_y, 0)
-    ufo_info.openTypeOS2SubscriptXSize = bdf_font.subscript_size * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SubscriptYSize = bdf_font.subscript_size * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SubscriptXOffset = bdf_font.subscript_x * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SubscriptYOffset = bdf_font.subscript_y * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SuperscriptXSize = bdf_font.superscript_size * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SuperscriptYSize = bdf_font.superscript_size * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SuperscriptXOffset = bdf_font.superscript_x * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2SuperscriptYOffset = bdf_font.superscript_y * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2StrikeoutSize = bdf_font.strikeout_thickness * \
-        bdf_font.units_per_element_y
-    ufo_info.openTypeOS2StrikeoutPosition = bdf_font.strikeout_position * \
-        bdf_font.units_per_element_y
+        -font.boundingbox[0][0] * font.units_per_element_y, 0)
+    ufo_info.openTypeOS2SubscriptXSize = int(
+        font.subscript_scale_x * font.units_per_em)
+    ufo_info.openTypeOS2SubscriptYSize = int(
+        font.subscript_scale_y * font.units_per_em)
+    ufo_info.openTypeOS2SubscriptXOffset = int(
+        font.subscript_offset_x * font.units_per_element_y)
+    ufo_info.openTypeOS2SubscriptYOffset = int(
+        font.subscript_offset_y * font.units_per_element_y)
+    ufo_info.openTypeOS2SuperscriptXSize = int(
+        font.superscript_scale_x * font.units_per_em)
+    ufo_info.openTypeOS2SuperscriptYSize = int(
+        font.superscript_scale_y * font.units_per_em)
+    ufo_info.openTypeOS2SuperscriptXOffset = int(
+        font.superscript_offset_x * font.units_per_element_y)
+    ufo_info.openTypeOS2SuperscriptYOffset = int(
+        font.superscript_offset_y * font.units_per_element_y)
+    ufo_info.openTypeOS2StrikeoutSize = int(
+        font.strikeout_thickness * font.units_per_element_y)
+    ufo_info.openTypeOS2StrikeoutPosition = int(
+        font.strikeout_position * font.units_per_element_y)
 
-    ufo_info.postscriptUnderlineThickness = bdf_font.underline_thickness * \
-        bdf_font.units_per_element_y
-    ufo_info.postscriptUnderlinePosition = bdf_font.underline_position * \
-        bdf_font.units_per_element_y
+    ufo_info.postscriptUnderlineThickness = int(
+        font.underline_thickness * font.units_per_element_y)
+    ufo_info.postscriptUnderlinePosition = int(
+        font.underline_position * font.units_per_element_y)
 
 
-def add_element_glyph(ufo_font, bdf_font):
-    units_per_pixel = bdf_font.location['ESIZ'] * bdf_font.units_per_element_y
+def add_element_glyph(ufo_font, font):
+    units_per_pixel = font.location['ESIZ'] * font.units_per_element_y
     unit = units_per_pixel / 2
-    radius = bdf_font.location['ROND'] * unit
+    radius = font.location['ROND'] * unit
 
-    # # Cubic curves
+    # Cubic curves
     tangent = radius * (4 / 3) * math.tan(math.radians(90 / 4))
-    max_x = unit + bdf_font.location['BLED'] * (units_per_pixel - unit)
+    max_x = unit + font.location['BLED'] * \
+        (get_units_per_element_x(font) - unit)
     max_y = unit
     min_x = max_x - radius
     min_y = max_y - radius
@@ -811,10 +797,10 @@ def add_element_glyph(ufo_font, bdf_font):
         [(tangent_y, max_x), 'offcurve'],
     ]
 
-    # Quadratic curve
+    # Quadratic curves
     # midarc = radius * math.cos(math.radians(45))
     # tangent = radius * (4 / 3) * math.tan(math.radians(90 / 4))
-    # max_x = unit + bdf_font.location['BLED'] * (2 * units_per_pixel - unit)
+    # max_x = unit + font.location['BLED'] * (2 * units_per_pixel - unit)
     # max_y = unit
     # min_x = max_x - radius
     # min_y = max_y - radius
@@ -854,17 +840,16 @@ def add_element_glyph(ufo_font, bdf_font):
                 point_offset[0],
                 point_type)
         )
-
     ufo_contour = ufoLib2.objects.Contour(ufo_points)
 
     ufo_glyph = ufo_font.newGlyph('_')
     ufo_glyph.appendContour(ufo_contour)
 
 
-def paint_bdf_glyph(composed_bitmap,
-                    component_bitmap,
-                    offset,
-                    bitmap):
+def paint_glyph(composed_bitmap,
+                component_bitmap,
+                offset,
+                bitmap):
     for y in range(component_bitmap.shape[0]):
         for x in range(component_bitmap.shape[1]):
             if component_bitmap[y][x]:
@@ -879,10 +864,10 @@ def paint_bdf_glyph(composed_bitmap,
     return True
 
 
-def get_bdf_components(bdf_font,
-                       composed_glyph,
-                       decomposition,
-                       bitmap):
+def get_glyph_components(font,
+                         composed_glyph,
+                         decomposition,
+                         bitmap):
     if not isinstance(bitmap, np.ndarray):
         bitmap = np.zeros(composed_glyph.bitmap.shape, np.uint8)
 
@@ -896,7 +881,7 @@ def get_bdf_components(bdf_font,
 
     for stage in range(2):
         if stage == 0:
-            if component_codepoint not in bdf_font.codepoints:
+            if component_codepoint not in font.codepoints:
                 continue
 
         else:
@@ -908,13 +893,13 @@ def get_bdf_components(bdf_font,
             if modifier_codepoint == composed_glyph.codepoint:
                 return 'uncomposable'
 
-            if modifier_codepoint not in bdf_font.codepoints:
+            if modifier_codepoint not in font.codepoints:
                 return 'missing'
 
             component_codepoint = modifier_codepoint
 
-        component_name = bdf_font.codepoints[component_codepoint]
-        component_glyph = bdf_font.glyphs[component_name]
+        component_name = font.codepoints[component_codepoint]
+        component_glyph = font.glyphs[component_name]
 
         delta_size = subtract_offset(
             composed_glyph.bitmap.shape, component_glyph.bitmap.shape)
@@ -924,38 +909,38 @@ def get_bdf_components(bdf_font,
                 offset = (offset_y, offset_x)
                 bitmap_copy = bitmap.copy()
 
-                if not paint_bdf_glyph(composed_glyph.bitmap,
-                                       component_glyph.bitmap,
-                                       offset,
-                                       bitmap_copy):
+                if not paint_glyph(composed_glyph.bitmap,
+                                   component_glyph.bitmap,
+                                   offset,
+                                   bitmap_copy):
                     continue
 
-                bdf_components = get_bdf_components(bdf_font,
-                                                    composed_glyph,
-                                                    decomposition[1:],
-                                                    bitmap_copy)
+                glyph_components = get_glyph_components(font,
+                                                        composed_glyph,
+                                                        decomposition[1:],
+                                                        bitmap_copy)
 
-                if bdf_components in ['missing', 'uncomposable']:
-                    return bdf_components
+                if glyph_components in ['missing', 'uncomposable']:
+                    return glyph_components
 
-                elif isinstance(bdf_components, list):
-                    bdf_component = Object()
-                    bdf_component.name = component_name
-                    bdf_component.offset = add_offset(
+                elif isinstance(glyph_components, list):
+                    glyph_component = Object()
+                    glyph_component.name = component_name
+                    glyph_component.offset = add_offset(
                         composed_glyph.offset, offset)
-                    bdf_components.append(bdf_component)
+                    glyph_components.append(glyph_component)
 
-                    return bdf_components
+                    return glyph_components
 
-    if component_codepoint not in bdf_font.codepoints:
+    if component_codepoint not in font.codepoints:
         return 'missing'
 
     else:
         return 'mismatch'
 
 
-def decompose_bdf_glyph(bdf_font, composed_name):
-    composed_glyph = bdf_font.glyphs[composed_name]
+def decompose_glyph(font, composed_name):
+    composed_glyph = font.glyphs[composed_name]
     composed_codepoint = composed_glyph.codepoint
 
     # Calculate decomposition
@@ -976,10 +961,10 @@ def decompose_bdf_glyph(bdf_font, composed_name):
     decomposition = [x for x in decomposition if x != 0x20]
 
     # Get components
-    components = get_bdf_components(bdf_font,
-                                    composed_glyph,
-                                    decomposition,
-                                    None)
+    components = get_glyph_components(font,
+                                      composed_glyph,
+                                      decomposition,
+                                      None)
 
     if components == 'missing':
         log_info(f'{get_unicode_string(composed_codepoint)}'
@@ -1007,61 +992,65 @@ def decompose_bdf_glyph(bdf_font, composed_name):
         return components
 
 
-def get_random_offset(bdf_font):
+def get_random_offset(font):
     while True:
-        value = random.gauss(0, bdf_font.location['EJIT'])
+        value = random.gauss(0, font.location['EJIT'])
 
         if math.fabs(value) < 1:
             break
 
-    return value * bdf_font.units_per_element_y
+    return value * font.units_per_element_y
 
 
 def add_ufo_bitmap(ufo_glyph,
-                   bdf_font,
-                   bdf_glyph):
-    units_per_element_x = get_units_per_element_x(bdf_font)
+                   font,
+                   glyph):
+    units_per_element_x = get_units_per_element_x(font)
 
-    for y in range(bdf_glyph.bitmap.shape[0]):
-        for x in range(bdf_glyph.bitmap.shape[1]):
-            if bdf_glyph.bitmap[y][x]:
-                ufo_y = (bdf_glyph.offset[0] + y + 0.5) * \
-                    bdf_font.units_per_element_y + get_random_offset(bdf_font)
-                ufo_x = (bdf_font.glyph_offset_x +
-                         bdf_glyph.offset[1] + x + 0.5) * \
-                    units_per_element_x + get_random_offset(bdf_font)
+    strike_num = font.strike_num
 
-                ufo_component = ufoLib2.objects.Component('_')
-                ufo_component.transformation = [
-                    1, 0, 0, 1,
-                    math.floor(ufo_x),
-                    math.floor(ufo_y)]
+    for y in range(glyph.bitmap.shape[0]):
+        for x in range(glyph.bitmap.shape[1]):
+            for z in range(strike_num):
+                if glyph.bitmap[y][x]:
+                    ufo_y = (glyph.offset[0] + y + 0.5 - 0.5 * z) * \
+                        font.units_per_element_y + \
+                        get_random_offset(font)
+                    ufo_x = (font.glyph_offset_x +
+                             glyph.offset[1] + x + 0.5) * \
+                        units_per_element_x + get_random_offset(font)
 
-                ufo_glyph.components.append(ufo_component)
+                    ufo_component = ufoLib2.objects.Component('_')
+                    ufo_component.transformation = [
+                        1, 0, 0, 1,
+                        math.floor(ufo_x),
+                        math.floor(ufo_y)]
+
+                    ufo_glyph.components.append(ufo_component)
 
 
-def add_ufo_components(ufo_glyph,
-                       bdf_font,
+def add_ufo_components(glyph,
+                       font,
                        components):
-    units_per_element_x = get_units_per_element_x(bdf_font)
+    units_per_element_x = get_units_per_element_x(font)
 
     for component in components:
         ufo_component = ufoLib2.objects.Component(component.name)
 
         delta = subtract_offset(component.offset,
-                                bdf_font.glyphs[component.name].offset)
+                                font.glyphs[component.name].offset)
 
         if delta != (0, 0):
             ufo_component.transformation = [
                 1, 0, 0, 1,
                 math.floor(delta[1] * units_per_element_x),
-                math.floor(delta[0] * bdf_font.units_per_element_y)]
+                math.floor(delta[0] * font.units_per_element_y)]
 
-        ufo_glyph.components.append(ufo_component)
+        glyph.components.append(ufo_component)
 
 
 def add_anchors(anchors,
-                bdf_font,
+                font,
                 composed_codepoint,
                 components):
     if composed_codepoint in custom_anchors:
@@ -1076,7 +1065,7 @@ def add_anchors(anchors,
 
     for component in components:
         component_name = component.name
-        component_glyph = bdf_font.glyphs[component_name]
+        component_glyph = font.glyphs[component_name]
         component_codepoint = component_glyph.codepoint
 
         if component_codepoint in combining_infos:
@@ -1143,15 +1132,15 @@ def add_anchors(anchors,
             )
 
 
-def set_ufo_anchors(ufo_font, bdf_font, anchors):
-    units_per_element_x = get_units_per_element_x(bdf_font)
+def set_ufo_anchors(ufo_font, font, anchors):
+    units_per_element_x = get_units_per_element_x(font)
 
     # UFO anchors, base and mark lists
     mark_map = {}
     base_map = {}
 
     for component_name in anchors:
-        component_codepoint = bdf_font.glyphs[component_name].codepoint
+        component_codepoint = font.glyphs[component_name].codepoint
 
         component_anchors = anchors[component_name]
         ufo_glyph = ufo_font[component_name]
@@ -1161,9 +1150,9 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
 
             anchor = ufoLib2.objects.Anchor(
                 math.floor(
-                    (anchor_offset[1] + bdf_font.glyph_offset_x) * units_per_element_x),
+                    (anchor_offset[1] + font.glyph_offset_x) * units_per_element_x),
                 math.floor(
-                    anchor_offset[0] * bdf_font.units_per_element_y),
+                    anchor_offset[0] * font.units_per_element_y),
                 anchor_name)
 
             ufo_glyph.appendAnchor(anchor)
@@ -1193,13 +1182,13 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
     # Language systems
     features.statements.append(
         fontTools.feaLib.ast.LanguageSystemStatement('DFLT', 'dflt'))
-    if 0x41 in bdf_font.codepoints:
+    if 0x41 in font.codepoints:
         features.statements.append(
             fontTools.feaLib.ast.LanguageSystemStatement('latn', 'dflt'))
-    if 0x391 in bdf_font.codepoints:
+    if 0x391 in font.codepoints:
         features.statements.append(
             fontTools.feaLib.ast.LanguageSystemStatement('grek', 'dflt'))
-    if 0x410 in bdf_font.codepoints:
+    if 0x410 in font.codepoints:
         features.statements.append(
             fontTools.feaLib.ast.LanguageSystemStatement('cyrl', 'dflt'))
 
@@ -1208,11 +1197,11 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
     topmarks = fontTools.feaLib.ast.GlyphClass()
 
     for codepoint in combining_infos:
-        if codepoint in bdf_font.codepoints:
-            allmarks.append(bdf_font.codepoints[codepoint])
+        if codepoint in font.codepoints:
+            allmarks.append(font.codepoints[codepoint])
 
             if combining_infos[codepoint][1] in ['top', 'top.shifted']:
-                topmarks.append(bdf_font.codepoints[codepoint])
+                topmarks.append(font.codepoints[codepoint])
 
     allmarks_definition = fontTools.feaLib.ast.GlyphClassDefinition(
         'allmarks', allmarks)
@@ -1238,7 +1227,7 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
                 fontTools.feaLib.ast.MarkClass(anchor_name),
                 fontTools.feaLib.ast.Anchor(
                     int(anchor_offset[1] * units_per_element_x),
-                    int(anchor_offset[0] * bdf_font.units_per_element_y)),
+                    int(anchor_offset[0] * font.units_per_element_y)),
                 glyphs
             )
             mark_lookup.statements.append(mark_class)
@@ -1254,7 +1243,7 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
                 marks.append((
                     fontTools.feaLib.ast.Anchor(
                         int(anchor_offset[1] * units_per_element_x),
-                        int(anchor_offset[0] * bdf_font.units_per_element_y)),
+                        int(anchor_offset[0] * font.units_per_element_y)),
                     fontTools.feaLib.ast.MarkClass(anchor_name)
                 ))
 
@@ -1285,86 +1274,116 @@ def set_ufo_anchors(ufo_font, bdf_font, anchors):
     ufo_font.features.text = features.asFea()
 
 
-def add_ufo_glyphs(ufo_font, bdf_font):
-    units_per_element_x = get_units_per_element_x(bdf_font)
+def add_ufo_glyphs(ufo_font, font):
+    units_per_element_x = get_units_per_element_x(font)
 
-    add_element_glyph(ufo_font, bdf_font)
+    add_element_glyph(ufo_font, font)
 
     anchors = {}
 
-    for composed_name in bdf_font.glyphs:
-        composed_glyph = bdf_font.glyphs[composed_name]
+    for composed_name in font.glyphs:
+        composed_glyph = font.glyphs[composed_name]
 
         ufo_glyph = ufo_font.newGlyph(composed_name)
         if composed_glyph.codepoint != 0:
             ufo_glyph.unicode = composed_glyph.codepoint
         ufo_glyph.width = int(composed_glyph.advance * units_per_element_x)
 
-        components = decompose_bdf_glyph(bdf_font, composed_name)
+        components = decompose_glyph(font, composed_name)
 
         if len(components) == 0:
-            add_ufo_bitmap(ufo_glyph, bdf_font, composed_glyph)
+            add_ufo_bitmap(ufo_glyph, font, composed_glyph)
 
         else:
-            add_ufo_components(ufo_glyph, bdf_font, components)
+            add_ufo_components(ufo_glyph, font, components)
 
-            add_anchors(anchors, bdf_font,
+            add_anchors(anchors, font,
                         composed_glyph.codepoint, components)
 
-    set_ufo_anchors(ufo_font, bdf_font, anchors)
+    set_ufo_anchors(ufo_font, font, anchors)
 
 
-def get_masters(bdf_font):
+def get_default_location(font):
+    default_location = {}
+
+    for axis in font.variable_axes:
+        default_location[axis] = axes_info[axis]['default']
+
+    # if len(font.variable_instances) == 0:
+    #     for axis in font.variable_axes:
+    #         default_location[axis] = axes_info[axis]['default']
+
+    # else:
+    #     first_instance = font.variable_instances[0]
+
+    #     for axis in first_instance:
+    #         default_location[axis] = first_instance[axis]
+
+    return default_location
+
+
+def get_masters(font):
     masters = []
+    locations = []
 
-    masters_num = len(bdf_font.variable_axes)
+    axes_num = len(font.variable_axes)
 
-    if masters_num >= 1:
-        for master_index in range(2 ** masters_num):
+    if axes_num >= 1:
+        for master_index in range(2 ** axes_num):
             master = Object()
             master.name = ''
             master.location = {}
 
-            for axis_index in range(masters_num):
-                axis = bdf_font.variable_axes[axis_index]
+            for axis_index in range(axes_num):
+                axis = font.variable_axes[axis_index]
 
                 if not master_index & (1 << axis_index):
-                    master.name += axis + 'min'
+                    master.name = combine_strings(master.name, axis + 'min')
                     master.location[axis] = axes_info[axis]['min']
                 else:
-                    master.name += axis + 'max'
+                    master.name = combine_strings(master.name, axis + 'max')
                     master.location[axis] = axes_info[axis]['max']
 
+            master.name = combine_strings(master.name, font.style_name)
+
             masters.append(master)
+            locations.append(master.location)
 
     else:
         master = Object()
-        master.name = ''
+        master.name = font.style_name
         master.location = {}
 
         masters.append(master)
+        locations.append(master.location)
+
+    # default_location = get_default_location(font)
+    # if default_location not in locations:
+    #     master.name = 'Default'
+    #     master.location = default_location
 
     return masters
 
 
-def write_designspace(path, bdf_font):
-    font_file_name = get_file_name(bdf_font)
+def write_designspace(path, font):
+    font_file_name = get_file_name(font.family_name, font.style_name)
 
     designspace_filename = font_file_name + '.designspace'
 
     doc = fontTools.designspaceLib.DesignSpaceDocument()
 
-    for axis in bdf_font.variable_axes:
+    default_location = get_default_location(font)
+    for axis in font.variable_axes:
         doc.addAxisDescriptor(
             tag=axis,
             name=axes_info[axis]['name'],
             minimum=int(100 * axes_info[axis]['min']),
             maximum=int(100 * axes_info[axis]['max']),
-            default=int(100 * axes_info[axis]['default']),
+            default=int(100 * default_location[axis])
         )
 
-    for master in get_masters(bdf_font):
-        master_file_name = get_file_name(bdf_font, master.name)
+    for master in get_masters(font):
+        master_file_name = get_file_name(font.family_name, master.name)
 
         location = {}
         for axis in master.location:
@@ -1375,11 +1394,13 @@ def write_designspace(path, bdf_font):
         doc.addSourceDescriptor(
             filename=master_file_name + '.ufo',
             name=master_file_name,
-            familyName=bdf_font.family_name,
+            familyName=font.family_name,
             location=location)
 
-    for instance in bdf_font.variable_instances:
-        instance_file_name = get_file_name(bdf_font, instance.name)
+    for instance in font.variable_instances:
+        instance_style_name = combine_strings(instance.name, font.style_name)
+        instance_file_name = get_file_name(
+            font.family_name, instance_style_name)
 
         location = {}
         for axis in instance.location:
@@ -1387,11 +1408,16 @@ def write_designspace(path, bdf_font):
 
             location[axis_name] = int(100 * instance.location[axis])
 
+        style_map_family_name, style_map_style_name = get_style_map_names(
+            font.family_name, instance_style_name)
+
         doc.addInstanceDescriptor(
             filename=instance_file_name + '.ufo',
             name=instance_file_name,
-            familyName=bdf_font.family_name,
-            styleName=get_style_name(bdf_font, instance.name),
+            familyName=font.family_name,
+            styleName=instance_style_name,
+            styleMapFamilyName=style_map_family_name,
+            styleMapStyleName=style_map_style_name,
             location=location
         )
 
@@ -1401,9 +1427,9 @@ def write_designspace(path, bdf_font):
     config = open(path + '/' + font_file_name + '-config.yaml', 'wt')
     config.write('sources:\n')
     config.write('  - ' + designspace_filename + '\n')
-    if len(bdf_font.variable_axes) > 0:
+    if len(font.variable_axes) > 0:
         config.write('axisOrder:\n')
-        for axis in bdf_font.variable_axes:
+        for axis in font.variable_axes:
             config.write(f'  - {axis}\n')
         config.close()
 
@@ -1423,23 +1449,10 @@ def main():
 
     parser.add_argument('--family-name',
                         help='overrides the font family name string')
-    parser.add_argument('--custom-style-name',
-                        default='',
-                        help='sets the font custom style name string')
+    parser.add_argument('--style-name',
+                        help='overrides the font style name string (e.g. "Condensed Bold Italic")')
     parser.add_argument('--font-version',
                         help='overrides the font version string')
-    parser.add_argument('--weight',
-                        type=int,
-                        choices=[100, 200, 300, 400, 500,
-                                 600, 700, 800, 900],
-                        help='overrides the font weight ("Regular": 400)')
-    parser.add_argument('--slope',
-                        choices=['', 'Italic'],
-                        help='overrides the font slope')
-    parser.add_argument('--width-class',
-                        type=int,
-                        choices=[1, 2, 3, 4, 5, 6, 7, 8, 9],
-                        help='overrides the font width class ("Normal": 5)')
 
     parser.add_argument('--copyright',
                         help='overrides the font copyright string')
@@ -1470,35 +1483,41 @@ def main():
                         help='overrides the font x height in pixels (typically of lowercase x)')
 
     parser.add_argument('--underline-position',
-                        type=int,
+                        type=float,
                         help='sets the font underline position in pixels (top, relative to the baseline)')
     parser.add_argument('--underline-thickness',
-                        type=int,
+                        type=float,
                         help='sets the font underline thickness in pixels')
     parser.add_argument('--strikeout-position',
-                        type=int,
+                        type=float,
                         help='sets the font strikeout position in pixels (top, relative to the baseline)')
     parser.add_argument('--strikeout-thickness',
-                        type=int,
+                        type=float,
                         help='sets the font strikeout thickness in pixels')
 
-    parser.add_argument('--superscript-size',
-                        type=int,
-                        help='sets the font superscript size in pixels')
-    parser.add_argument('--superscript-x',
-                        type=int,
+    parser.add_argument('--superscript-scale-x',
+                        type=float,
+                        help='sets the font superscript x scale')
+    parser.add_argument('--superscript-scale-y',
+                        type=float,
+                        help='sets the font superscript y scale')
+    parser.add_argument('--superscript-offset-x',
+                        type=float,
                         help='sets the font superscript x offset in pixels')
-    parser.add_argument('--superscript-y',
-                        type=int,
+    parser.add_argument('--superscript-offset-y',
+                        type=float,
                         help='sets the font superscript y offset in pixels')
-    parser.add_argument('--subscript-size',
-                        type=int,
-                        help='sets the font subscript size in pixels')
-    parser.add_argument('--subscript-x',
-                        type=int,
+    parser.add_argument('--subscript-scale-x',
+                        type=float,
+                        help='sets the font subscript x scale')
+    parser.add_argument('--subscript-scale-y',
+                        type=float,
+                        help='sets the font subscript y scale')
+    parser.add_argument('--subscript-offset-x',
+                        type=float,
                         help='sets the font subscript x offset in pixels')
-    parser.add_argument('--subscript-y',
-                        type=int,
+    parser.add_argument('--subscript-offset-y',
+                        type=float,
                         help='sets the font subscript y offset in pixels')
 
     parser.add_argument('--codepoint-subset',
@@ -1507,14 +1526,22 @@ def main():
     parser.add_argument('--notdef-codepoint',
                         type=auto_int,
                         help='specifies the codepoint for the .notdef character')
+    parser.add_argument('--glyph-scale-x',
+                        type=float,
+                        default=1,
+                        help='sets the glyph x scale')
+    parser.add_argument('--glyph-scale-y',
+                        type=float,
+                        default=1,
+                        help='sets the glyph y scale')
     parser.add_argument('--glyph-offset-x',
                         type=float,
                         default=0,
-                        help='sets the glyphs x offset in pixels')
+                        help='sets the glyph x offset in pixels')
     parser.add_argument('--glyph-offset-y',
                         type=float,
                         default=0,
-                        help='sets the glyphs y offset in pixels')
+                        help='sets the glyph y offset in pixels')
     parser.add_argument('--random-seed',
                         type=int,
                         default=0,
@@ -1523,12 +1550,17 @@ def main():
                         type=int,
                         default=2048,
                         help='sets the units per em value')
+    parser.add_argument('--double-strike',
+                        action='store_true',
+                        help='adds a double strike at the vertical half pixel')
+    parser.add_argument('--axes-limits',
+                        help='overrides the axes limits: [[axis=]] (e.g. "XESP=0.25-1.2")')
 
     parser.add_argument('--variable-axes',
                         help='builds a variable font with specified axes (ESIZ: element size, ROND: roundness, BLED: bleed, XESP: horizontal element spacing, EJIT: element jitter): [axis][,...]')
     parser.add_argument('--variable-instance',
                         action='append',
-                        help='builds a variable font instance with specified location: [family-subname][,[axis]=[value]][,...]')
+                        help='builds a variable font instance with specified style name and location: [style-name][,[axis]=[value]][,...]')
     parser.add_argument('--static-axes',
                         help='sets the static axes: [[axis]=[value]][,...]')
 
@@ -1541,6 +1573,13 @@ def main():
 
     if config.verbose:
         log_level = 0
+    if config.axes_limits is not None:
+        for axis_limits in config.axes_limits.split(','):
+            axis, limits = axis_limits.split('=', 2)
+            min, max = limits.split('-', 2)
+            axes_info[axis]['min'] = float(min)
+            axes_info[axis]['max'] = float(max)
+            axes_info[axis]['default'] = float(max)
     if config.variable_instance is None:
         config.variable_instance = []
     elif config.variable_axes is None:
@@ -1548,25 +1587,25 @@ def main():
             'can\'t create variable font instances without variable font axes')
 
     print('Loading BDF font...')
-    bdf_font = load_bdf(config)
+    font = load_font(config)
 
     print('Preparing masters folder...')
     os.makedirs(config.output, exist_ok=True)
 
-    for master in get_masters(bdf_font):
+    for master in get_masters(font):
         random.seed(config.random_seed)
 
-        ufo_file_name = get_file_name(bdf_font, master.name) + '.ufo'
+        ufo_file_name = get_file_name(font.family_name, master.name) + '.ufo'
 
         for axis in master.location:
-            bdf_font.location[axis] = master.location[axis]
+            font.location[axis] = master.location[axis]
 
         print(f'Building {ufo_file_name}...')
 
         ufo_font = ufoLib2.Font()
-        set_ufo_info(ufo_font, bdf_font)
+        set_ufo_info(ufo_font, font)
 
-        add_ufo_glyphs(ufo_font, bdf_font)
+        add_ufo_glyphs(ufo_font, font)
 
         output_path = config.output + '/' + ufo_file_name
 
@@ -1574,10 +1613,10 @@ def main():
             shutil.rmtree(output_path)
         ufo_font.write(fontTools.ufoLib.UFOWriter(output_path))
 
-    file_name = get_file_name(bdf_font)
+    file_name = get_file_name(font.family_name, font.style_name)
 
     print(f'Building {file_name}.designspace and {file_name}-config.yaml...')
-    write_designspace(config.output, bdf_font)
+    write_designspace(config.output, font)
 
     print('Done.')
 
