@@ -18,5 +18,5 @@ gftools builder build/Tiny5-Regular-config.yaml
 python scripts/bdf2ufo.py "${COMMON[@]}" sources/Tiny5-Bold.bdf build
 gftools builder build/Tiny5-Bold-config.yaml
 
-mkdir -p build/bdf
+mkdir -p fonts/bdf
 cp sources/*.bdf fonts/bdf
