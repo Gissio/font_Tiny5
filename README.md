@@ -28,7 +28,7 @@ The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_D
 
 ## 2.000
 
-* Added variable font support with axes for: pixel volume, roundness and bleed.
+* Added variable font support with axes for: element size, roundness and bleed.
 * Added bold weight.
 * Added vietnamese support (Google Fonts Latin Vietnamese character set).
 * Added Google Fonts Latin Beyond, Latin PriAfrican, Greek Plus and Greek Pro character sets.
