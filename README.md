@@ -22,6 +22,10 @@ The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_D
 
 # Releases
 
+## 2.002
+
+* Fixes: cyrillic, hooks.
+
 ## 2.001
 
 * Minor fixes.
