@@ -24,7 +24,7 @@ The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_D
 
 ## 2.002
 
-* Fixes: cyrillic, hooks.
+* Fixes: percent sign, lowercase j, cyrillic, hooks and descenders.
 
 ## 2.001
 
