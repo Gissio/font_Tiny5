@@ -1,7 +1,7 @@
 # bdf2ufo
 # Converts a .bdf pixel font to a .ufo variable vector font
 #
-# (C) 2024-2025 Gissio
+# (C) 2024-2026 Gissio
 #
 # License: MIT
 #
@@ -31,7 +31,7 @@ import ufoLib2.objects.anchor
 # Definitions
 
 log_level = 1
-bdf2ufo_version = '1.0.1'
+bdf2ufo_version = '1.0.2'
 
 width_class_from_name = {
     'UltraCondensed': 1,
@@ -690,7 +690,7 @@ def set_ufo_info(ufo_font, font):
     version_majorminor = (1, 0)
     if len(version_number_components) == 2:
         try:
-            version_number_components = (
+            version_majorminor = (
                 int(version_number_components[0]),
                 int(version_number_components[1]))
         except:

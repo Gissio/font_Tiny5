@@ -8,7 +8,7 @@
 <prop id="lineGap" value="0"/>
 <prop id="xHeight" value="4"/>
 <prop id="capHeight" value="5"/>
-<name id="0" value="Copyright 2022-2025 The Tiny5 Project Authors (https://github.com/Gissio/font_Tiny5)"/>
+<name id="0" value="Copyright 2022-2026 The Tiny5 Project Authors (https://github.com/Gissio/font_Tiny5)"/>
 <name id="1" value="Tiny5"/>
 <name id="2" value="Bold"/>
 <name id="3" value="2.002;KBnP;Tiny5-Bold"/>
@@ -365,6 +365,7 @@
 <g u="417" x="0" y="4" w="7" d="BAYBQwFDAUUBQgJDAg"/>
 <g u="420" x="0" y="5" w="7" d="BQZFAkIBQgFEAkIEQgM"/>
 <g u="421" x="0" y="6" w="6" d="BwXCAP8DQgNEAUIBRAFGAUID"/>
+<g u="422" x="0" y="5" w="6" d="BgVCA0QBQgFGAUIBQgNC"/>
 <g u="425" x="0" y="5" w="6" d="BQVFAUIEQgJCAkU"/>
 <g u="428" x="0" y="5" w="6" d="BQVFAkIDQgNCA0IB"/>
 <g u="429" x="0" y="6" w="4" d="BgMBRAFFAUICQg"/>
@@ -749,7 +750,7 @@
 <g u="1174" x="0" y="5" w="8" d="BgdCwwD/AEIBRQNDA0UBQsMA/wBCBkE"/>
 <g u="1175" x="0" y="4" w="8" d="BQdCwwD/AEIBRQFCwwD/AETDAP8AQgZB"/>
 <g u="1176" x="0" y="5" w="5" d="BgRDA0IBQgNFAkEC"/>
-<g u="1177" x="0" y="4" w="5" d="BQRDAkIDRQJBAg"/>
+<g u="1177" x="0" y="4" w="5" d="BQREAUIDRQJBAg"/>
 <g u="1178" x="0" y="5" w="6" d="BgVCAUYBQwJEAUIBQgRB"/>
 <g u="1179" x="0" y="4" w="6" d="BQVCAUYBQgFEAUIEQQ"/>
 <g u="1180" x="0" y="5" w="6" d="BQVCAUYBQwJEAUU"/>
@@ -815,7 +816,7 @@
 <g u="1244" x="0" y="7" w="8" d="BwcCw/8A/wlCwwD/AEIBRQNDA0UBQsMA/wBC"/>
 <g u="1245" x="0" y="6" w="8" d="BgcCw/8A/wlCwwD/AEIBRQFCwwD/AETDAP8AQg"/>
 <g u="1246" x="0" y="7" w="5" d="BwTEAP8A/wRDA0IBQgNFAQ"/>
-<g u="1247" x="0" y="6" w="5" d="BgTD/wD/BUMCQgNFAQ"/>
+<g u="1247" x="0" y="6" w="5" d="BgTD/wD/BUQBQgNFAQ"/>
 <g u="1248" x="0" y="5" w="5" d="BQREAkIBQgNFAQ"/>
 <g u="1249" x="0" y="4" w="5" d="BQREAkIBQgNFAQ"/>
 <g u="1250" x="0" y="7" w="7" d="BwYBRAdCAkQBRgFEAkQCQg"/>
@@ -849,7 +850,7 @@
 <g u="1278" x="0" y="5" w="8" d="BQcBQgFCAUcCQwNCAUICQgFCAQ"/>
 <g u="1279" x="0" y="4" w="8" d="BAcBQgFCAUcCQwNCAUIB"/>
 <g u="1296" x="0" y="5" w="5" d="BQQBRQNCAUIDQw"/>
-<g u="1297" x="0" y="4" w="5" d="BAQBQwFCAUIDQw"/>
+<g u="1297" x="0" y="4" w="5" d="BAREAUIBQgND"/>
 <g u="1298" x="0" y="5" w="7" d="BgYBRQFCAUIBQgFCAUIBRAJCBML/AA"/>
 <g u="1299" x="0" y="4" w="7" d="BQYBRQFCAUIBQgFEAkIEwv8A"/>
 <g u="1306" x="0" y="5" w="6" d="BQUBQwFCAUQBRgJE"/>
@@ -1308,6 +1309,7 @@
 <g u="8188" x="0" y="5" w="6" d="CAUBQwFCAUQBQsUA/wD/AEIBQgdBBEEC"/>
 <g u="8189" x="0" y="5" w="3" d="AgIBQgE"/>
 <g u="8190" x="0" y="5" w="3" d="AgJDAQ"/>
+<g u="8210" x="0" y="3" w="5" d="AQRE"/>
 <g u="8211" x="0" y="3" w="7" d="AQZG"/>
 <g u="8212" x="0" y="3" w="8" d="AQdH"/>
 <g u="8214" x="0" y="5" w="4" d="BQPC/wBCAUIBQgFCwgD/"/>
@@ -1481,9 +1483,9 @@
 <g u="11788" x="0" y="5" w="4" d="AwNBA0EDQQ"/>
 <g u="11789" x="0" y="5" w="4" d="AwMCxf8A/wD/Ag"/>
 <g u="11790" x="0" y="5" w="6" d="BQUCQQPE/wD/AEXEAP8A/wNBAg"/>
-<g u="11791" x="0" y="-1" w="0" d="AQZG"/>
-<g u="11792" x="0" y="-1" w="0" d="AQZG"/>
-<g u="11793" x="0" y="-1" w="0" d="AQZG"/>
+<g u="11791" x="0" y="-1" w="7" d="AQZG"/>
+<g u="11792" x="0" y="-1" w="7" d="AQZG"/>
+<g u="11793" x="0" y="-1" w="7" d="AQZG"/>
 <g u="11794" x="0" y="3" w="3" d="AwJBAkIB"/>
 <g u="11795" x="0" y="5" w="4" d="BQMCQscA/wD/AP8AQgI"/>
 <g u="11796" x="0" y="4" w="4" d="BAMCQQJDAkI"/>
@@ -1507,6 +1509,7 @@
 <g u="42925" x="0" y="5" w="7" d="BQYBQgNDA0QDQgRF"/>
 <g u="42926" x="0" y="5" w="5" d="BQREAUICQgJCAUQ"/>
 <g u="42930" x="0" y="5" w="5" d="BQQCQgJCAkYBQgE"/>
+<g u="42931" x="0" y="5" w="6" d="BQVCAUQBQgFDAUIBRAFC"/>
 <g u="42932" x="0" y="5" w="6" d="BgVEAUIBRgFCAUYBQgM"/>
 <g u="42933" x="0" y="5" w="6" d="BgUBQwFCAUYBQgFGAUID"/>
 <g u="42934" x="0" y="5" w="8" d="BQcBQgFCAUIDRMMA/wBEwwD/AEIBQgFCAQ"/>
