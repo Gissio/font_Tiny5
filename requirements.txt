@@ -48,7 +48,9 @@ brotli==1.2.0
 bump2version==1.0.1
     # via bumpfontversion
 bumpfontversion==0.4.1
-    # via gftools
+    # via
+    #   -r requirements.in
+    #   gftools
 cattrs==26.1.0
     # via
     #   statmake
@@ -88,7 +90,9 @@ defcon[lxml,pens]==0.12.2
 dehinter==4.0.0
     # via fontbakery
 diffenator2==0.4.9
-    # via gftools
+    # via
+    #   -r requirements.in
+    #   gftools
 ffmpeg-python==0.2.0
     # via gftools
 filelock==3.25.2
@@ -256,6 +260,7 @@ picosvg==0.22.3
     # via nanoemoji
 pillow==12.1.1
     # via
+    #   -r requirements.in
     #   diffenator2
     #   gftools
     #   nanoemoji
@@ -326,6 +331,8 @@ ruamel-yaml==0.19.1
     # via gftools
 selenium==4.41.0
     # via diffenator2
+sh==2.2.2
+    # via -r requirements.in
 shaperglot==1.2.0
     # via fontbakery
 six==1.17.0
