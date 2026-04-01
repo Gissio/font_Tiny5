@@ -23,7 +23,7 @@ customize: venv
 
 build.stamp: venv sources/config.yaml $(SOURCES)
 	rm -rf fonts
-	# scripts/build-tiny5.sh
+	scripts/build-sources.sh
 	(for config in sources/config*.yaml; do . venv/bin/activate; gftools builder $$config; done)  && touch build.stamp
 
 venv/touchfile: requirements.txt
