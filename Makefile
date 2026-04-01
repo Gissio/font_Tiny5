@@ -3,6 +3,12 @@ FAMILY=$(shell python3 scripts/read-config.py --family )
 DRAWBOT_SCRIPTS=$(shell ls documentation/*.py)
 DRAWBOT_OUTPUT=$(shell ls documentation/*.py | sed 's/\.py/.png/g')
 
+sources/Tiny5.designspace: venv
+	. venv/bin/activate; scripts/build-sources.sh sources/Tiny5.bdf sources/Tiny5-generator.yaml
+
+sources/Tiny5Duo.designspace: venv
+	. venv/bin/activate; scripts/build-sources.sh sources/Tiny5Duo.bdf sources/Tiny5Duo-generator.yaml
+
 help:
 	@echo "###"
 	@echo "# Build targets for $(FAMILY)"
@@ -21,9 +27,8 @@ venv: venv/touchfile
 customize: venv
 	. venv/bin/activate; python3 scripts/customize.py
 
-build.stamp: venv sources/config.yaml $(SOURCES)
+build.stamp: venv sources/config.yaml sources/Tiny5.designspace sources/Tiny5Duo.designspace
 	rm -rf fonts
-	scripts/build-sources.sh
 	(for config in sources/config*.yaml; do . venv/bin/activate; gftools builder $$config; done)  && touch build.stamp
 
 venv/touchfile: requirements.txt

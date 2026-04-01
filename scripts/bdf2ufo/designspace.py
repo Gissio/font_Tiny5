@@ -228,10 +228,7 @@ class DesignSpace:
             ufo_font.save(output_path / ufo_file_name)
 
     def _write_designspace(self, output_path: Path) -> None:
-        font_file_name = self._get_file_name(
-            self.bdf_font.family_name, self.bdf_font.style_name
-        )
-        designspace_filename = f"{font_file_name}.designspace"
+        designspace_filename = self._get_file_name(self.bdf_font.family_name, "") + ".designspace"
 
         # Build designspace document
         designspace = fontTools.designspaceLib.DesignSpaceDocument()
@@ -303,4 +300,10 @@ class DesignSpace:
         designspace.write(output_path / designspace_filename)
 
     def _get_file_name(self, family_name: str, style_name: str) -> str:
-        return family_name.replace(" ", "") + "-" + style_name.replace(" ", "")
+        family_name = family_name.replace(" ", "")
+        style_name = style_name.replace(" ", "")
+
+        if style_name == "":
+            return family_name
+        else:
+            return f"{family_name}-{style_name}"

@@ -1075,7 +1075,7 @@ default_axis_values:
   "EJIT": 0
 variable_axes:
   "wght":
-    min: 50
+    min: 100
     max: 700
   "ROND":
     min: 0

@@ -243,13 +243,13 @@ def draw_terminal():
     xy[1] += line_height
     draw_crt_text(img, "Scripts: Latin + Greek + Cyrillic", xy, font_size)
     xy[1] += line_height
-    draw_crt_text(img, "Languages: 912", xy, font_size)
+    draw_crt_text(img, "Languages: 897", xy, font_size)
     xy[1] += line_height
     draw_crt_text(img, "Characters: 1655", xy, font_size)
     xy[1] += line_height
     draw_crt_text(img, "Typographic features: kerning", xy, font_size)
     xy[1] += line_height
-    draw_crt_text(img, "$ ", xy, font_size)
+    draw_crt_text(img, "$ _", xy, font_size)
 
     save_image(img, "tiny5-sample3.jpg")
 
