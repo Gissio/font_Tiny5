@@ -1,19 +1,6 @@
-![Presentation](documentation/tiny5-presentation.jpg)
+![Presentation](documentation/img/tiny5-presentation.jpg)
 
 # Tiny5
-
-[![][Fontspector]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][OpenType]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Universal]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Google Fonts]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-[![][Glyphset]](https://googlefonts.github.io/googlefonts-project-template/fontspector/fontspector-report.html)
-
-[Fontspector]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FFontspectorQA.json
-[OpenType]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FOpentypeSpecificationChecks.json
-[Universal]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FUniversalProfileChecks.json
-[Google Fonts]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FFontFileChecks.json
-[Outline Correctness]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FOutlineCorrectnessChecks.json
-[Glyphset]: https://img.shields.io/endpoint?url=https%3A%2F%2Fgooglefonts.github.io%2Fgooglefonts-project-template%2Fbadges%2FGlyphsetChecks.json
 
 **Tiny5** is a compact 5-pixel font inspired by the graphing calculators and digital gadgets of the 1980s-90s, where the constraints of limited pixel space demanded efficient and minimalist design.
 
@@ -27,11 +14,13 @@ For crisp pixel-perfect results, use font sizes that are **multiples of 6 points
 
 The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for easy integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
-![LCD Sample](documentation/tiny5-lcd-sample.jpg)
+![Tiny5 speciment](documentation/img/tiny5-sample1.jpg)
 
-![CRT Sample](documentation/tiny5-crt-sample.jpg)
+![Tiny5 Duo speciment](documentation/img/tiny5-sample2.jpg)
 
-![DotMatrix Sample](documentation/tiny5-matrix-sample.jpg)
+![Font features](documentation/img/tiny5-sample3.jpg)
+
+![Font samples](documentation/img/tiny5-sample4.jpg)
 
 ## About
 
