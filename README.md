@@ -42,7 +42,7 @@ If you want to build fonts manually on your own computer:
 
 ### 2.003
 
-- Fixes: latin uppercase Q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek apital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, various diacritics.
+- Fixes: latin uppercase q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, various diacritics.
 
 ### 2.002
 

@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 
 SRC_PATH = "documentation/src"
-TINY5_PATH = "fonts/variable/Tiny5-Regular[BLED,ROND,wght].ttf"
-TINY5_DUO_PATH = "fonts/variable/Tiny5Duo-Regular[BLED,ROND,wght].ttf"
+TINY5_PATH = "fonts/variable/Tiny5[BLED,ROND,wght].ttf"
+TINY5_DUO_PATH = "fonts/variable/Tiny5Duo[BLED,ROND,wght].ttf"
 OUT_PATH = "documentation/img"
 
 SAMPLE_TEXT = """\
@@ -226,8 +226,8 @@ def draw_terminal():
 
     font_size = element_size * 8
     line_height = element_size * 10
-    content_left = 90
-    content_top = -36
+    content_left = element_size * 10
+    content_top = element_size * 2
 
     cap_height = element_size * 5
     font_ascent = (line_height - cap_height) // 2 + cap_height
@@ -245,11 +245,11 @@ def draw_terminal():
     xy[1] += line_height
     draw_crt_text(img, "Languages: 897", xy, font_size)
     xy[1] += line_height
-    draw_crt_text(img, "Characters: 1655", xy, font_size)
+    draw_crt_text(img, "Glyphs: 1655", xy, font_size)
     xy[1] += line_height
     draw_crt_text(img, "Typographic features: kerning", xy, font_size)
     xy[1] += line_height
-    draw_crt_text(img, "$ _", xy, font_size)
+    draw_crt_text(img, "$", xy, font_size)
 
     save_image(img, "tiny5-sample3.jpg")
 

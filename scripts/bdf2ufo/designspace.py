@@ -148,8 +148,7 @@ class DesignSpace:
         """Build the design space by writing masters and designspace document.
 
         Args:
-            output_path: The directory path where master UFO files and designspace
-                        document will be written.
+            output_path: The directory path where master UFO files and designspace document will be written.
         """
         output_path = Path(output_path)
 
@@ -228,7 +227,9 @@ class DesignSpace:
             ufo_font.save(output_path / ufo_file_name)
 
     def _write_designspace(self, output_path: Path) -> None:
-        designspace_filename = self._get_file_name(self.bdf_font.family_name, "") + ".designspace"
+        designspace_filename = (
+            self._get_file_name(self.bdf_font.family_name, "") + ".designspace"
+        )
 
         # Build designspace document
         designspace = fontTools.designspaceLib.DesignSpaceDocument()
@@ -277,9 +278,7 @@ class DesignSpace:
                 instance_family_name = combine_strings(family_name, name)
                 instance_style_name = "Regular"
 
-            instance_style_map_style_name = (
-                get_style_map_style_name(name)
-            )
+            instance_style_map_style_name = get_style_map_style_name(name)
 
             instance_location = {}
             for axis_tag, axis_value in master_location.items():

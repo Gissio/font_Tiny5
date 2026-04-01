@@ -141,6 +141,8 @@ class BDFFont:
                         name = f"uni{codepoint:04X}"
                     elif codepoint >= 0x10000:
                         name = f"u{codepoint:06X}"
+                    else:
+                        name = glyph.name.decode("utf-8")
 
                 if (
                     "notdef_character" in config
