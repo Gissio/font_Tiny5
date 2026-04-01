@@ -51,6 +51,10 @@ images: venv $(DRAWBOT_OUTPUT)
 
 clean:
 	rm -rf venv
+	rm -rf sources/*.ufo
+	rm -rf sources/*.designspace
+	rm -rf sources/instance_ufos
+	rm -rf fonts
 	find . -name "*.pyc" -delete
 
 update-project-template:

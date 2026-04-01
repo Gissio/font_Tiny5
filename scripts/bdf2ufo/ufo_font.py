@@ -263,11 +263,15 @@ class UFOFont:
             if glyph_character not in MARKS:
                 all_bases.append(glyph_name)
             else:
-                all_marks.append(glyph_name)
-
                 for anchor_name, _anchor_offset in glyph_anchors.items():
                     if anchor_name == "_top":
                         top_marks.append(glyph_name)
+
+        for glyph_name, glyph in self.bdf_font.glyphs.items():
+            glyph_character = glyph["character"]
+
+            if glyph_character in MARKS:
+                all_marks.append(glyph_name)
 
         lines.append(f"@all_bases = [{' '.join(all_bases)}];")
         lines.append(f"@all_marks = [{' '.join(all_marks)}];")
