@@ -1,0 +1,10 @@
+fontmake
+gftools[qa]
+sh
+bumpfontversion
+diffenator2
+Pillow
+numpy
+bdflib
+ufoLib2
+unicodedata2
