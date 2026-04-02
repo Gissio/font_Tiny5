@@ -2,15 +2,24 @@
 
 # Tiny5
 
-**Tiny5** is a compact 5-pixel font inspired by the graphing calculators and digital gadgets of the 1980s-90s, where the constraints of limited pixel space demanded efficient and minimalist design.
+**Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and digital gadgets of the era, it distills letterforms to their absolute essentials—proving that even with just five pixels of height, clarity, charm, and character can coexist.
 
-It features three variable axes—element size, roundness and bleed—allowing to mimic the visual qualities of LCD screens, CRT monitors and dot-matrix printouts.
+It features three variable axes—**weight**, **roundness**, and **bleed**—that let you fine-tune the appearance: from crisp geometric forms and clean LCD edges to the warm glow of CRT monitors and the slight ink spread of dot-matrix printouts. A **Tiny5 Duo** variant has also been added for stronger emphasis while preserving the pixel-perfect aesthetic.
 
-Tiny5 is perfect at evoking retro-futurism, minimalism or contrained tech nostalgia. It's effective for pixel-art & lo-fi games, Terminal-style interfaces and branding with 8/16-bit vibe.
+Tiny5 excels at evoking retro-futurism, minimalism, and constrained-tech nostalgia. It’s especially effective for:
 
-It covers the Google Fonts Latin Kernel, Latin Core, Latin Plus, Latin Beyond, Latin African, Latin PriAfrican, Latin Vietnamese, Greek Core, Greek Plus, Greek Pro, Cyrillic Core and Cyrillic Plus character set.
+- Pixel art & lo-fi games
+- Terminal-style interfaces and embedded displays
+- Micro-typography in UI/UX
+- Branding with a distinct 8/16-bit or vintage digital vibe
 
-For crisp pixel-perfect results, use font sizes that are **multiples of 6 points**.
+Tiny5 provides broad language support including:
+
+- **Latin**: Google Fonts Latin Kernel + Core + Plus + Beyond + African + PriAfrican + Vietnamese
+- **Greek**: Core + Plus + Pro
+- **Cyrillic**: Core + Plus
+
+For pixel-perfect rendering, use font sizes that are **multiples of 6 points**.
 
 The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for easy integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
@@ -24,7 +33,7 @@ The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_D
 
 ## About
 
-Stefan Schmidt is an electrical engineer with graduate studies in signal processing, combined artistic languages and sociology. Fascinated by the interplay between the virtual and the real, his work probes the boundaries between perception and technology.
+Stefan Schmidt is an electrical engineer with graduate studies in signal processing, multimodal artistic languages and sociology. Fascinated by the interplay between the virtual and the real, his work probes the boundaries between perception and technology.
 
 Learn more at [http://www.stefanschmidtart.com](http://www.stefanschmidtart.com).
 
@@ -55,7 +64,7 @@ If you want to build fonts manually on your own computer:
 ### 2.000
 
 - Added variable font support with axes for: element size, roundness and bleed.
-- Added bold weight.
+- Added Duo weight.
 - Added vietnamese support (Google Fonts Latin Vietnamese character set).
 - Added Google Fonts Latin Beyond, Latin PriAfrican, Greek Plus and Greek Pro character sets.
 - Improved build workflow with [bdf2ufo](https://github.com/Gissio/bdf2ufo).
