@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 
 SRC_PATH = "documentation/src"
-TINY5_PATH = "fonts/variable/Tiny5[BLED,ROND,wght].ttf"
-TINY5_DUO_PATH = "fonts/variable/Tiny5Duo[BLED,ROND,wght].ttf"
+TINY5_PATH = "fonts/variable/Tiny5[BLED,JITT,ROND,wght].ttf"
+TINY5_DUO_PATH = "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wght].ttf"
 OUT_PATH = "documentation/img"
 
 SAMPLE_TEXT = """\
@@ -42,11 +42,11 @@ def get_font(size, style: str) -> ImageFont.FreeTypeFont:
     font = ImageFont.truetype(font=font_path, size=size)
 
     if style == "LCD":
-        font.set_variation_by_axes([340, 0, 0])
+        font.set_variation_by_axes([340, 0, 0, 0])
     elif style == "CRT":
-        font.set_variation_by_axes([280, 80, 64])
+        font.set_variation_by_axes([280, 80, 64, 0])
     elif style == "Matrix":
-        font.set_variation_by_axes([340, 100, 0])
+        font.set_variation_by_axes([340, 100, 0, 50])
 
     return font
 

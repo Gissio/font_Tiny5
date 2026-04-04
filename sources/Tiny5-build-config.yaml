@@ -1138,7 +1138,7 @@ default_axis_values:
   "wdth": 100
   "ROND": 0
   "BLED": 0
-  "EJIT": 0
+  "JITT": 0
 variable_axes:
   "wght":
     min: 100
@@ -1152,7 +1152,7 @@ variable_axes:
   "BLED":
     min: 0
     max: 100
-  "EJIT":
+  "JITT":
     min: 0
     max: 100
 variable_instances:
@@ -1161,34 +1161,34 @@ variable_instances:
     "slnt": 0
     "ROND": 0
     "BLED": 0
-    "EJIT": 0
+    "JITT": 0
   "Medium":
     "wght": 500
     "slnt": 0
     "ROND": 0
     "BLED": 0
-    "EJIT": 0
+    "JITT": 0
   "Bold":
     "wght": 700
     "slnt": 0
     "ROND": 0
     "BLED": 0
-    "EJIT": 0
+    "JITT": 0
   "LCD":
     "wght": 340
     "slnt": 0
     "ROND": 0
     "BLED": 0
-    "EJIT": 0
+    "JITT": 0
   "CRT":
     "wght": 280
     "slnt": 0
     "ROND": 80
     "BLED": 64
-    "EJIT": 0
+    "JITT": 0
   "Matrix":
     "wght": 340
     "slnt": 0
     "ROND": 100
     "BLED": 0
-    "EJIT": 50
+    "JITT": 50

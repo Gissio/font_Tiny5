@@ -445,7 +445,7 @@ class UFOFont:
                             + bdf_glyph_offset
                             + Vec2(0, -0.5 * strike_index)
                         ) * self.glyph_scale + Vec2.random(
-                            self.location["EJIT"] / 1000
+                            self.location["JITT"] / 1000
                         ) * self.units_per_element + Vec2(
                             math.tan(y * -self.location["slnt"] * math.pi / 180), 0
                         ) * self.units_per_element

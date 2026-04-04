@@ -282,5 +282,5 @@ AXES_INFO = {
     "slnt": {"name": "Slant", "min": -8, "max": 0, "default": 0},
     "ROND": {"name": "Roundness", "min": 0, "max": 100, "default": 0},
     "BLED": {"name": "Bleed", "min": 0, "max": 100, "default": 0},
-    "EJIT": {"name": "Element Jitter", "min": 0, "max": 100, "default": 0},
+    "JITT": {"name": "Jitter", "min": 0, "max": 100, "default": 0},
 }

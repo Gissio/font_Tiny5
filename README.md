@@ -6,7 +6,7 @@
 
 It features five variable axes—**Weight, Slant, Roundness, Bleed and Jitter**—giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
 
-Tiny5 shines when evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It’s especially well-suited for:
+Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It’s especially well-suited for:
 
 - Pixel art and lo-fi games
 - Terminal-style interfaces and embedded systems
@@ -47,6 +47,9 @@ If you want to build fonts manually on your own computer:
 
 ### 2.003
 
+- Renamed bold weight to **Tiny5 Duo** variant.
+- Added axes: **Slant** and **Jitter**.
+- Renamed axes: **Element Size** → **Weight**.
 - Fixes: latin uppercase q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
 
 ### 2.002
@@ -59,8 +62,8 @@ If you want to build fonts manually on your own computer:
 
 ### 2.000
 
-- Added variable font support with axes for: element size, roundness and bleed.
-- Added Duo weight.
+- Added variable font support with axes for: **Element Size**, **Roundness** and **Bleed**.
+- Added bold weight.
 - Added vietnamese support (Google Fonts Latin Vietnamese character set).
 - Added Google Fonts Latin Beyond, Latin PriAfrican, Greek Plus and Greek Pro character sets.
 - Improved build workflow with [bdf2ufo](https://github.com/Gissio/bdf2ufo).
