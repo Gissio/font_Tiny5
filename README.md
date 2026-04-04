@@ -2,34 +2,30 @@
 
 # Tiny5
 
-**Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and digital gadgets of the era, it distills letterforms to their absolute essentials—proving that even with just five pixels of height, clarity, charm, and character can coexist.
+**Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, it distills letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
-It features three variable axes—**weight, roundness, and bleed**—that let you fine-tune the appearance: from crisp geometric forms and clean LCD edges to the warm glow of CRT monitors and the slight ink spread of dot-matrix printouts. A **Tiny5 Duo** variant has also been added for stronger emphasis while preserving the pixel-perfect aesthetic.
+It features five variable axes—**Weight, Slant, Roundness, Bleed and Jitter**—giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
 
-Tiny5 excels at evoking retro-futurism, minimalism, and constrained-tech nostalgia. It’s especially effective for:
+Tiny5 shines when evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It’s especially well-suited for:
 
-- Pixel art & lo-fi games
-- Terminal-style interfaces and embedded displays
-- Micro-typography in UI/UX
-- Branding with a distinct 8/16-bit or vintage digital vibe
+- Pixel art and lo-fi games
+- Terminal-style interfaces and embedded systems
+- Micro-typography in UI/UX design
+- Branding with a distinct 8/16-bit or vintage electronics vibe
 
-Tiny5 provides broad language support including:
-
-- **Latin**: Google Fonts Latin Kernel + Core + Plus + Beyond + African + PriAfrican + Vietnamese
-- **Greek**: Core + Plus + Pro
-- **Cyrillic**: Core + Plus
+The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **892 languages** and **1,655 glyphs**.
 
 For pixel-perfect rendering, use font sizes that are **multiples of 6 points**.
 
-The font is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for easy integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
+Tiny5 is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
-![Tiny5 speciment](documentation/img/tiny5-sample1.jpg)
+![Tiny5 sample 1](documentation/img/tiny5-sample1.jpg)
 
-![Tiny5 Duo speciment](documentation/img/tiny5-sample2.jpg)
+![Tiny5 sample 2](documentation/img/tiny5-sample2.jpg)
 
-![Font features](documentation/img/tiny5-sample3.jpg)
+![Tiny5 sample 3](documentation/img/tiny5-sample3.jpg)
 
-![Font samples](documentation/img/tiny5-sample4.jpg)
+![Tiny5 sample 4](documentation/img/tiny5-sample4.jpg)
 
 ## About
 
@@ -51,11 +47,11 @@ If you want to build fonts manually on your own computer:
 
 ### 2.003
 
-- Fixes: latin uppercase q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, various diacritics.
+- Fixes: latin uppercase q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
 
 ### 2.002
 
-- Fixes: percent sign, latin lowercase j, cyrillic, hooks and descenders.
+- Fixes: percent sign, latin lowercase j, various cyrillic glyphs, various hooks and descenders.
 
 ### 2.001
 

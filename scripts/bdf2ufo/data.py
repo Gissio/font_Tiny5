@@ -266,7 +266,6 @@ BASE_ANCHORS_EXCEPTIONS = [
 CCMP_SOFTDOT_DECOMPOSITION = {
     "\u012f": ("i", "\u0328"),  # i with ogonek
     "\u0456": ("i"),  # Cyrillic i
-    "\u0458": ("j"),  # Cyrillic j
     "\u1e2d": ("i", "\u0330"),  # i with tilde below
     "\u1ecb": ("i", "\u0323"),  # i with dot below
 }
@@ -279,8 +278,8 @@ CCMP_SOFTDOT_COMPOSITION = {
 
 AXES_INFO = {
     "wght": {"name": "Weight", "min": 50, "max": 800, "default": 400},
-    "ital": {"name": "Italic", "min": 0, "max": 1, "default": 0},
-    "wdth": {"name": "Width", "min": 50, "max": 100, "default": 200},
+    "wdth": {"name": "Width", "min": 50, "max": 200, "default": 100},
+    "slnt": {"name": "Slant", "min": -8, "max": 0, "default": 0},
     "ROND": {"name": "Roundness", "min": 0, "max": 100, "default": 0},
     "BLED": {"name": "Bleed", "min": 0, "max": 100, "default": 0},
     "EJIT": {"name": "Element Jitter", "min": 0, "max": 100, "default": 0},

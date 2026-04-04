@@ -446,6 +446,8 @@ class UFOFont:
                             + Vec2(0, -0.5 * strike_index)
                         ) * self.glyph_scale + Vec2.random(
                             self.location["EJIT"] / 1000
+                        ) * self.units_per_element + Vec2(
+                            math.tan(y * -self.location["slnt"] * math.pi / 180), 0
                         ) * self.units_per_element
 
                         # Fix Fontspector/Shaperglot heuristics
@@ -513,15 +515,15 @@ class UFOFont:
             return
 
         # Build kerning groups
-        kerning_groups = {}
-        kerning_groups_reverse = {}
+        left_groups = {}
+        right_groups = {}
 
         group_index = 1
         for left_characters, right_characters, value in self.kerning:
             # Left group
             if len(left_characters) > 1:
-                if left_characters in kerning_groups_reverse:
-                    left_group_name = kerning_groups_reverse[left_characters]
+                if left_characters in left_groups:
+                    left_group_name = left_groups[left_characters]
                 else:
                     left_group_name = f"public.kern1.group{group_index}"
                     self.ufo_font.groups[left_group_name] = [
@@ -532,13 +534,12 @@ class UFOFont:
                 left_group_name = self.bdf_font.names[left_characters[0]]
 
             if len(left_characters) > 0:
-                kerning_groups[left_group_name] = left_characters
-                kerning_groups_reverse[left_characters] = left_group_name
+                left_groups[left_characters] = left_group_name
 
             # Right group
             if len(right_characters) > 1:
-                if right_characters in kerning_groups_reverse:
-                    right_group_name = kerning_groups_reverse[right_characters]
+                if right_characters in right_groups:
+                    right_group_name = right_groups[right_characters]
                 else:
                     right_group_name = f"public.kern2.group{group_index}"
                     self.ufo_font.groups[right_group_name] = [
@@ -549,13 +550,12 @@ class UFOFont:
                 right_group_name = self.bdf_font.names[right_characters[0]]
 
             if len(right_characters) > 0:
-                kerning_groups[right_group_name] = right_characters
-                kerning_groups_reverse[right_characters] = right_group_name
+                right_groups[right_characters] = right_group_name
 
         # Add kerning
         for left_characters, right_characters, value in self.kerning:
-            left_group_name = kerning_groups_reverse[left_characters]
-            right_group_name = kerning_groups_reverse[right_characters]
+            left_group_name = left_groups[left_characters]
+            right_group_name = right_groups[right_characters]
 
             self.ufo_font.kerning[(left_group_name, right_group_name)] = (
                 value * self.units_per_element.x

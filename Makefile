@@ -4,10 +4,10 @@ DRAWBOT_SCRIPTS=$(shell ls documentation/*.py)
 DRAWBOT_OUTPUT=$(shell ls documentation/*.py | sed 's/\.py/.png/g')
 
 sources/Tiny5.designspace: venv
-	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5-generator.yaml" "sources/Tiny5.bdf" "sources"
+	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5-build-config.yaml" "sources/Tiny5.bdf" "sources"
 
 sources/Tiny5Duo.designspace: venv
-	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5Duo-generator.yaml" "sources/Tiny5Duo.bdf" "sources"
+	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5Duo-build-config.yaml" "sources/Tiny5Duo.bdf" "sources"
 
 help:
 	@echo "###"

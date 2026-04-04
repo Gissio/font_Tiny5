@@ -175,36 +175,31 @@ custom_anchors:
   "F": # Capital f
     "bottom": [2, -1]
   "J": # Capital j
-    "top": [3, 6]
-    "bottom": [2, -1]
-  "L": # Capital l
-    "top": [1, 6]
+    "bottom": [1, -1]
   "P": # Capital p
-    "bottom": [2, -1]
+    "bottom": [1, -1]
   "Q": # Capital q
     "top": [2, 6]
     "bottom": [2, -2]
   "X": # Capital x
-    "bottom": [2, -1]
-  "Y": # Capital y
-    "ogonek": [2, 0]
-  "f": # Small f
     "bottom": [1, -1]
+  "Y": # Capital y
+    "ogonek": [0, 0]
+  "f": # Small f
+    "bottom": [0, -1]
   "g": # Small g
-    "bottom": [2, -2]
+    "bottom": [1, -2]
   "j": # Small j
     "bottom": [1, -2]
-  "l": # Small l
-    "top": [1, 6]
   "p": # Small p
-    "bottom": [2, -2]
+    "bottom": [1, -2]
   "q": # Small q
-    "top": [2, 5]
-    "bottom": [2, -2]
+    "top": [1, 5]
+    "bottom": [1, -2]
   "x": # Small x
-    "bottom": [2, -1]
+    "bottom": [1, -1]
   "y": # Small y
-    "ogonek": [3, -1]
+    "ogonek": [1, -1]
 
   # Base anchors: Latin-1 Supplement
   "À": # Capital a with grave
@@ -222,13 +217,13 @@ custom_anchors:
   "Ä": # Capital a with diaeresis
     "top": [2, 8]
     "bottom": [2, -1]
-    "ogonek": [3, 0]
+    "ogonek": [2, 0]
   "Å": # Capital a with ring above
     "top": [2, 10]
     "bottom": [2, -1]
   "Æ": # Capital ae
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "Ç": # Capital c with cedilla
     "top": [2, 6]
     "bottom": [2, -3]
@@ -245,17 +240,17 @@ custom_anchors:
     "top": [2, 8]
     "bottom": [2, -1]
   "Ì": # Capital i with grave
-    "top": [1, 9]
-    "bottom": [1, -1]
+    "top": [0, 9]
+    "bottom": [0, -1]
   "Í": # Capital i with acute
-    "top": [1, 9]
-    "bottom": [1, -1]
+    "top": [0, 9]
+    "bottom": [0, -1]
   "Î": # Capital i with circumflex
-    "top": [1, 9]
-    "bottom": [1, -1]
+    "top": [0, 9]
+    "bottom": [0, -1]
   "Ï": # Capital i with diaeresis
-    "top": [1, 8]
-    "bottom": [1, -1]
+    "top": [0, 8]
+    "bottom": [0, -1]
   "Ò": # Capital o with grave
     "top": [2, 9]
     "bottom": [2, -1]
@@ -271,10 +266,10 @@ custom_anchors:
   "Ö": # Capital o with diaeresis
     "top": [2, 8]
     "bottom": [2, -1]
-    "ogonek": [2, 0]
+    "ogonek": [1, 0]
   "Ø": # Capital o with stroke
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "Ù": # Capital u with grave
     "top": [2, 9]
     "bottom": [2, -1]
@@ -287,254 +282,254 @@ custom_anchors:
   "Ü": # Capital u with diaeresis
     "top": [2, 8]
     "bottom": [2, -1]
-    "ogonek": [3, 0]
+    "ogonek": [2, 0]
   "à": # Small a with grave
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "á": # Small a with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "â": # Small a with circumflex
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ã": # Small a with tilde
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ä": # Small a with diaeresis
-    "top": [2, 7]
-    "bottom": [2, -1]
-    "ogonek": [3, 0]
-  "å": # Small a with ring above
-    "top": [2, 9]
-    "bottom": [2, -1]
-  "æ": # Small ae
-    "top": [4, 5]
-    "bottom": [4, -1]
-  "ç": # Small c with cedilla
-    "top": [2, 5]
-    "bottom": [2, -3]
-  "è": # Small e with grave
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "é": # Small e with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "ê": # Small e with circumflex
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "ë": # Small e with diaeresis
-    "top": [2, 7]
-    "bottom": [2, -1]
-  "ì": # Small i with grave
-    "top": [1, 8]
-    "bottom": [1, -1]
-  "í": # Small i with acute
-    "top": [1, 8]
-    "bottom": [1, -1]
-  "î": # Small i with circumflex
-    "top": [1, 8]
-    "bottom": [1, -1]
-  "ï": # Small i with diaeresis
     "top": [1, 7]
     "bottom": [1, -1]
-  "ò": # Small o with grave
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "ó": # Small o with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "ô": # Small o with circumflex
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "õ": # Small o with tilde
-    "top": [2, 8]
-    "bottom": [2, -1]
-  "ö": # Small o with diaeresis
-    "bottom": [2, -1]
-    "ogonek": [2, 0]
-  "ø": # Small o with stroke
+    "ogonek": [1, 0]
+  "å": # Small a with ring above
+    "top": [1, 9]
+    "bottom": [1, -1]
+  "æ": # Small ae
     "top": [2, 5]
     "bottom": [2, -1]
+  "ç": # Small c with cedilla
+    "top": [1, 5]
+    "bottom": [1, -3]
+  "è": # Small e with grave
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "é": # Small e with acute
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "ê": # Small e with circumflex
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "ë": # Small e with diaeresis
+    "top": [1, 7]
+    "bottom": [1, -1]
+  "ì": # Small i with grave
+    "top": [0, 8]
+    "bottom": [0, -1]
+  "í": # Small i with acute
+    "top": [0, 8]
+    "bottom": [0, -1]
+  "î": # Small i with circumflex
+    "top": [0, 8]
+    "bottom": [0, -1]
+  "ï": # Small i with diaeresis
+    "top": [0, 7]
+    "bottom": [0, -1]
+  "ò": # Small o with grave
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "ó": # Small o with acute
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "ô": # Small o with circumflex
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "õ": # Small o with tilde
+    "top": [1, 8]
+    "bottom": [1, -1]
+  "ö": # Small o with diaeresis
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+  "ø": # Small o with stroke
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ù": # Small u with grave
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ú": # Small u with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "û": # Small u with circumflex
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ü": # Small u with diaeresis
-    "top": [2, 7]
-    "bottom": [2, -1]
-    "ogonek": [3, 0]
+    "top": [1, 7]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
 
   # Base anchors: Latin Extended-A
   "Ā": # Capital a with macron
     "top": [2, 8]
     "bottom": [2, -1]
   "ā": # Small a with macron
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Ă": # Capital a with breve
     "top": [2, 9]
     "bottom": [2, -1]
   "ă": # Small a with breve
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ą": # Capital a with ogonek
     "top": [2, 6]
     "bottom": [2, -3]
   "ą": # Small a with ogonek
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Č": # Capital c with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "č": # Small c with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Đ": # Capital d with stroke
     "top": [2, 6]
     "bottom": [2, -1]
   "đ": # Small d with stroke
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ē": # Capital e with macron
     "top": [2, 8]
     "bottom": [2, -1]
   "ē": # Small e with macron
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Ė": # Capital e with dot above
     "top": [2, 8]
     "bottom": [2, -1]
   "ė": # Small e with dot above
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Ę": # Capital e with ogonek
     "top": [2, 6]
     "bottom": [2, -3]
   "ę": # Small e with ogonek
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ě": # Capital e with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "ě": # Small e with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ĩ": # Capital i with tilde
-    "top": [1, 9]
-    "bottom": [1, -1]
+    "top": [0, 9]
+    "bottom": [0, -1]
   "ĩ": # Small i with tilde
-    "top": [1, 8]
-    "bottom": [1, -1]
+    "top": [0, 8]
+    "bottom": [0, -1]
   "Ī": # Capital i with macron
-    "top": [1, 8]
-    "bottom": [1, -1]
+    "top": [0, 8]
+    "bottom": [0, -1]
   "ī": # Small i with macron
-    "top": [1, 7]
-    "bottom": [1, -1]
+    "top": [0, 7]
+    "bottom": [0, -1]
   "Į": # Capital i with ogonek
-    "top": [1, 6]
-    "bottom": [1, -3]
+    "top": [0, 6]
+    "bottom": [0, -3]
   "į": # Small i with ogonek
-    "bottom": [1, -3]
+    "bottom": [0, -3]
   "İ": # Capital i with dot above
+    "top": [0, 8]
+    "bottom": [0, -1]
+  "ı": # Small dotless i
+    "top": [0, 5]
+    "bottom": [0, -1]
+    "ogonek": [-1, 0]
+  "Ń": # Capital n with acute
+    "top": [2, 9]
+    "bottom": [2, -1]
+  "ń": # Small n with acute
     "top": [1, 8]
     "bottom": [1, -1]
-  "ı": # Small dotless i
-    "top": [1, 5]
-    "bottom": [1, -1]
-    "ogonek": [0, 0]
-  "Ń": # Capital n with acute
-    "top": [3, 9]
-    "bottom": [3, -1]
-  "ń": # Small n with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
   "Ŋ": # Capital eng
-    "top": [3, 6]
-    "bottom": [3, -3]
-  "ŋ": # Small eng
-    "top": [2, 5]
+    "top": [2, 6]
     "bottom": [2, -3]
+  "ŋ": # Small eng
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ō": # Capital o with macron
     "top": [2, 8]
     "bottom": [2, -1]
   "ō": # Small o with macron
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Œ": # Capital oe
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "œ": # Small oe
-    "top": [4, 5]
-    "bottom": [4, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "Ś": # Capital s with acute
     "top": [2, 9]
     "bottom": [2, -1]
   "ś": # Small s with acute
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Š": # Capital s with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "š": # Small s with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ũ": # Capital u with tilde
     "top": [2, 9]
     "bottom": [2, -1]
   "ũ": # Small u with tilde
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ū": # Capital u with macron
     "top": [2, 8]
     "bottom": [2, -1]
   "ū": # Small u with macron
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Ų": # Capital u with ogonek
     "top": [2, 6]
     "bottom": [2, -3]
   "ų": # Small u with ogonek
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
 
   # Base anchors: Latin Extended-B
   "Ɔ": # Capital open o
     "top": [2, 6]
     "bottom": [2, -1]
-    "ogonek": [2, 0]
+    "ogonek": [1, 0]
   "Ǝ": # Capital reversed e
     "top": [2, 6]
     "bottom": [2, -1]
   "Ə": # Capital schwa
     "top": [2, 6]
     "bottom": [2, -1]
-    "ogonek": [2, 0]
+    "ogonek": [1, 0]
   "Ɛ": # Capital open e
     "top": [2, 6]
     "bottom": [2, -1]
-    "ogonek": [3, 0]
+    "ogonek": [1, 0]
   "Ɩ": # Capital iota
+    "top": [0, 6]
+    "bottom": [0, -1]
+  "Ɨ": # Capital i with stroke
     "top": [1, 6]
     "bottom": [1, -1]
-  "Ɨ": # Capital i with stroke
-    "top": [2, 6]
-    "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "ogonek": [0, 0]
   "ƛ": # Small lambda with stroke
+    "top": [1, 6]
+    "bottom": [1, -1]
+  "Ɯ": # Capital turned m
     "top": [2, 6]
     "bottom": [2, -1]
-  "Ɯ": # Capital turned m
-    "top": [4, 6]
-    "bottom": [4, -1]
   "Ɲ": # Capital n with left hook
-    "top": [3, 6]
-    "bottom": [3, -2]
+    "top": [2, 6]
+    "bottom": [2, -2]
   "Ɵ": # Capital o with middle tilde
     "top": [2, 6]
     "bottom": [2, -1]
@@ -542,14 +537,14 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "ơ": # Small o with horn
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "Ư": # Capital u with horn
     "top": [2, 6]
     "bottom": [2, -1]
   "ư": # Small u with horn
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "Ʊ": # Capital upsilon
     "top": [2, 6]
     "bottom": [2, -1]
@@ -557,65 +552,65 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ʒ": # Capital ezh
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ǎ": # Capital a with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "ǎ": # Small a with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ǒ": # Capital o with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "ǒ": # Small o with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ǔ": # Capital u with caron
     "top": [2, 9]
     "bottom": [2, -1]
   "ǔ": # Small u with caron
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ǝ": # Small turned e
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "Ǫ": # Capital o with ogonek
     "top": [2, 6]
     "bottom": [2, -3]
   "ǫ": # Small o with ogonek
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ǭ": # Capital o with ogonek and macron
     "top": [2, 8]
     "bottom": [2, -3]
   "ǭ": # Small o with ogonek and macron
-    "top": [2, 7]
-    "bottom": [2, -3]
+    "top": [1, 7]
+    "bottom": [1, -3]
   "Ǹ": # Capital n with grave
-    "top": [3, 9]
-    "bottom": [3, -1]
-  "ǹ": # Small n with grave
-    "top": [2, 8]
+    "top": [2, 9]
     "bottom": [2, -1]
+  "ǹ": # Small n with grave
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ȧ": # Capital a with dot above
     "top": [2, 8]
     "bottom": [2, -1]
   "ȧ": # Small a with dot above
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "Ȩ": # Capital e with cedilla
     "top": [2, 6]
     "bottom": [2, -3]
   "ȩ": # Small e with cedilla
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ȯ":
     "top": [2, 8]
     "bottom": [2, -1]
   "ȯ":
-    "top": [2, 7]
-    "bottom": [2, -1]
+    "top": [1, 7]
+    "bottom": [1, -1]
   "ȷ": # Small dotless j
     "top": [1, 5]
     "bottom": [1, -2]
@@ -624,76 +619,76 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "ȼ": # Small c with stroke
-    "top": [2, 5]
-    "bottom": [2, -2]
+    "top": [1, 5]
+    "bottom": [1, -2]
   "Ʉ": # Capital u bar
     "top": [3, 6]
     "bottom": [3, -1]
   "Ʌ": # Capital turned v
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
 
   # Base anchors: IPA Extensions
   "ɐ": # Small turned a
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ɑ": # Small alpha
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ɔ": # Small open o
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
     "ogonek": [1, 0]
   "ə": # Small schwa
-    "top": [2, 5]
-    "bottom": [2, -1]
-    "ogonek": [2, 0]
-  "ɛ": # Small open e
-    "top": [2, 5]
-    "bottom": [2, -1]
-    "ogonek": [2, 0]
-  "ɤ": # Small rams horn
-    "top": [2, 5]
-    "bottom": [2, -1]
-  "ɥ": # Small turned h
-    "top": [2, 5]
-    "bottom": [2, -2]
-  "ɨ": # Small i with stroke
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
     "ogonek": [1, 0]
+  "ɛ": # Small open e
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+  "ɤ": # Small rams horn
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ɥ": # Small turned h
+    "top": [1, 5]
+    "bottom": [1, -2]
+  "ɨ": # Small i with stroke
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
   "ɩ": # Small iota
-    "top": [1, 5]
-    "bottom": [1, -1]
+    "top": [0, 5]
+    "bottom": [0, -1]
   "ɪ": # Small capital i
+    "top": [0, 5]
+    "bottom": [0, -1]
+  "ɯ": # Small turned m
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ɲ": # Small n with left hook
+    "top": [1, 5]
+    "bottom": [1, -2]
+  "ɵ": # Small barred o
     "top": [1, 5]
     "bottom": [1, -1]
-  "ɯ": # Small turned m
-    "top": [4, 5]
-    "bottom": [4, -1]
-  "ɲ": # Small n with left hook
-    "top": [2, 5]
-    "bottom": [2, -2]
-  "ɵ": # Small barred o
-    "top": [2, 5]
-    "bottom": [2, -1]
   "ʉ": # Small barred u
-    "top": [3, 5]
-    "bottom": [3, -1]
-  "ʊ": # Small upsilon
     "top": [2, 5]
     "bottom": [2, -1]
+  "ʊ": # Small upsilon
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ʋ": # Small v with hook
     "top": [2, 5]
     "bottom": [2, -1]
   "ʌ": # Small turned v
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ʒ": # Small ezh
-    "top": [2, 5]
-    "bottom": [2, -2]
+    "top": [1, 5]
+    "bottom": [1, -2]
   "ʕ": # Reversed glottal stop
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
 
   # Base anchors: Greek and Coptic
   "Α": # Greek capital alpha
@@ -706,8 +701,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ι": # Greek capital iota
-    "top": [1, 6]
-    "bottom": [1, -1]
+    "top": [0, 6]
+    "bottom": [0, -1]
   "Ο": # Greek capital omicron
     "top": [2, 6]
     "bottom": [2, -1]
@@ -715,58 +710,58 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Υ": # Greek capital upsilon
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ω": # Greek capital omega
     "top": [2, 6]
     "bottom": [2, -1]
   "ά": # Greek small alpha with tonos
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "ή": # Greek small eta with tonos
-    "top": [2, 8]
-    "bottom": [2, -2]
+    "top": [1, 8]
+    "bottom": [1, -2]
   "α": # Greek small alpha
-    "top": [2, 5]
-    "bottom": [2, -1]
-  "ε": # Greek small epsilon
-    "top": [2, 5]
-    "bottom": [2, -1]
-  "η": # Greek small eta
-    "top": [2, 5]
-    "bottom": [2, -2]
-  "ι": # Greek small iota
     "top": [1, 5]
     "bottom": [1, -1]
+  "ε": # Greek small epsilon
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "η": # Greek small eta
+    "top": [1, 5]
+    "bottom": [1, -2]
+  "ι": # Greek small iota
+    "top": [0, 5]
+    "bottom": [0, -1]
   "ο": # Greek small omicron
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ρ": # Greek small rho
-    "top": [2, 5]
-    "bottom": [2, -2]
+    "top": [1, 5]
+    "bottom": [1, -2]
   "υ": # Greek small upsilon
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ω": # Greek small omega
     "top": [2, 5]
     "bottom": [2, -1]
-  "ω": # Greek small omega
-    "top": [4, 5]
-    "bottom": [4, -1]
   "ϊ": # Greek small iota with dialytika
+    "top": [0, 7]
+    "bottom": [0, -1]
+  "ϋ": # Greek small upsilon with dialytika
     "top": [1, 7]
     "bottom": [1, -1]
-  "ϋ": # Greek small upsilon with dialytika
-    "top": [2, 7]
-    "bottom": [2, -1]
   "ώ": # Greek small omega with tonos
-    "top": [4, 8]
-    "bottom": [4, -1]
+    "top": [2, 8]
+    "bottom": [2, -1]
 
   # Base anchors: Cyrillic
   "Ё": # Cyrillic capital io
     "top": [2, 8]
     "bottom": [2, -1]
   "І": # Cyrillic capital i
-    "top": [1, 6]
-    "bottom": [1, -1]
+    "top": [0, 6]
+    "bottom": [0, -1]
   "А": # Cyrillic capital a
     "top": [2, 6]
     "bottom": [2, -1]
@@ -777,14 +772,14 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ж": # Cyrillic capital zhe
-    "top": [4, 6]
-    "bottom": [4, -1]
-  "З": # Cyrillic capital ze
-    "top": [2, 6]
-    "bottom": [2, -1]
-  "И": # Cyrillic capital i
     "top": [3, 6]
     "bottom": [3, -1]
+  "З": # Cyrillic capital ze
+    "top": [1, 6]
+    "bottom": [1, -1]
+  "И": # Cyrillic capital i
+    "top": [2, 6]
+    "bottom": [2, -1]
   "К": # Cyrillic capital ka
     "top": [2, 6]
     "bottom": [2, -1]
@@ -798,205 +793,205 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ы": # Cyrillic capital yeru
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "Э": # Cyrillic capital e
     "top": [2, 6]
     "bottom": [2, -1]
   "Ю": # Cyrillic capital yu
-    "top": [4, 6]
-    "bottom": [4, -1]
+    "top": [3, 6]
+    "bottom": [3, -1]
   "Я": # Cyrillic capital ya
     "top": [2, 6]
     "bottom": [2, -1]
   "а": # Cyrillic small a
-    "top": [2, 5]
-    "bottom": [2, -1]
-  "г": # Cyrillic small g
     "top": [1, 5]
     "bottom": [1, -1]
+  "г": # Cyrillic small g
+    "top": [0, 5]
+    "bottom": [0, -1]
   "е": # Cyrillic small ie
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ж": # Cyrillic small zhe
-    "top": [4, 5]
-    "bottom": [4, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "з": # Cyrillic small ze
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "и": # Cyrillic small i
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "к": # Cyrillic small ka
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "о": # Cyrillic small o
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "у": # Cyrillic small u
-    "top": [2, 5]
-    "bottom": [2, -2]
+    "top": [1, 5]
+    "bottom": [1, -2]
   "ч": # Cyrillic small che
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ъ": # Cyrillic small hard sign
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "ы": # Cyrillic small yeru
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "э": # Cyrillic small e
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ю": # Cyrillic small yu
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "я": # Cyrillic small ya
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "ё": # Cyrillic small io
-    "top": [2, 7]
-    "bottom": [2, -1]
-  "є": # Cyrillic small ukrainian ie
-    "top": [2, 5]
-    "bottom": [2, -1]
-  "ї": # Cyrillic small yi
     "top": [1, 7]
     "bottom": [1, -1]
+  "є": # Cyrillic small ukrainian ie
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ї": # Cyrillic small yi
+    "top": [0, 7]
+    "bottom": [0, -1]
   "Ә": # Cyrillic capital schwa
     "top": [2, 6]
     "bottom": [2, -1]
   "ә": # Cyrillic small schwa
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
   "Ө": # Cyrillic capital omega
     "top": [2, 6]
     "bottom": [2, -1]
   "ө": # Cyrillic small omega
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
 
   # Base anchors: Cyrillic Supplement
   "Ԁ": # Cyrillic capital komi de
     "top": [2, 6]
     "bottom": [2, -1]
   "ԁ": # Cyrillic small komi de
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ԑ": # Cyrillic capital reversed ze
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "ԑ": # Cyrillic small reversed ze
-    "top": [2, 5]
-    "bottom": [2, -1]
+    "top": [1, 5]
+    "bottom": [1, -1]
 
   # Base anchors: Phonetic Extensions
   "ᵻ": # Small capital i with stroke
-    "top": [2, 5]
-    "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
 
   # Base anchors: Latin Extended Additional
   "Ḛ": # Capital e with tilde below
     "top": [2, 6]
     "bottom": [2, -4]
   "ḛ": # Small e with tilde below
-    "top": [2, 5]
-    "bottom": [2, -4]
+    "top": [1, 5]
+    "bottom": [1, -4]
   "Ḭ": # Capital i with tilde below
-    "top": [1, 6]
-    "bottom": [1, -4]
+    "top": [0, 6]
+    "bottom": [0, -4]
   "ḭ": # Small i with tilde below
-    "bottom": [1, -4]
+    "bottom": [0, -4]
   "Ḷ": # Capital l with dot below
-    "top": [1, 6]
-    "bottom": [2, -3]
-  "ḷ": # Small l with dot below
-    "top": [1, 6]
+    "top": [0, 6]
     "bottom": [1, -3]
+  "ḷ": # Small l with dot below
+    "top": [0, 6]
+    "bottom": [0, -3]
   "Ṃ": # Capital m with dot below
-    "top": [3, 6]
-    "bottom": [3, -3]
+    "top": [2, 6]
+    "bottom": [2, -3]
   "ṃ": # Small m with dot below
-    "top": [4, 5]
-    "bottom": [4, -3]
-  "Ṇ": # Capital n with dot below
-    "top": [3, 6]
-    "bottom": [3, -3]
-  "ṇ": # Small n with dot below
     "top": [2, 5]
     "bottom": [2, -3]
+  "Ṇ": # Capital n with dot below
+    "top": [2, 6]
+    "bottom": [2, -3]
+  "ṇ": # Small n with dot below
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ṛ": # Capital r with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ṛ": # Small r with dot below
-    "top": [1, 5]
-    "bottom": [1, -3]
+    "top": [0, 5]
+    "bottom": [0, -3]
   "Ṣ": # Capital s with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ṣ": # Small s with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ṳ": # Capital u with dieresis below
     "top": [2, 6]
     "bottom": [2, -3]
   "ṳ": # Small u with dieresis below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ṵ": # Capital u with tilde below
     "top": [2, 6]
     "bottom": [2, -4]
   "ṵ": # Small u with tilde below
-    "top": [2, 5]
-    "bottom": [2, -4]
+    "top": [1, 5]
+    "bottom": [1, -4]
   "Ẓ": # Capital z with dot below
-    "top": [2, 6]
-    "bottom": [2, -3]
+    "top": [1, 6]
+    "bottom": [1, -3]
   "ẓ": # Small z with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ẕ": # Capital z with line below
-    "top": [2, 6]
-    "bottom": [2, -3]
+    "top": [1, 6]
+    "bottom": [1, -3]
   "ẕ": # Small z with line below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ạ": # Capital a with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ạ": # Small a with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ẹ": # Capital e with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ẹ": # Small e with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ẽ": # Capital e with tilde
     "top": [2, 9]
     "bottom": [2, -1]
   "ẽ": # Small e with tilde
-    "top": [2, 8]
-    "bottom": [2, -1]
+    "top": [1, 8]
+    "bottom": [1, -1]
   "Ị": # Capital i with dot below
-    "top": [1, 6]
-    "bottom": [1, -3]
+    "top": [0, 6]
+    "bottom": [0, -3]
   "ị": # Small i with dot below
-    "bottom": [1, -3]
+    "bottom": [0, -3]
   "Ọ": # Capital o with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ọ": # Small o with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   "Ụ": # Capital u with dot below
     "top": [2, 6]
     "bottom": [2, -3]
   "ụ": # Small u with dot below
-    "top": [2, 5]
-    "bottom": [2, -3]
+    "top": [1, 5]
+    "bottom": [1, -3]
   
   # Base anchors: Latin Extended-C
   "Ɑ": # Capital alpha
@@ -1011,64 +1006,135 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ɪ": # Capital small capital i
+    "top": [1, 6]
+    "bottom": [1, -1]
+  "Ꞷ": # Capital omega
     "top": [2, 6]
     "bottom": [2, -1]
-  "Ꞷ": # Capital omega
-    "top": [4, 6]
-    "bottom": [4, -1]
   "ꞷ": # Small omega
-    "top": [4, 5]
-    "bottom": [4, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "Ꞹ": # Capital u with stroke
     "top": [3, 6]
     "bottom": [3, -1]
   "ꞹ": # Small u with stroke
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "Ɤ": # Capital rams horn
-    "top": [3, 6]
-    "bottom": [3, -2]
+    "top": [2, 6]
+    "bottom": [2, -2]
   "Ꟍ": # Capital s with diagonal stroke
     "top": [3, 6]
     "bottom": [3, -1]
   "ꟍ": # Small s with diagonal stroke
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "Ƛ": # Capital lambda with stroke
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
 
 kerning:
 # Latin
-  # Initial &
-  - ["&", "TŢŤȚṪṬVṼṾWŴẀẂẄYÝŶŸȲỲỴỶỸ", -1]
-  - ["&", "vṽṿwŵẁẃẅ", -1]
+  - ["-–—", "jĵǰȷ", -1]
 
-  # Initial L
-  - ["LĹĻḶḼ", "TŢŤȚṪṬVṼṾWŴẀẂẄYÝŶŸȲỲỴỶỸ", -1]
+  - [" BƁɃḂḄḆCÇĆĈĊČƇḈDÐĎĐḊḌḎḐḒJĴOÒÓÔÕÖØŌŎŐƆƠǑǪǬȌȎȪȬȮȰʘṌṎṐṒỎỐỒỔỖỘỚỜỞỠỢSŚŜŞŠȘṠṢṤṦṨUÙÚÛÜŨŪŬŮŰŲƯǓǕǗǙǛȔȖṲṴṶṸṺỤỦỨỪỬỮỰfƒḟsśŝşšșṡṣṥṧṩyýÿŷƴȳɏẏỳỵỷỹ", "jĵǰȷ", -1]
+  - ["\"'‘’“”", "jĵǰȷ", -1]
 
-  # Final J
-  - ["FPṔṖTŢŤȚṪṬṮṰYÝŶŸȲỲỴỶỸrŕŗřȓṛ", "J", -1]
+  - ["&", "TŢŤƬƮȚṪṬṮṰ", -1]
+  - ["&", "VṼṾWŴẀẂẄẆẈYÝŶŸȲỲỴỶỸvṽṿwŵẁẃẅẇẉ", -1]
 
-  # Final j
-  # - [" #$)*+-–—/>?@^`}~BḄḆCÇĆĈĊČDĎḊḌḎḐḒJĴOÒÓÔÕÖŌŎŐƠǑǪǬȌṌṐṒỌỎỐỒỔỖỘỚỜỞỠỢSŚŜŞŠȘṠṢUÙÚÛÜŨŪŬŮŰŲƯǓǗȔṲṴṸỤỦỨỪỬỮỰVṼṾWŴẀẂẄbḅḇeèéêëēĕėęěȅȩḕḗḛẹẻẽếềểễệfoòóôõöōŏőơǒǫǭȍṍṑṓọỏốồổỗộớờởỡợpṕṗsśŝşšșṡṣ₨vṽṿwŵẁẃẅyýÿŷȳỳỵỷỹ", "j", -1]
-  - [" #$)*+-–—/>?@^`}~BḄḆCÇĆĈĊČDĎḊḌḎḐḒJĴOÒÓÔÕÖŌŎŐƠǑǪǬȌṌṐṒỌỎỐỒỔỖỘỚỜỞỠỢSŚŜŞŠȘṠṢUÙÚÛÜŨŪŬŮŰŲƯǓǗȔṲṴṸỤỦỨỪỬỮỰVṼṾWŴẀẂẄbḅḇfoòóôõöōŏőơǒǫǭȍṍṑṓọỏốồổỗộớờởỡợpṕṗsśŝşšșṡṣ₨vṽṿwŵẁẃẅyýÿŷȳỳỵỷỹ", "j", -1]
-  - ["FPṔṖTŢŤȚṪṬṮṰYÝŶŸȲỲỴỶỸrŕŗřȓṛ", "j", -1]
+  - ["FƑḞTŢŤƬƮȚṪṬṮṰ", ",.‚„…", -1]
+  - ["FƑḞTŢŤƬƮȚṪṬṮṰ", "JĴ", -1]
+  - ["FƑḞTŢŤƬƮȚṪṬṮṰ", "aàáâãäåæāăąǎǟǡǣǻǽȁȃȧɑḁạảấầẩẫậắằẳẵặcçćĉċčƈḉdðďđǆǳɖɗḋḍḏḑḓeèéêëēĕėęěȅȇȩḕḗḙḛḝẹẻẽếềểễệgĝğġģǥǧǵɠḡoòóôõöøōŏőœơǒǫǭǿȍqsśŝşšșṡṣṥṧṩ", -1]
+  - ["FƑḞTŢŤƬƮȚṪṬṮṰ", "jĵǰȷ", -1]
+
+  - ["LĹĻĽĿŁḶḸḺḼ", "TŢŤƬƮȚṪṬṮṰ", -1]
+  - ["LĹĻĽĿŁḶḸḺḼ", "VṼṾWŴẀẂẄẆẈYÝŶŸȲỲỴỶỸvṽṿwŵẁẃẅẇẉ", -1]
+
+  - ["PƤṔṖYÝŶŸƳȲɎẎỲỴỶỸrŕŗřȑȓɍṙṛṝṟ", ",.‚„…", -1]
+  - ["PƤṔṖYÝŶŸƳȲɎẎỲỴỶỸrŕŗřȑȓɍṙṛṝṟ", "JĴ", -1]
+  - ["PƤṔṖYÝŶŸƳȲɎẎỲỴỶỸrŕŗřȑȓɍṙṛṝṟ", "jĵǰȷ", -1]
+
+  - ["VṼṾWŴẀẂẄẆẈvṽṿwŵẁẃẅẇẉ", ",.‚„…", -1]
+  - ["VṼṾWŴẀẂẄẆẈvṽṿwŵẁẃẅẇẉ", "jĵǰȷ", -1]
+
+  - ["bƀɓḃḅḇoòóôõöøōŏơǒǫǭȍȏȫȭȯȱɔɵṍṏṑṓọỏốồổỗộớờởỡợpƥṕṗ", "TŢŤƬƮȚṪṬṮṰ", -1]
+  - ["bƀɓḃḅḇoòóôõöøōŏơǒǫǭȍȏȫȭȯȱɔɵṍṏṑṓọỏốồổỗộớờởỡợpƥṕṗ", "jĵǰȷ", -1]
+
+  - ["eèéêëēĕėęěȅȇȩḕḗḙḛḝẹẻẽếềểễệhĥħȟɦḣḥḧḩḫmḿṁṃnñńņňŉŋƞǹɲṅṇṉṋ", "TŢŤƬƮȚṪṬṮṰ", -1]
 
 # Greek
-  - ["Δ", "ΤΥΨτψ", -1]
+  - ["\"'‘’“”", "Δ", -1]
+  - ["\"'‘’“”", "ϳ", -1]
 
-  - ["ΓΡῬΤΥΎΫὙὛὝὟῨῩῪΎΨσ", ",.‚„…", -1]
-  - ["ΓΡῬΤΥΎΫὙὛὝὟῨῩῪΎΨσ", "Δ", -1]
+  - ["&", "Τ", -1]
+  - ["&", "ΥΨτ", -1]
+  - ["&", "γνψ", -1]
+
+  - ["ΒΘΟΦβδθοόυύϋφωώͿ", "ϳ", -1]
+
+  - ["ΓΤ", ",.‚„…", -1]
+  - ["ΓΤ", "Δ", -1]
+  - ["ΓΤ", "Λαάδοόρσφ", -1]
+  - ["ΓΤ", "Ϳ", -1]
+  - ["ΓΤ", "ϳ", -1]
+
+  - ["Διίϊ", "\"'‘’“”", -1]
+  - ["Διίϊ", "Τ", -1]
+  - ["Διίϊ", "ΥΨτ", -1]
+  - ["Διίϊ", "γνψ", -1]
+
+  - ["Ληή", "Τ", -1]
+
+  - ["Ρσ", "Δ", -1]
+  - ["Ρσ", "Ϳ", -1]
+  - ["Ρσ", "ϳ", -1]
+
+  - ["ΥΫΨ", ",.‚„…", -1]
+  - ["ΥΫΨ", "Δ", -1]
+  - ["ΥΫΨ", "Ϳ", -1]
+  - ["ΥΫΨ", "ϳ", -1]
+
+  - ["γνψ", ",.‚„…", -1]
+  - ["γνψ", "Δ", -1]
+  - ["γνψ", "ϳ", -1]
+
+  - ["λ", "\"'‘’“”", -1]
+  - ["λ", "Τ", -1]
+  - ["λ", "ΥΨτ", -1]
+
+  - ["ρ", "Τ", -1]
+  - ["ρ", "ϳ", -1]
 
 # Cyrillic
-  - ["ГЃРТУЎӮӰӲгѓт", ",.‚„…", -1]
-  - ["ГЃРТУЎӮӰӲгѓт", "ДЛдл", -1]
+  - ["\"'‘’“”", "ДЛЉӅԒԮдлљӆԓԯ", -1]
+  - ["\"'‘’“”", "ј", -1]
 
-  - ["ЪЬъь", "ТЪтъ", -1]
+  - ["ГЃҐӶТҬҤ", ",.‚„…", -1]
+  - ["ГЃҐӶТҬҤ", "ДЛЉӅԒԮдлљӆԓԯ", -1]
+  - ["ГЃҐӶТҬҤ", "аеєосѕфя", -1]
+  - ["ГЃҐӶТҬҤ", "Ј", -1]
+  - ["ГЃҐӶТҬҤ", "ј", -1]
+
+  - ["РУЎӮӰӲгѓґӷтҭҥ", ",.‚„…", -1]
+  - ["РУЎӮӰӲгѓґӷтҭҥ", "ДЛЉӅԒԮдлљӆԓԯ", -1]
+  - ["РУЎӮӰӲгѓґӷтҭҥ", "Ј", -1]
+  - ["РУЎӮӰӲгѓґӷтҭҥ", "ј", -1]
+
+  - ["ЪЬҌъьЊҍ", "ТЪҠҴ", -1]
+  - ["ЪЬҌъьЊҍ", "ЧҶӋтъҡҵ", -1]
+  - ["ЪЬҌъьЊҍ", "ј", -1]
+
+  - ["ворфэӭ", "ТЪҠҴ", -1]
+  - ["ворфэӭ", "ј", -1]
+
+  - ["еѐёӗ", "ТЪҠҴ", -1]
+
+  - ["БВЗОСФЭӬЮЈбзуюѕ", "ј", -1]
 
 default_axis_values:
   "wght": 400
+  "slnt": 0
   "wdth": 100
   "ROND": 0
   "BLED": 0
@@ -1077,34 +1143,52 @@ variable_axes:
   "wght":
     min: 100
     max: 700
+  "slnt":
+    min: -8
+    max: 0
   "ROND":
     min: 0
     max: 100
   "BLED":
     min: 0
     max: 100
+  "EJIT":
+    min: 0
+    max: 100
 variable_instances:
   "Regular":
     "wght": 400
+    "slnt": 0
     "ROND": 0
     "BLED": 0
+    "EJIT": 0
   "Medium":
     "wght": 500
+    "slnt": 0
     "ROND": 0
     "BLED": 0
+    "EJIT": 0
   "Bold":
     "wght": 700
+    "slnt": 0
     "ROND": 0
     "BLED": 0
+    "EJIT": 0
   "LCD":
     "wght": 340
+    "slnt": 0
     "ROND": 0
     "BLED": 0
+    "EJIT": 0
   "CRT":
     "wght": 280
+    "slnt": 0
     "ROND": 80
     "BLED": 64
+    "EJIT": 0
   "Matrix":
     "wght": 340
+    "slnt": 0
     "ROND": 100
     "BLED": 0
+    "EJIT": 50
