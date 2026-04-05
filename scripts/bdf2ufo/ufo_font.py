@@ -428,6 +428,21 @@ class UFOFont:
             else:
                 self._add_bitmap(ufo_glyph, bdf_glyph)
 
+    def _apply_slant(self, offset):
+        y = offset.y - 0.5 * self.glyph_scale.y
+        slant = -self.location["slnt"]
+
+        slant_offset = Vec2(y * math.tan(slant * math.pi / 180), 0)
+
+        return offset + slant_offset
+
+    def _apply_jitter(self, offset):
+        jitter = self.location["JITT"]
+
+        jitter_offset = Vec2.random(jitter / 1000) * self.units_per_element
+
+        return offset + jitter_offset
+
     def _add_bitmap(self, ufo_glyph, bdf_glyph):
         strike_num = self.strike_num
 
@@ -440,20 +455,17 @@ class UFOFont:
                 for strike_index in range(strike_num):
                     if bdf_glyph_bitmap[y][x]:
                         offset = (
-                            (
-                                Vec2(x, y)
-                                + Vec2(0.5)
-                                + bdf_glyph_offset
-                                + Vec2(0, -0.5 * strike_index)
-                            )
-                            * self.glyph_scale
-                            + Vec2.random(self.location["JITT"] / 1000)
-                            * self.units_per_element
-                            + Vec2(
-                                math.tan(y * -self.location["slnt"] * math.pi / 180), 0
-                            )
-                            * self.units_per_element
-                        )
+                            Vec2(x, y)
+                            + Vec2(0.5)
+                            + bdf_glyph_offset
+                            + Vec2(0, -0.5 * strike_index)
+                        ) * self.glyph_scale
+
+                        # Slant offset
+                        offset = self._apply_slant(offset)
+
+                        # Jitter offset
+                        offset = self._apply_jitter(offset)
 
                         # Fix Fontspector/Shaperglot heuristics
                         if bdf_glyph_character in MARKS:
@@ -477,6 +489,9 @@ class UFOFont:
 
             ufo_component = ufoLib2.objects.Component(component_name)
             offset = component_offset * self.glyph_scale
+
+            # Slant offset
+            offset = self._apply_slant(offset)
 
             # Fix Fontspector/Shaperglot heuristics
             if component_character in MARKS:
@@ -502,6 +517,9 @@ class UFOFont:
             for anchor_name, anchor_offset in glyph_anchors.items():
                 absolute_anchor_offset = anchor_offset + self.glyph_offset
                 ufo_offset = absolute_anchor_offset * self.units_per_element
+
+                # Slant offset
+                ufo_offset = self._apply_slant(ufo_offset)
 
                 # Fix Fontspector/Shaperglot heuristics
                 if glyph_character in MARKS:

@@ -277,7 +277,7 @@ CCMP_SOFTDOT_COMPOSITION = {
 }
 
 AXES_INFO = {
-    "wght": {"name": "Weight", "min": 50, "max": 800, "default": 400},
+    "wght": {"name": "Weight", "min": 100, "max": 700, "default": 400},
     "wdth": {"name": "Width", "min": 50, "max": 200, "default": 100},
     "slnt": {"name": "Slant", "min": -8, "max": 0, "default": 0},
     "ROND": {"name": "Roundness", "min": 0, "max": 100, "default": 0},
