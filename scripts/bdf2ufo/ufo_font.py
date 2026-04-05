@@ -421,7 +421,7 @@ class UFOFont:
 
             ufo_glyph = self.ufo_font.newGlyph(glyph_name)
             ufo_glyph.unicode = ord(glyph_character)
-            ufo_glyph.width = int(glyph_advance * self.units_per_element.x)
+            ufo_glyph.width = int(glyph_advance * self.glyph_scale.x)
 
             if glyph_name in self.components:
                 self._add_components(ufo_glyph, self.components[glyph_name])
@@ -440,15 +440,20 @@ class UFOFont:
                 for strike_index in range(strike_num):
                     if bdf_glyph_bitmap[y][x]:
                         offset = (
-                            Vec2(x, y)
-                            + Vec2(0.5)
-                            + bdf_glyph_offset
-                            + Vec2(0, -0.5 * strike_index)
-                        ) * self.glyph_scale + Vec2.random(
-                            self.location["JITT"] / 1000
-                        ) * self.units_per_element + Vec2(
-                            math.tan(y * -self.location["slnt"] * math.pi / 180), 0
-                        ) * self.units_per_element
+                            (
+                                Vec2(x, y)
+                                + Vec2(0.5)
+                                + bdf_glyph_offset
+                                + Vec2(0, -0.5 * strike_index)
+                            )
+                            * self.glyph_scale
+                            + Vec2.random(self.location["JITT"] / 1000)
+                            * self.units_per_element
+                            + Vec2(
+                                math.tan(y * -self.location["slnt"] * math.pi / 180), 0
+                            )
+                            * self.units_per_element
+                        )
 
                         # Fix Fontspector/Shaperglot heuristics
                         if bdf_glyph_character in MARKS:

@@ -1,8 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 
 SRC_PATH = "documentation/src"
-TINY5_PATH = "fonts/variable/Tiny5[BLED,JITT,ROND,wght].ttf"
-TINY5_DUO_PATH = "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wght].ttf"
+TINY5_PATH = "fonts/variable/Tiny5[BLED,JITT,ROND,wdth,wght].ttf"
+TINY5_DUO_PATH = "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wdth,wght].ttf"
 OUT_PATH = "documentation/img"
 
 SAMPLE_TEXT = """\
@@ -42,11 +42,11 @@ def get_font(size, style: str) -> ImageFont.FreeTypeFont:
     font = ImageFont.truetype(font=font_path, size=size)
 
     if style == "LCD":
-        font.set_variation_by_axes([340, 0, 0, 0])
+        font.set_variation_by_axes([340, 100, 0, 0, 0])
     elif style == "CRT":
-        font.set_variation_by_axes([280, 80, 64, 0])
+        font.set_variation_by_axes([280, 100, 80, 64, 0])
     elif style == "Matrix":
-        font.set_variation_by_axes([340, 100, 0, 50])
+        font.set_variation_by_axes([340, 100, 100, 0, 50])
 
     return font
 
@@ -80,12 +80,12 @@ def draw_lcd_text(img, font_name, size, xy, text):
     text_color = (195, 246, 255)
 
     glow_color = (
-        text_color[0] * 4 // 3,
-        text_color[1] * 4 // 3,
-        text_color[2] * 4 // 3,
+        text_color[0],
+        text_color[1],
+        text_color[2],
         255,
     )
-    blur_radius = 40
+    blur_radius = 50
 
     # Step 1: render text
     glow_img = Image.new("RGBA", img.size, (0, 0, 0, 0))
@@ -226,7 +226,7 @@ def draw_terminal():
 
     font_size = element_size * 8
     line_height = element_size * 10
-    content_left = element_size * 10
+    content_left = element_size * 8
     content_top = element_size * 2
 
     cap_height = element_size * 5
@@ -239,7 +239,7 @@ def draw_terminal():
     xy[1] += line_height
     draw_crt_text(img, "Type: Variable", xy, font_size)
     xy[1] += line_height
-    draw_crt_text(img, "Axes: weight, roundness, bleed", xy, font_size)
+    draw_crt_text(img, "Axes: weight, width, slant, roundness, bleed, jitter", xy, font_size)
     xy[1] += line_height
     draw_crt_text(img, "Scripts: Latin + Greek + Cyrillic", xy, font_size)
     xy[1] += line_height

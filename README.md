@@ -4,7 +4,7 @@
 
 **Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, it distills letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
-It features five variable axes—**Weight, Slant, Roundness, Bleed and Jitter**—giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
+It features six variable axes — **Weight, Width, Slant, Roundness, Bleed and Jitter** — giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
 
 Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It’s especially well-suited for:
 
@@ -35,7 +35,7 @@ Learn more at [http://www.stefanschmidtart.com](http://www.stefanschmidtart.com)
 
 ## Building
 
-Fonts are built automatically by GitHub Actions - take a look in the "Actions" tab for the latest build.
+Fonts are built automatically by GitHub Actions — take a look in the "Actions" tab for the latest build.
 
 If you want to build fonts manually on your own computer:
 

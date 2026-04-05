@@ -1145,15 +1145,19 @@ kerning:
 
 default_axis_values:
   "wght": 400
-  "slnt": 0
   "wdth": 100
+  "slnt": 0
   "ROND": 0
   "BLED": 0
   "JITT": 0
+
 variable_axes:
   "wght":
     min: 100
     max: 700
+  "wdth":
+    min: 50
+    max: 150
   "slnt":
     min: -8
     max: 0
@@ -1166,40 +1170,21 @@ variable_axes:
   "JITT":
     min: 0
     max: 100
+
 variable_instances:
   "Regular":
     "wght": 400
-    "slnt": 0
-    "ROND": 0
-    "BLED": 0
-    "JITT": 0
   "Medium":
     "wght": 500
-    "slnt": 0
-    "ROND": 0
-    "BLED": 0
-    "JITT": 0
   "Bold":
     "wght": 700
-    "slnt": 0
-    "ROND": 0
-    "BLED": 0
-    "JITT": 0
   "LCD":
     "wght": 340
-    "slnt": 0
-    "ROND": 0
-    "BLED": 0
-    "JITT": 0
   "CRT":
     "wght": 280
-    "slnt": 0
     "ROND": 80
     "BLED": 64
-    "JITT": 0
   "Matrix":
     "wght": 340
-    "slnt": 0
     "ROND": 100
-    "BLED": 0
     "JITT": 50
