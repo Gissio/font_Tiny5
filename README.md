@@ -50,7 +50,7 @@ If you want to build fonts manually on your own computer:
 - Renamed bold weight to **Tiny5 Duo** variant.
 - Added axes: **Width**, **Slant** and **Jitter**.
 - Renamed axes: **Element Size** → **Weight**.
-- Fixes: latin uppercase q, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
+- Fixes: latin uppercase l, latin uppercase q, latin uppercase y, latin uppercase z, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
 
 ### 2.002
 

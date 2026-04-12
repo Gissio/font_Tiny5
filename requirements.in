@@ -4,7 +4,7 @@ sh
 bumpfontversion
 diffenator2
 Pillow
-numpy
 bdflib
+numpy
 ufoLib2
 unicodedata2
