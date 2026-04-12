@@ -253,6 +253,25 @@ class UFOFont:
     def _set_features(self) -> None:
         lines = []
 
+        # Properties
+        languages = []
+        if "A" in self.bdf_font.names:
+            languages.append("latn")
+        if "А" in self.bdf_font.names:
+            languages.append("cyrl")
+        if "Α" in self.bdf_font.names:
+            languages.append("grek")
+        if "\u4e2d" in self.bdf_font.names:
+            languages.append("hani")
+        if "\uac00" in self.bdf_font.names:
+            languages.append("hang")
+
+        # Set default script and language system
+        self.ufo_font.lib["public.openTypeMeta"] = {
+            "dlng": languages,
+            "slng": languages,
+        }
+           
         # Define classes
         all_bases = []
         all_marks = []
@@ -280,16 +299,8 @@ class UFOFont:
 
         # Set default language systems
         lines.append("languagesystem DFLT dflt;")
-        if "A" in self.bdf_font.names:
-            lines.append("languagesystem latn dflt;")
-        if "А" in self.bdf_font.names:
-            lines.append("languagesystem cyrl dflt;")
-        if "Α" in self.bdf_font.names:
-            lines.append("languagesystem grek dflt;")
-        if "\u4e2d" in self.bdf_font.names:
-            lines.append("languagesystem hani dflt;")
-        if "\uac00" in self.bdf_font.names:
-            lines.append("languagesystem hang dflt;")
+        for language in languages:
+            lines.append(f"languagesystem {language} dflt;")
         lines.append("")
 
         # Define ccmp feature
