@@ -797,8 +797,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ы": # Cyrillic capital yeru
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "Э": # Cyrillic capital e
     "top": [2, 6]
     "bottom": [2, -1]

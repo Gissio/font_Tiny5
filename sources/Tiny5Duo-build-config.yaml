@@ -802,8 +802,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ы": # Cyrillic capital yeru
-    "top": [4, 6]
-    "bottom": [4, -1]
+    "top": [3, 6]
+    "bottom": [3, -1]
   "Э": # Cyrillic capital e
     "top": [2, 6]
     "bottom": [2, -1]
@@ -847,8 +847,8 @@ custom_anchors:
     "top": [3, 5]
     "bottom": [3, -1]
   "ы": # Cyrillic small yeru
-    "top": [4, 5]
-    "bottom": [4, -1]
+    "top": [3, 5]
+    "bottom": [3, -1]
   "э": # Cyrillic small e
     "top": [2, 5]
     "bottom": [2, -1]
