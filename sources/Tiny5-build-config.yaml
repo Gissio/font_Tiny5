@@ -186,7 +186,7 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -2]
   "X": # Capital x
-    "bottom": [1, -1]
+    "bottom": [2, -1]
   "Y": # Capital y
     "ogonek": [1, 0]
   "f": # Small f
@@ -629,8 +629,8 @@ custom_anchors:
     "top": [3, 6]
     "bottom": [3, -1]
   "Ʌ": # Capital turned v
-    "top": [1, 6]
-    "bottom": [1, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
 
   # Base anchors: IPA Extensions
   "ɐ": # Small turned a
