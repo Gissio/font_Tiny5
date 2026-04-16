@@ -1,3 +1,9 @@
+# This script generates sample images for the Tiny5 font using the Pillow library.
+
+# Install the required dependencies before running this script:
+#   sudo apt update
+#   sudo apt install libfreetype6-dev libharfbuzz-dev libfribidi-dev libraqm-dev meson pkg-config
+
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageChops
 
 SRC_PATH = "documentation/src"
