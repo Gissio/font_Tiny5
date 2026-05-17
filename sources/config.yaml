@@ -3,6 +3,7 @@ sources:
   - Tiny5Duo.designspace
 recipeProvider: googlefonts
 recipe:
+  # Modified recipe for decomposing components of Regular, Medium, and Bold static instances.
   ../fonts/ttf/Tiny5-Bold.ttf:
   - source: Tiny5.designspace
   - glyphData: null
