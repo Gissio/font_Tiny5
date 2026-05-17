@@ -81,6 +81,7 @@ class UFOFont:
         self.strike_num = ufo_config["strike_num"]
         self.units_per_em = ufo_config["units_per_em"]
         self.units_per_element = ufo_config["units_per_element"]
+        self.use_element_glyph = ufo_config["use_element_glyph"]
         self.components = ufo_config["components"]
         self.anchors = ufo_config["anchors"]
         self.kerning = ufo_config["kerning"]
@@ -96,7 +97,8 @@ class UFOFont:
         self._set_features()
 
         # Set element glyph
-        self._set_element_glyph()
+        if self.use_element_glyph:
+            self._set_element_glyph()
 
         # Set glyphs
         self._set_glyphs()
@@ -149,18 +151,6 @@ class UFOFont:
                 )
             except ValueError:
                 pass
-
-        # gasp table
-        gasp_table = [
-            {
-                "rangeMaxPPEM": 16,
-                "rangeGaspBehavior": [1, 3],
-            },
-            {
-                "rangeMaxPPEM": 65535,
-                "rangeGaspBehavior": [0, 1, 2, 3],
-            },
-        ]
 
         # Set font info
         font_info = self.ufo_font.info
@@ -247,8 +237,6 @@ class UFOFont:
         font_info.postscriptUnderlinePosition = int(
             self.bdf_font.underline_position * self.units_per_element.y
         )
-
-        font_info.openTypeGaspRangeRecords = gasp_table
 
     def _set_features(self) -> None:
         lines = []
@@ -357,7 +345,7 @@ class UFOFont:
         # Set features
         self.ufo_font.features.text = "\n".join(lines)
 
-    def _set_element_glyph(self) -> None:
+    def _add_element_glyph(self, ufo_glyph, offset: Vec2) -> None:
         size = self.units_per_element * Vec2(self.location["wght"] / 400)
         halfsize = size * Vec2(0.5)
         radius = halfsize * Vec2(self.location["ROND"] / 100)
@@ -418,12 +406,15 @@ class UFOFont:
         ufo_points = []
         for point_offset, point_type in element_points:
             ufo_points.append(
-                ufoLib2.objects.Point(point_offset.x, point_offset.y, point_type)
+                ufoLib2.objects.Point(offset.x + point_offset.x, offset.y + point_offset.y, point_type)
             )
         ufo_contour = ufoLib2.objects.Contour(ufo_points)
 
-        ufo_glyph = self.ufo_font.newGlyph("_")
         ufo_glyph.appendContour(ufo_contour)
+
+    def _set_element_glyph(self) -> None:
+        element_glyph = self.ufo_font.newGlyph("_")
+        self._add_element_glyph(element_glyph, Vec2(0))
 
     def _set_glyphs(self) -> None:
         for glyph_name, bdf_glyph in self.bdf_font.glyphs.items():
@@ -482,17 +473,20 @@ class UFOFont:
                         if bdf_glyph_character in MARKS:
                             offset.x -= 1
 
-                        ufo_component = ufoLib2.objects.Component("_")
-                        ufo_component.transformation = [
-                            1,
-                            0,
-                            0,
-                            1,
-                            math.floor(offset.x),
-                            math.floor(offset.y),
-                        ]
+                        if self.use_element_glyph:
+                            ufo_component = ufoLib2.objects.Component("_")
+                            ufo_component.transformation = [
+                                1,
+                                0,
+                                0,
+                                1,
+                                math.floor(offset.x),
+                                math.floor(offset.y),
+                            ]
 
-                        ufo_glyph.components.append(ufo_component)
+                            ufo_glyph.components.append(ufo_component)
+                        else:
+                            self._add_element_glyph(ufo_glyph, offset)
 
     def _add_components(self, ufo_glyph, glyph_components):
         for component_name, component_offset in glyph_components:

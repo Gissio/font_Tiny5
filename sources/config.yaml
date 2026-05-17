@@ -1,3 +1,143 @@
 sources:
   - Tiny5.designspace
   - Tiny5Duo.designspace
+recipeProvider: googlefonts
+recipe:
+  ../fonts/ttf/Tiny5-Bold.ttf:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Bold
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/ttf/Tiny5-Medium.ttf:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Medium
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/ttf/Tiny5-Regular.ttf:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Regular
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/ttf/Tiny5Duo-Bold.ttf:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Bold
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/ttf/Tiny5Duo-Medium.ttf:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Medium
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/ttf/Tiny5Duo-Regular.ttf:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Regular
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  ../fonts/webfonts/Tiny5-Bold.woff2:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Bold
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress
+  ../fonts/webfonts/Tiny5-Medium.woff2:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Medium
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress
+  ../fonts/webfonts/Tiny5-Regular.woff2:
+  - source: Tiny5.designspace
+  - glyphData: null
+    instance_name: Tiny5-Regular
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress
+  ../fonts/webfonts/Tiny5Duo-Bold.woff2:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Bold
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress
+  ../fonts/webfonts/Tiny5Duo-Medium.woff2:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Medium
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress
+  ../fonts/webfonts/Tiny5Duo-Regular.woff2:
+  - source: Tiny5Duo.designspace
+  - glyphData: null
+    instance_name: Tiny5Duo-Regular
+    operation: instantiateUfo
+  - args: --filter DecomposeComponentsFilter --filter ... --filter FlattenComponentsFilter --filter DecomposeTransformedComponentsFilter
+    operation: buildTTF
+  - args: '--fail-ok '
+    operation: autohint
+  - args: ''
+    operation: fix
+  - operation: compress

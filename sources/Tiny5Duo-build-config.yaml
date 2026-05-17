@@ -7,26 +7,39 @@ manufacturer_url: "https://www.stefanschmidtart.com/"
 license: "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://openfontlicense.org"
 license_url: "https://openfontlicense.org"
 
+# The Unicode codepoint for the .notdef character, which is used when a glyph is missing.
 notdef_character: "\u0000"
 
+# Underline metrics, in pixel units.
 underline_position: -1
 underline_thickness: 1
 
+# Strikeout metrics, in pixel units.
 strikeout_position: 3
 strikeout_thickness: 1
 
+# Superscript metrics: scale in em units, offset in pixel units.
 superscript_scale: [0.5, 0.5]
 superscript_offset: [0, 2.5]
 
+# Subscript metrics: scale in em units, offset in pixel units.
 subscript_scale: [0.5, 0.5]
 subscript_offset: [0, -1]
 
+# Glyph offset in pixel units, applied to all glyphs.
+# This can be used to adjust the position of all glyphs.
 glyph_offset: [0.5, 0]
 
+# Units per em and units per element.
+# These values are used to convert pixel units to vector units in the UFO file.
 units_per_em: 1024
 units_per_element: [128, 128]
 
-# Mark anchors start with an underscore to distinguish them from base anchors.
+# Whether to use an element glyph for each bitmap pixel.
+use_element_glyph: true
+
+# Override anchors for specific glyphs.
+# The position is given in pixel units, relative to the glyph's origin (bottom-left corner).
 custom_anchors:
   # Top mark anchors
   "\u0300": # Grave
@@ -1042,6 +1055,8 @@ custom_anchors:
     "top": [3, 6]
     "bottom": [3, -1]
 
+# Define kerning groups and their values in pixels.
+# Kerning groups are automatically generated.
 kerning:
 # Latin
   - ["-–—", "jĵǰȷ", -1]
@@ -1137,6 +1152,7 @@ kerning:
 
   - ["БВЗОСФЭӬЮЈбзуюѕ", "ј", -1]
 
+# Define default values for variable axes.
 default_axis_values:
   "wght": 400
   "wdth": 100
@@ -1145,6 +1161,7 @@ default_axis_values:
   "BLED": 0
   "JITT": 0
 
+# Define variable axes and their ranges.
 variable_axes:
   "wght":
     min: 100
@@ -1165,6 +1182,7 @@ variable_axes:
     min: 0
     max: 100
 
+# Define static font instances and their axis values.
 variable_instances:
   "Regular":
     "wght": 400

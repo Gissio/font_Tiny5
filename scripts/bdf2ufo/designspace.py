@@ -92,6 +92,7 @@ class DesignSpace:
                 [default_units_per_element_y, default_units_per_element_y],
             )
         )
+        self.ufo_config["use_element_glyph"] = config.get("use_element_glyph", True)
         self.ufo_config["components"] = components
         self.ufo_config["anchors"] = anchors
         self.ufo_config["kerning"] = config.get("kerning", [])
