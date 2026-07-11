@@ -1159,7 +1159,7 @@ default_axis_values:
   "slnt": 0
   "ROND": 0
   "BLED": 0
-  "JITT": 0
+  # "JITT": 0
 
 # Define variable axes and their ranges.
 variable_axes:
@@ -1178,9 +1178,9 @@ variable_axes:
   "BLED":
     min: 0
     max: 100
-  "JITT":
-    min: 0
-    max: 100
+  # "JITT":
+  #   min: 0
+  #   max: 100
 
 # Define static font instances and their axis values.
 variable_instances:
@@ -1196,7 +1196,7 @@ variable_instances:
     "wght": 280
     "ROND": 80
     "BLED": 64
-  "Matrix":
-    "wght": 340
-    "ROND": 100
-    "JITT": 50
+  # "Matrix":
+  #   "wght": 340
+  #   "ROND": 100
+  #   "JITT": 50

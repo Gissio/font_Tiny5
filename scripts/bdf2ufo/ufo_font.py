@@ -521,7 +521,7 @@ class UFOFont:
 
             for anchor_name, anchor_offset in glyph_anchors.items():
                 absolute_anchor_offset = anchor_offset + self.glyph_offset
-                ufo_offset = absolute_anchor_offset * self.units_per_element
+                ufo_offset = absolute_anchor_offset * self.glyph_scale
 
                 # Slant offset
                 ufo_offset = self._apply_slant(ufo_offset)
