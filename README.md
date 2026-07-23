@@ -4,8 +4,7 @@
 
 **Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, it distills letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
-<!-- It features six variable axes — **Weight, Width, Slant, Roundness, Bleed and Jitter** — giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic. -->
-It features five variable axes — **Weight, Width, Slant, Roundness and Bleed** — giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
+It features six variable axes — **Weight, Width, Slant, Roundness, Bleed and Jitter** — giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
 
 Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It’s especially well-suited for:
 
@@ -49,9 +48,9 @@ If you want to build fonts manually on your own computer:
 ### 2.003
 
 - Renamed bold weight to **Tiny5 Duo** variant.
-- Added axes: **Width** and **Slant**.
+- Added axes: **Width**, **Slant** and **Jitter**.
 - Renamed axes: **Element Size** → **Weight**.
-- Fixes: latin uppercase l, latin uppercase q, latin uppercase y, latin uppercase z, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
+- Fixes: latin uppercase l, latin uppercase q, latin uppercase v, latin uppercase x, latin uppercase y, latin uppercase z, latin lowercase x, comma, semicolon, double angle quotation marks, double acute, double grave, latin small sharp s, greek capital delta, greek capital xi, greek lowercase epsilon, greek lowercase phi, greek lowercase psi, greek descenders, cyrillic capital ghe, various diacritics.
 
 ### 2.002
 
