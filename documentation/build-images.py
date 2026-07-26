@@ -7,7 +7,7 @@
 import random
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 ROOT_PATH = Path(__file__).resolve().parent.parent
 SRC_PATH = ROOT_PATH / "documentation/src"
@@ -205,7 +205,7 @@ def draw_presentation(path_in, path_out):
     subtitle_size = 12 * FONT_PIXEL_SIZE
 
     content_left = img.width // 2
-    content_top = (img.height - (title_size + subtitle_size)) // 2
+    content_top = (img.height - (title_size + 2 * subtitle_size)) // 2
 
     fill_color = (195, 246, 255)
     glow_color = (0, 186, 219)
@@ -225,6 +225,7 @@ def draw_specimen(path_in, path_out, font_name, element_size=16):
     The wider Tiny5 Duo needs a smaller element size to keep its margins.
     """
     img = load_image(path_in)
+    img = ImageEnhance.Brightness(img).enhance(0.6)
 
     lines = [
         "A B C D E F G H I J K L M",
