@@ -201,11 +201,11 @@ def draw_presentation(path_in, path_out):
     """Generate and save a presentation image with Tiny5 font title and subtitle."""
     img = load_image(path_in)
 
-    title_size = 72 * FONT_PIXEL_SIZE
+    title_size = 48 * FONT_PIXEL_SIZE
     subtitle_size = 12 * FONT_PIXEL_SIZE
 
     content_left = img.width // 2
-    content_top = (img.height - (title_size + 2 * subtitle_size)) // 2
+    content_top = (img.height - (title_size + 3 * subtitle_size)) // 2
 
     fill_color = (195, 246, 255)
     glow_color = (0, 186, 219)
