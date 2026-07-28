@@ -201,20 +201,18 @@ def draw_presentation(path_in, path_out):
     """Generate and save a presentation image with Tiny5 font title and subtitle."""
     img = load_image(path_in)
 
-    title_size = 48 * FONT_PIXEL_SIZE
-    subtitle_size = 12 * FONT_PIXEL_SIZE
+    title_size = 96 * FONT_PIXEL_SIZE
+    subtitle_size = 16 * FONT_PIXEL_SIZE
 
-    content_left = img.width // 2
-    content_top = (img.height - (title_size + 3 * subtitle_size)) // 2
+    center = img.width // 2
+    title_top = 0.09 * img.height
 
     fill_color = (195, 246, 255)
     glow_color = (0, 186, 219)
     glow_radius = 75
 
-    draw_text(img, "LCD", title_size, (content_left, content_top), "mt",
+    draw_text(img, "LCD", title_size, (center, title_top), "mt",
               "Tiny5", fill_color, glow_color, glow_radius)
-    draw_text(img, "LCD", subtitle_size, (content_left, content_top + title_size), "mt",
-              "A 5-pixel font from the future", fill_color, glow_color, glow_radius)
 
     save_image(img, path_out)
 
