@@ -208,7 +208,7 @@ def draw_presentation(path_in, path_out):
     title_top = 0.09 * img.height
 
     fill_color = (195, 246, 255)
-    glow_color = (0, 186, 219)
+    glow_color = (51, 150, 171)
     glow_radius = 75
 
     draw_text(img, "LCD", title_size, (center, title_top), "mt",
