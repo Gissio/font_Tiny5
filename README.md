@@ -1,4 +1,4 @@
-![Presentation](documentation/img/tiny5-presentation.jpg)
+![Tiny5 presentation](documentation/tiny5-presentation.jpg)
 
 # Tiny5
 
@@ -13,19 +13,23 @@ Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean mi
 - Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **892 languages** and **1,655 glyphs**.
+The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **897 languages** and **1,655 glyphs**.
 
-For pixel-perfect rendering, use font sizes that are **multiples of 6 points**.
+For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
 Tiny5 is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
-![Tiny5 sample 1](documentation/img/tiny5-sample1.jpg)
+![Tiny5 character ROM](documentation/tiny5-sample1.jpg)
 
-![Tiny5 sample 2](documentation/img/tiny5-sample2.jpg)
+![Tiny5 Duo character ROM](documentation/tiny5-sample2.jpg)
 
-![Tiny5 sample 3](documentation/img/tiny5-sample3.jpg)
+![Amber CRT](documentation/tiny5-sample3.jpg)
 
-![Tiny5 sample 4](documentation/img/tiny5-sample4.jpg)
+![Size ramp](documentation/tiny5-sample4.jpg)
+
+![Variation axes](documentation/tiny5-sample5.jpg)
+
+![9-pin printer self test](documentation/tiny5-sample6.jpg)
 
 ## About
 
