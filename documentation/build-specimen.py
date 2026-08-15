@@ -420,7 +420,8 @@ def subpixel_pattern(size, cell):
     return img
 
 
-def render_tft(layers, cell, bg_color, backlight=(90, 96, 100)):
+def render_tft(layers, cell, bg_color, backlight=(90, 96, 100),
+               falloff=190, bezel=175):
     """Render as an active-matrix TFT LCD: backlit color pixels made of RGB
     subpixel stripes, glowing on dark glass, under a soft bezel shadow."""
     full = (layers[0][0].size[0] * cell, layers[0][0].size[1] * cell)
@@ -428,7 +429,7 @@ def render_tft(layers, cell, bg_color, backlight=(90, 96, 100)):
 
     # Backlight leaking through the closed cells, brighter at the center
     img = Image.new("RGB", full, bg_color)
-    img = ImageChops.multiply(img, radial_light(full, 255, 190).convert("RGB"))
+    img = ImageChops.multiply(img, radial_light(full, 255, falloff).convert("RGB"))
     leak = ImageChops.multiply(stripes, Image.new("RGB", full, (28, 28, 28)))
     img = ImageChops.add(img, leak)
 
@@ -449,7 +450,7 @@ def render_tft(layers, cell, bg_color, backlight=(90, 96, 100)):
     glow = all_lit.filter(ImageFilter.GaussianBlur(cell * 0.8)).point(lambda v: v * 30 // 100)
     img = ImageChops.screen(img, colorize(glow, backlight))
 
-    img = ImageChops.multiply(img, edge_shadow(full, 175).convert("RGB"))
+    img = ImageChops.multiply(img, edge_shadow(full, bezel).convert("RGB"))
 
     return img
 
@@ -911,16 +912,18 @@ def build_axes():
 
 # The same face from headline to native size, in device pixels, each step
 # in its own color on the color LCD
+# High key: a bright backlit panel, the text in a restrained palette that
+# reads as one set, warm to cool as the size drops, none at full saturation
 RAMP_ROWS = [
-    (6, "Lorem ipsum", (255, 60, 60)),
-    (4, "Lorem ipsum dolor", (60, 235, 90)),
-    (3, "Lorem ipsum dolor sit", (70, 140, 255)),
-    (2, "Lorem ipsum dolor sit amet", (255, 200, 60)),
-    (1, "Lorem ipsum dolor sit amet, consectetur.", (240, 240, 240)),
+    (6, "Lorem ipsum", (206, 70, 56)),                               # coral
+    (4, "Lorem ipsum dolor", (200, 138, 28)),                        # mustard
+    (3, "Lorem ipsum dolor sit", (76, 138, 84)),                     # sage
+    (2, "Lorem ipsum dolor sit amet", (48, 104, 176)),               # slate blue
+    (1, "Lorem ipsum dolor sit amet, consectetur.", (56, 58, 62)),   # charcoal
 ]
 
-TFT_BG = (10, 12, 14)
-TFT_CHROME = (200, 205, 210)
+TFT_BG = (238, 239, 240)
+TFT_CHROME = (132, 134, 138)
 
 
 def build_ramp():
@@ -945,7 +948,8 @@ def build_ramp():
         baseline += 2 * scale + 8
         layers.append((d, color))
 
-    save_image(render_tft(layers, 6, TFT_BG), "tiny5-sample4.jpg")
+    save_image(render_tft(layers, 6, TFT_BG, falloff=228, bezel=222),
+               "tiny5-sample4.jpg")
 
 
 if __name__ == "__main__":
