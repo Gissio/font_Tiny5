@@ -810,9 +810,9 @@ AXIS_ROWS = [
     ("weight", "wght 700", {"axes": [700, 100, 0, 0, 0]}),
     ("width", "wdth 75", {"axes": [300, 75, 0, 0, 0]}),
     ("slant", "italic", {"axes": [300, 100, 0, 0, 0], "italic": True}),
-    ("roundness", "ROND 100", {"axes": [400, 100, 100, 0, 0]}),
+    ("roundness", "ROND 100", {"axes": [300, 100, 100, 0, 0]}),
     ("bleed", "BLED 70", {"axes": [200, 100, 0, 80, 0]}),
-    ("jitter", "JITT 100", {"axes": [400, 100, 0, 0, 100]}),
+    ("jitter", "JITT 100", {"axes": [300, 100, 0, 0, 100]}),
 ]
 
 
