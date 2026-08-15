@@ -514,7 +514,7 @@ VFD_MESH_PITCH = 5
 # does, so the raster is zoomed in rather than subdivided
 CRT_GRID = (192, 108)
 CRT_CELL = 10
-CRT_LINE_PITCH = 7
+CRT_LINE_PITCH = 8
 CRT_BG = (16, 9, 2)
 
 # A P3 amber tube: orange at working brightness, the saturated cores
@@ -634,7 +634,7 @@ TERMINAL_LINES = [
     "$ fc-query --brief tiny5",
     "family: Tiny5 + Tiny5 Duo",
     "axes: weight width slant round bleed jitter",
-    "pixel-perfect render: multiples of 8 px",
+    "pixel-perfect render: increments of 6 pt (8 px)",
     "",
     "$ echo Every pixel counts",
     "Every pixel counts",
