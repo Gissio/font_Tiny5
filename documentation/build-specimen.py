@@ -580,7 +580,7 @@ def build_hero():
     d.draw.rectangle(xy=[(11, 2), (11, 3)], fill=255)
     d.draw.rectangle(xy=[(6, 4), (12, 7)], fill=255)        # lock body
     d.draw.rectangle(xy=[(9, 5), (9, 6)], fill=0)           # keyhole
-    d.text((width - 6, 7), 1, "5:55", anchor="rs")
+    d.text((width - 5, 7), 1, "5:55", anchor="rs")
 
     # Title with its subtitle, and the softkey label
     d.text((center, 25), 3, "Tiny5", anchor="ms")
