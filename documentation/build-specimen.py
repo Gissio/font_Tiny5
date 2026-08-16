@@ -320,11 +320,11 @@ def build_hero():
     d.draw.rectangle(xy=[(11, 2), (11, 3)], fill=255)
     d.draw.rectangle(xy=[(6, 4), (12, 7)], fill=255)        # lock body
     d.draw.rectangle(xy=[(9, 5), (9, 6)], fill=0)           # keyhole
-    d.text((width - 6, 7), 1, "5:55", anchor="rs")
+    d.text((width - 6, 7), 1, "7:55", anchor="rs")
 
     # Title with its subtitle, and the softkey label
     d.text((center, 25), 3, "Tiny5", anchor="ms")
-    d.text((center, 36), 1, "Every pixel counts", anchor="ms")
+    d.text((center, 36), 1, "A 5-pixel font", anchor="ms")
     d.text((center, height - 1), 1, "Menu", anchor="ms", duo=True)
 
     img = render_reflective(d, NOKIA_CELL, NOKIA_BG, NOKIA_FG, CANVAS)
@@ -403,7 +403,7 @@ def build_charset():
     pitch = 9
 
     d.text((margin, 7), 1, "CHARACTER ROM")
-    d.text((width - margin, 7), 1, "Tiny5", anchor="rs")
+    d.text((width - margin, 7), 1, VERSION, anchor="rs")
 
     # The six charset rows on a uniform 9-cell baseline rhythm, the block
     # centered in the space below the header. The exact left edge of the
@@ -1027,18 +1027,17 @@ BEAM_SIGMA_MAX = 0.46
 BEAM_FLOOR = 42                 # emission between scanlines, of 255
 
 TERMINAL_LINES = [
-    "login: guest",
-    "Last login: Fri Jun 5 05:55 on tty5",
+    "login: gissio",
+    "Last login: Fri Jun 5 07:55 on tty5",
     "",
-    "$ setfont tiny5",
-    "Font loaded: Tiny5, 5 pixels tall.",
-    "$ fc-query --brief tiny5",
-    "family: Tiny5 + Tiny5 Duo",
-    "axes: weight width slant round bleed jitter",
-    "pixel-perfect render: increments of 6 pt (8 px)",
-    "",
-    "$ echo Every pixel counts",
-    "Every pixel counts",
+    "$ fc-query --brief Tiny5",
+    "    family: \"Tiny5\"",
+    "    version: " + VERSION,
+    "    glyphs: 1655",
+    "    languages: 897",
+    "    axes: weight width slant round bleed jitter",
+    "    pixel-perfect render: multiples of 6 pt (8 px)",
+    "$ setfont Tiny5",
     "$",
 ]
 
@@ -1186,7 +1185,7 @@ def build_terminal():
 
     # Block cursor waiting on the prompt line
     cursor_top = baseline + (len(TERMINAL_LINES) - 1) * pitch - CAP_PIXELS + 1
-    d.draw.rectangle(xy=[(left + 7, cursor_top), (left + 10, cursor_top + CAP_PIXELS - 1)],
+    d.draw.rectangle(xy=[(left + 6, cursor_top), (left + 9, cursor_top + CAP_PIXELS - 1)],
                      fill=255)
 
     save_image(render_crt(d, CRT_CELL, CRT_BG), "tiny5-sample5.jpg")
@@ -1221,13 +1220,13 @@ ROLLING_LINES = 4
 INTL_LINES = [
     # Vietnamese first: its tall diacritic stacks rise into the blank
     # separator line above
-    "Do bạch kim rất quý nên sẽ dùng để lắp vô xương",
+    "Do bạch kim rất quý nên sẽ dùng để lắp vô xương.",
     "Jovencillo emponzoñado de whisky: ¡qué figurota exhibe!",
     "Zombif parvînt jusqu'à deux whisky-glace.",
+    "Fürge rőt róka túlszökik zsíros étkű kutyán.",
+    "Pchnąć w tę łódź jeża lub ośm skrzyń fig.",
     "Эх, чужак, общий съём цен шляп (юфть) – вдрызг!",
     "Γκόλφω, βάδιζε μπροστά ξανθή ψυχή!",
-    "Pchnąć w tę łódź jeża lub ośm skrzyń fig.",
-    "Pijamalı hasta yağız şoföre çabucak güvendi.",
 ]
 
 
@@ -1239,7 +1238,7 @@ def draw_paper(size, cell, bar_top, rng):
 
     # Green bars, each exactly 2 print lines (18 pixel rows) tall, so each
     # bar carries two single-spaced lines; the pattern continues down the
-    # whole form
+    # whole form-
     for top in range(bar_top * cell, size[1], 2 * LINE_PITCH * cell):
         draw.rectangle(xy=[(CONTENT_LEFT * cell, top),
                            (size[0], top + LINE_PITCH * cell - 1)],
