@@ -21,13 +21,13 @@ Tiny5 is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Dist
 
 ![Tiny5 character ROM](documentation/tiny5-sample1.jpg)
 
-![Tiny5 Duo character ROM](documentation/tiny5-sample2.jpg)
+![Size ramp](documentation/tiny5-sample2.jpg)
 
-![Amber CRT](documentation/tiny5-sample3.jpg)
+![Departures board](documentation/tiny5-sample3.jpg)
 
-![Size ramp](documentation/tiny5-sample4.jpg)
+![Variation axes](documentation/tiny5-sample4.jpg)
 
-![Variation axes](documentation/tiny5-sample5.jpg)
+![Amber CRT](documentation/tiny5-sample5.jpg)
 
 ![9-pin printer self test](documentation/tiny5-sample6.jpg)
 

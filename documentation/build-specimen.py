@@ -136,16 +136,18 @@ class Display:
     def char_row(self, left, baseline, pitch, scale, chars, duo=False):
         """Draw characters on a fixed pitch, centered in each column.
 
-        A column has no center cell to anchor on: with an odd pitch the
-        center falls between two cells, and rounding the anchor there would
-        push every odd-width character a whole cell off. The slack the
-        character leaves in its column is split instead, which lands on
-        whole cells by construction.
+        Neither end of the measurement need land on a whole cell: an odd
+        pitch puts the column center between two cells, and a character of
+        even width straddles that center. Both are therefore kept exact, and
+        only the pen is rounded, once. Rounding the row's origin and the
+        character's offset separately would round each of them down, and the
+        two half cells would add up to a whole one: every even-width
+        character would sit a cell left of its column.
         """
         for column, char in enumerate(chars):
             slack = pitch - round(self.text_width(scale, char, duo))
-            self.text((left + column * pitch + slack // 2, baseline),
-                      scale, char, duo=duo)
+            x = math.floor(left + column * pitch + slack / 2 + 0.5)
+            self.text((x, baseline), scale, char, duo=duo)
 
 
 # --- Image helpers ----------------------------------------------------------
@@ -392,7 +394,7 @@ def render_emissive(display, cell, bg_color, fg_color, glow_color):
     return img
 
 
-def build_charset(duo, filename):
+def build_charset():
     """A character ROM chart on a HiFi deck's fluorescent display, with the
     glyphs at the native size: one font pixel per display cell."""
     d = Display(VFD_GRID)
@@ -400,19 +402,595 @@ def build_charset(duo, filename):
     margin = 3
     pitch = 9
 
-    # Eight lines on one uniform 9-cell baseline rhythm: the header, the six
-    # charset rows, and the footer
     d.text((margin, 7), 1, "CHARACTER ROM")
-    d.text((width - margin, 7), 1, "Tiny5 Duo" if duo else "Tiny5", anchor="rs")
+    d.text((width - margin, 7), 1, "Tiny5", anchor="rs")
 
-    left = (width - pitch * len(CHARSET_ROWS[0])) // 2
+    # The six charset rows on a uniform 9-cell baseline rhythm, the block
+    # centered in the space below the header. The exact left edge of the
+    # column block, half cells and all: the row rounds the pen once, with
+    # the character's own offset folded in
+    left = (width - pitch * len(CHARSET_ROWS[0])) / 2
     for row, chars in enumerate(CHARSET_ROWS):
-        d.char_row(left, 16 + row * pitch, pitch, 1, chars, duo=duo)
+        d.char_row(left, 19 + row * pitch, pitch, 1, chars)
 
-    d.text((margin, height - 2), 1, "1655 glyphs")
-    d.text((width - margin, height - 2), 1, "897 languages", anchor="rs")
+    save_image(render_emissive(d, VFD_CELL, VFD_BG, VFD_FG, VFD_GLOW),
+               "tiny5-sample1.jpg")
 
-    save_image(render_emissive(d, VFD_CELL, VFD_BG, VFD_FG, VFD_GLOW), filename)
+
+# --- Active-matrix TFT: the size ramp ---------------------------------------
+
+# A backlit color panel showing a display test in the one ink the firmware
+# has: dark text on the white of the backlight, the chrome a step lighter
+TFT_GRID = (240, 135)
+TFT_CELL = 8
+TFT_SUPER = 3                   # the panel is drawn this many times over size,
+                                # and reduced once it is finished. A cell is
+                                # 8 pixels across but carries three subpixel
+                                # columns; only at a multiple of 3 does the
+                                # stripe divide into whole columns, so it is
+                                # laid down there and the reduction is what
+                                # lands it back on the pixel
+TFT_BG = (240, 238, 232)        # the backlight, through a slightly warm diffuser
+TFT_INK = (52, 54, 58)
+TFT_CHROME = (138, 140, 144)
+TFT_LEAK = (28, 28, 28)         # backlight leaking through the closed cells
+TFT_BOOST = (120, 120, 120)     # lift, so a lit pixel reads as its own color
+TFT_MARGIN = 8                  # side margin, in cells
+TFT_LABEL_GAP = 6               # cells between a row's text and its label
+
+# The same face from headline to native size, in points at 6 pt per font
+# pixel: every row shows the one test string, as much of it as fits the
+# measure at that size, so the sizes compare word for word
+RAMP_SCALES = [5, 3, 2, 1]
+RAMP_TEXT = "The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs."
+
+
+def subpixel_pattern(size, cell, unit=1):
+    """Build the RGB stripe of an active-matrix color LCD: each cell split
+    into a red, a green and a blue subpixel column, with the black matrix
+    between them and between the rows.
+
+    The cell is given in the units the pattern is drawn in, and `unit` is
+    how many of those make one pixel of the finished panel: the matrix and
+    the gap along each subpixel column are set in finished pixels, so that
+    supersampling refines the stripe without thinning it.
+    """
+    width, height = size
+    third = cell // 3
+    row = bytearray()
+    for x in range(width):
+        cx = x % cell
+        if cx >= cell - unit:
+            row += b"\0\0\0"
+            continue
+        band = min(cx // third, 2)
+        edge = cx % third
+        level = 255 if unit / 2 <= edge < third - unit / 2 else 110
+        row += bytes(level if channel == band else 0 for channel in range(3))
+    row_on = bytes(row)
+    row_off = bytes(width * 3)
+    rows = b"".join(row_on if y % cell < cell - unit else row_off
+                    for y in range(height))
+
+    return Image.frombytes("RGB", size, rows)
+
+
+def render_tft(layers, cell, bg_color, backlight=(90, 96, 100),
+               falloff=196, bezel=180):
+    """Render as an active-matrix TFT LCD: backlit color pixels made of RGB
+    subpixel stripes, glowing on dark glass, recessed in the bezel that
+    shades its edges, the polarizer catching a sheen. Each layer carries
+    the pixels of one color.
+
+    The panel is drawn several times over size and reduced once it is
+    finished: a subpixel column is a third of a cell, which is no whole
+    number of pixels, and it is the reduction that resolves it the way the
+    eye does at viewing distance.
+    """
+    sub = cell * TFT_SUPER
+    full = layers[0][0].image_size(sub)
+    stripes = subpixel_pattern(full, sub, TFT_SUPER)
+    lits = [(display.lit(sub), color) for display, color in layers]
+
+    # Backlight leaking through the closed cells, brighter at the center
+    img = Image.new("RGB", full, bg_color)
+    img = shade(img, radial_light(full, 255, falloff))
+    img = ImageChops.add(img, ImageChops.multiply(
+        stripes, Image.new("RGB", full, TFT_LEAK)))
+
+    # Each layer's pixels open their subpixels to the layer's color, boosted
+    # so the pixel reads as the intended color at viewing distance
+    for lit, color in lits:
+        boost = tuple(c * b // 255 for c, b in zip(color, TFT_BOOST))
+        colored = ImageChops.multiply(stripes, Image.new("RGB", full, color))
+        colored = ImageChops.add(colored, Image.new("RGB", full, boost))
+        img.paste(colored, (0, 0), lit)
+
+    # Slight backlight bloom around the lit pixels
+    all_lit = lits[0][0]
+    for lit, _ in lits[1:]:
+        all_lit = ImageChops.lighter(all_lit, lit)
+    glow = all_lit.filter(ImageFilter.GaussianBlur(sub * 0.8)).point(lambda v: v * 30 // 100)
+    img = ImageChops.screen(img, colorize(glow, backlight))
+
+    img = shade(img, edge_shadow(full, bezel))
+    img = ImageChops.add(img, sheen(full, 8).convert("RGB"))
+
+    return img.reduce(TFT_SUPER)
+
+
+def build_ramp():
+    """A size ramp on a color LCD module, 240x135 pixels: the same test
+    string from headline down to the native size, each row filled to the
+    measure and labeled with its size in points.
+
+    The rows are spaced on the ink: each row is as tall as its capitals and
+    descenders, and the space left over spreads evenly between the rows.
+    """
+    width, height = TFT_GRID
+    margin = TFT_MARGIN
+    left, right = margin, width - margin
+
+    chrome = Display(TFT_GRID)
+    chrome.text((left, margin + CAP_PIXELS), 1, "Tiny5 display test")
+    chrome.text((right, margin + CAP_PIXELS), 1, VERSION, anchor="rs")
+    layers = [(chrome, TFT_CHROME)]
+
+    # The labels take a column at the right; the text fills what is left
+    label_width = max(round(chrome.text_width(1, f"{scale * 6} pt"))
+                      for scale in RAMP_SCALES)
+    measure = right - label_width - TFT_LABEL_GAP - left
+
+    # Each row's ink height: caps above the baseline, descenders below it,
+    # at 2 font pixels; the leftover shares out equally between the rows
+    rows = [scale * (CAP_PIXELS + 2) for scale in RAMP_SCALES]
+    top = 2 * margin + CAP_PIXELS
+    gap = (height - margin - top - sum(rows)) / len(rows)
+
+    d = Display(TFT_GRID)
+    y = top
+    for scale, row in zip(RAMP_SCALES, rows):
+        y += gap
+        baseline = round(y + scale * CAP_PIXELS)
+        line = ""
+        for char in RAMP_TEXT:
+            if d.text_width(scale, line + char) > measure:
+                break
+            line += char
+        d.text((left, baseline), scale, line.rstrip())
+        d.text((right, baseline), 1, f"{scale * 6} pt", anchor="rs")
+        y += row
+    layers.append((d, TFT_INK))
+
+    save_image(render_tft(layers, TFT_CELL, TFT_BG), "tiny5-sample2.jpg")
+
+
+# --- Flip-disc board: the departures ----------------------------------------
+
+# An electromechanical departures board. Every pixel is a small disc, matte
+# black on one face and day-glo yellow on the other, hung on a horizontal
+# shaft over a black panel and turned over by a magnetic pulse; it then
+# stays put, unpowered, until the next one. Nothing here emits light: the
+# board is read by the light of the hall falling on it from above, and a
+# little from the left, where the windows are.
+FLIP_GRID = (160, 90)
+FLIP_CELL = 12
+FLIP_SUPER = 3                  # the board is drawn this many times over size,
+                                # and reduced once it is finished
+FLIP_LINE_PITCH = 10            # cells per module row: one text line
+FLIP_MODULE_WIDTH = 32          # cells per module across
+FLIP_PANEL = (14, 14, 15)       # the panel the discs are set into
+FLIP_SEAM = (6, 6, 7)           # the joint where one module meets the next
+FLIP_SEAM_EDGE = (36, 36, 39)   # and the edge of the module beyond, catching light
+FLIP_SEAM_WIDTH = 2             # the joint, in pixels of the finished board
+FLIP_SEAM_LIP = 1               # and that lit edge past it
+FLIP_MODULE_SHIFT = 0.12        # how far a module may hang off the grid, in cells
+FLIP_JITTER = 0.021             # and how far a disc hangs off its own center
+FLIP_DARK = (58, 58, 62)        # the black face of a disc, at its brightest
+FLIP_YELLOW = (250, 232, 60)    # day-glo, so it reads brighter than paper
+FLIP_YELLOW_SCATTER = (8, 8, 10)  # how far one disc's pigment strays from it, per channel
+FLIP_YELLOW_FADE = 0.03         # and how much one disc has bleached, of its brightness
+FLIP_RADIUS = 0.48              # disc radius, in cells: they nearly touch
+FLIP_BITE = 0.09                # the notch bitten out of a disc at each of the two
+                                # points where it is hung, in cells
+FLIP_RIM = 0.62                 # the rim of a black disc, turned from the light
+FLIP_LIT_RIM = 0.90             # a day-glo face barely shades towards its rim
+FLIP_RIM_START = 0.76           # where the rim starts, in fractions of radius
+FLIP_GLOSS = 60                 # the arc a graphite rim catches from the light, of 255
+FLIP_LIT_GLOSS = 12             # a matte pigment catches next to none
+FLIP_LIGHT = (-0.42, -0.91)     # where the light comes from: above, and a little left
+FLIP_TILT_SHORTEN = 0.16        # how much a tilted disc foreshortens
+FLIP_TILT_SHADE = 0.04          # and how much that changes its brightness
+FLIP_SHADOW = 150               # depth of a disc's shadow on the panel, of 255
+FLIP_SHADOW_DROP = (0.06, 0.16)  # how far that shadow falls, in cells, right and down
+
+# The columns: head, and left edge in cells. The heads are discs like the
+# rest of the board, set in Duo to tell them from the flights.
+#
+# A column is as wide as its head or as its widest flight, whichever is
+# wider: 22, 55, 21, and 44 for CANCELLED, which outruns its own head. The
+# four of them take 142 of the board's 160 columns, and five cells between
+# each pair of heads take 15 more, which leaves three for the two margins.
+# The wider of them goes to the left, where every line starts; only
+# CANCELLED, the one remark that outruns its own head, reaches the right.
+FLIP_MARGIN = 2
+DEPARTURE_COLUMNS = [("Time", FLIP_MARGIN), ("Destination", 29), ("Gate", 89),
+                     ("Remarks", 115)]
+DEPARTURES = [
+    ("14:55", "MONTEVIDEO", "A04", "LAST CALL"),
+    ("15:05", "SÃO PAULO", "B12", "BOARDING"),
+    ("15:20", "ZÜRICH", "A09", "ON TIME"),
+    ("15:35", "REYKJAVÍK", "C01", "DELAYED"),
+    ("15:45", "MÁLAGA", "B03", "ON TIME"),
+    ("16:00", "BUENOS AIRES", "A11", "ON TIME"),
+    ("16:20", "TOKYO", "C07", "CANCELLED"),
+    ("16:35", "HELSINKI", "B08", "ON TIME"),
+]
+# The heads take the first line of the board, the flights the lines after
+# it, all on the module pitch, capitals centered in the line
+FLIP_BASELINE = get_baseline(FLIP_LINE_PITCH, CAP_PIXELS)
+
+
+def disc_shading(cell, radius, top, bottom, rim, gloss):
+    """Build one cell of the shading of a flat disc, to be tiled over the
+    board.
+
+    A disc is matte and flat, not a bead: across its face the light falls
+    off gently from the edge nearest the light to the one furthest from it,
+    and only at the rim, where the disc turns over into its edge, does it
+    drop away sharply. That turned edge is the one place a face has any
+    gloss, and it catches the light in an arc on the side facing it.
+    """
+    tile = Image.new("L", (cell, cell), 0)
+    px = tile.load()
+    center = cell / 2
+    span = radius * cell
+    lx, ly = FLIP_LIGHT
+    for y in range(cell):
+        for x in range(cell):
+            u = (x + 0.5 - center) / span
+            v = (y + 0.5 - center) / span
+            toward = -(u * lx + v * ly)     # 1 at the edge nearest the light
+            level = top + (bottom - top) * (1 - toward) / 2
+            d = (u * u + v * v) ** 0.5
+            if d > FLIP_RIM_START:
+                edge = min(1.0, (d - FLIP_RIM_START) / (1 - FLIP_RIM_START))
+                level *= 1 - (1 - rim) * edge
+                facing = max(0.0, toward / d)
+                level += gloss * facing ** 3 * 4 * edge * (1 - edge)
+            px[x, y] = max(0, min(255, round(level)))
+
+    return tile
+
+
+def tile_pattern(size, tile):
+    """Tile a small image over the full size."""
+    img = Image.new("L", size)
+    for y in range(0, size[1], tile.size[1]):
+        for x in range(0, size[0], tile.size[0]):
+            img.paste(tile, (x, y))
+
+    return img
+
+
+def module_shifts(width, height, rng):
+    """Hang the modules: no two sit quite alike in the frame, so each is a
+    little off the grid, and the rows of discs jog where they meet."""
+    return {(mx, my): (rng.uniform(-FLIP_MODULE_SHIFT, FLIP_MODULE_SHIFT),
+                       rng.uniform(-FLIP_MODULE_SHIFT, FLIP_MODULE_SHIFT))
+            for my in range(math.ceil(height / FLIP_LINE_PITCH))
+            for mx in range(math.ceil(width / FLIP_MODULE_WIDTH))}
+
+
+def disc_layout(cell, positions, rng, shifts):
+    """Settle every disc: where it hangs, and how it has come to rest.
+
+    No two discs come to rest at quite the same angle: one tilted towards
+    the light stands a little brighter and, seen face on, a little shorter,
+    since it turns about its shaft, which is horizontal. That scatter is
+    what a flip-disc board looks like up close. Each disc is given as its
+    center, its two radii and its brightness, of 1.
+    """
+    radius = FLIP_RADIUS * cell
+    layout = []
+    for cx, cy in positions:
+        sx, sy = shifts[(cx // FLIP_MODULE_WIDTH, cy // FLIP_LINE_PITCH)]
+        tilt = rng.uniform(-1.0, 1.0)
+        x = (cx + sx + rng.uniform(-FLIP_JITTER, FLIP_JITTER) + 0.5) * cell
+        y = (cy + sy + rng.uniform(-FLIP_JITTER, FLIP_JITTER) + 0.5) * cell
+        ry = radius * (1 - FLIP_TILT_SHORTEN * abs(tilt))
+        layout.append((x, y, radius, ry, 1 - FLIP_TILT_SHADE * tilt))
+
+    return layout
+
+
+def draw_discs(size, layout, bite, shaded=True):
+    """Draw the discs of a layout into a mask, each at its own brightness,
+    or all full on for a plain cut-out.
+
+    A disc is not quite a circle. It hangs on its shaft by a tab at either
+    side, and is bitten away around each of them, so that where two discs
+    meet along a row the dark of the frame shows through between them.
+    Every disc is laid down before any bite is taken, or a neighbour coming
+    afterwards would fill one in again.
+    """
+    mask = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(mask)
+    for x, y, rx, ry, level in layout:
+        draw.ellipse(xy=[x - rx, y - ry, x + rx, y + ry],
+                     fill=max(0, min(255, round(255 * level))) if shaded else 255)
+    for x, y, rx, ry, level in layout:
+        for side in (-1, 1):
+            hinge = x + side * rx
+            draw.ellipse(xy=[hinge - bite, y - bite, hinge + bite, y + bite],
+                         fill=0)
+
+    return mask
+
+
+def draw_faces(size, layout, rng):
+    """Draw the day-glo faces of a layout: every disc its own batch of
+    pigment, a shade more orange or greener than the next, and some a
+    little bleached by the years under the hall's lights."""
+    img = Image.new("RGB", size, (0, 0, 0))
+    draw = ImageDraw.Draw(img)
+    for x, y, rx, ry, level in layout:
+        fade = level * (1 + rng.uniform(-FLIP_YELLOW_FADE, FLIP_YELLOW_FADE))
+        color = tuple(max(0, min(255, round((c + rng.uniform(-s, s)) * fade)))
+                      for c, s in zip(FLIP_YELLOW, FLIP_YELLOW_SCATTER))
+        draw.ellipse(xy=[x - rx, y - ry, x + rx, y + ry], fill=color)
+
+    return img
+
+
+def hall_light(size):
+    """Build the light of the hall: falling on the board from above and a
+    little from the left, and dropping off towards the corners."""
+    def level(u, v):
+        du, dv = u - 0.5, v - 0.5
+        corner = min(1.0, (du * du * 4 + dv * dv * 4) ** 0.5)
+
+        return round(255 - 16 * v - 6 * u - 12 * corner ** 2)
+
+    return light_field(size, level)
+
+
+def render_flipdisc(display, cell, rng):
+    """Render as a flip-disc board: every disc of the panel showing a face,
+    the yellow ones where the text is and the black ones everywhere else,
+    each casting its own small shadow on the panel behind.
+
+    The board is drawn several times over size and reduced once it is
+    finished. A disc's bites, and the joints between the modules, are finer
+    than a pixel of it: drawn at size they would fall on or off a whole
+    pixel, and it is the reduction that gathers them the way a camera does.
+    """
+    sub = cell * FLIP_SUPER
+    full = display.image_size(sub)
+    width, height = display.size
+    cells = display.cells().load()
+
+    # The panel, and the joints between its modules: each joint is a shadow
+    # line, and past it the edge of the next module catches the light
+    img = Image.new("RGB", full, FLIP_PANEL)
+    draw = ImageDraw.Draw(img)
+    joint = FLIP_SEAM_WIDTH * FLIP_SUPER // 2
+    lip = FLIP_SEAM_LIP * FLIP_SUPER
+    for x in range(0, full[0], FLIP_MODULE_WIDTH * sub):
+        draw.rectangle(xy=[(x - joint, 0), (x + joint - 1, full[1])], fill=FLIP_SEAM)
+        draw.rectangle(xy=[(x + joint, 0), (x + joint + lip - 1, full[1])],
+                       fill=FLIP_SEAM_EDGE)
+    for y in range(0, full[1], FLIP_LINE_PITCH * sub):
+        draw.rectangle(xy=[(0, y - joint), (full[0], y + joint - 1)], fill=FLIP_SEAM)
+        draw.rectangle(xy=[(0, y + joint), (full[0], y + joint + lip - 1)],
+                       fill=FLIP_SEAM_EDGE)
+
+    # Every disc of the board is there, whichever way it is turned: they are
+    # laid out as one field, and the yellow faces picked out of it afterwards
+    positions = [(x, y) for y in range(height) for x in range(width)]
+    layout = disc_layout(sub, positions, rng, module_shifts(width, height, rng))
+    bite = FLIP_BITE * sub
+    discs = draw_discs(full, layout, bite)
+    lit_layout = [disc for disc, (x, y) in zip(layout, positions) if cells[x, y]]
+    lit = draw_discs(full, lit_layout, bite, shaded=False)
+
+    # Each disc stands off the panel, and drops a shadow onto it, away from
+    # the light
+    shadow = discs.filter(ImageFilter.GaussianBlur(sub * 0.16))
+    shadow = ImageChops.offset(shadow, *(max(1, round(sub * drop))
+                                         for drop in FLIP_SHADOW_DROP))
+    img = shade(img, shadow.point(lambda v: 255 - v * FLIP_SHADOW // 255))
+
+    # The black faces: graphite, dark enough that the board reads as black
+    # until you look for them, and then it is their glossy rims you see
+    dark_shade = tile_pattern(full, disc_shading(sub, FLIP_RADIUS, 255, 74,
+                                                 FLIP_RIM, FLIP_GLOSS))
+    dark = ImageChops.multiply(colorize(discs, FLIP_DARK), dark_shade.convert("RGB"))
+    img = ImageChops.lighter(img, dark)
+
+    # The yellow faces: day-glo pigment, which scatters what falls on it
+    # almost evenly, so the face reads flat
+    lit_shade = tile_pattern(full, disc_shading(sub, FLIP_RADIUS, 255, 240,
+                                                 FLIP_LIT_RIM, FLIP_LIT_GLOSS))
+    yellow = ImageChops.multiply(draw_faces(full, lit_layout, rng),
+                                 lit_shade.convert("RGB"))
+    img.paste(yellow, (0, 0), lit)
+
+    return shade(img, hall_light(full)).reduce(FLIP_SUPER)
+
+
+def build_departures():
+    """The departures hall board: the column heads in Duo, and eight
+    flights below them, all in yellow discs."""
+    rng = random.Random(NOISE_SEED)
+    d = Display(FLIP_GRID)
+
+    for name, x in DEPARTURE_COLUMNS:
+        d.text((x, FLIP_BASELINE), 1, name, duo=True)
+    for line, fields in enumerate(DEPARTURES, start=1):
+        baseline = FLIP_BASELINE + line * FLIP_LINE_PITCH
+        for (name, x), field in zip(DEPARTURE_COLUMNS, fields):
+            d.text((x, baseline), 1, field)
+
+    save_image(render_flipdisc(d, FLIP_CELL, rng), "tiny5-sample3.jpg")
+
+
+# --- Paper -----------------------------------------------------------------
+
+# Both printers run the same stock
+PAPER_COLOR = (250, 249, 246)
+PAPER_GRAIN = 9                 # depth of the paper grain, of 255
+
+
+# --- Inkjet: the variation axes proof ---------------------------------------
+
+INKJET_DOT = 4                  # Printer dot pitch, in image pixels
+INKJET_INK = (36, 40, 52)       # Dye-based black: slightly weak and bluish
+INKJET_SWATH = 50               # Nozzles per print head pass
+INKJET_GAIN = (0.56, 0.70)      # Droplet radius range, in dots (dot gain > 0.5)
+INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
+
+# The proof card: a running head over three rows of two blocks, each block
+# an axis name with its technical tag beneath
+PROOF_MARGIN = 120              # side margin, in image pixels
+PROOF_MARGIN_Y = 84             # head and foot margin
+PROOF_COLUMN = 900              # distance between the two columns
+PROOF_WORD_SCALE = 22           # the axis name, in image pixels per font pixel
+PROOF_TAG_SCALE = 8             # its tag, and the running head
+PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
+
+# Each variation axis demonstrated by its own name, set with that axis
+# pushed to its extreme
+AXIS_ROWS = [
+    ("weight", "wght 700", {"axes": [700, 100, 0, 0, 0]}),
+    ("width", "wdth 75", {"axes": [300, 75, 0, 0, 0]}),
+    ("slant", "italic", {"axes": [300, 100, 0, 0, 0], "italic": True}),
+    ("roundness", "ROND 100", {"axes": [300, 100, 100, 0, 0]}),
+    ("bleed", "BLED 70", {"axes": [200, 100, 0, 80, 0]}),
+    ("jitter", "JITT 100", {"axes": [300, 100, 0, 0, 100]}),
+]
+
+
+def render_inkjet(mask, rng):
+    """Print a full-resolution ink mask as an early inkjet would: rasterized
+    to the printer's dot grid, each dot an overgrown droplet placed with a
+    little error and the odd satellite, feathered into the paper fibers,
+    with faint banding where the head passes meet."""
+    size = mask.size
+    dot = INKJET_DOT
+    grid = (size[0] // dot, size[1] // dot)
+    dots = mask.resize(grid, Image.BOX).point(lambda v: 255 if v >= 128 else 0)
+    px = dots.load()
+
+    ink = Image.new("L", size, 0)
+    draw = ImageDraw.Draw(ink)
+    lo, hi = INKJET_GAIN
+    pass_offset = 0
+    for y in range(grid[1]):
+        # Each swath is a separate pass: a small vertical registration
+        # error, and the last nozzle rows lay down a little less ink
+        if y % INKJET_SWATH == 0:
+            pass_offset = rng.uniform(-0.6, 0.6)
+        row_level = 255 if y % INKJET_SWATH < INKJET_SWATH - 2 else 215
+        for x in range(grid[0]):
+            if not px[x, y]:
+                continue
+            cx = (x + 0.5) * dot + rng.uniform(-0.5, 0.5)
+            cy = (y + 0.5) * dot + pass_offset + rng.uniform(-0.4, 0.4)
+            r = rng.uniform(lo, hi) * dot
+            draw.ellipse(xy=[cx - r, cy - r, cx + r, cy + r], fill=row_level)
+            # Satellites spray off the edge dots
+            edge = (x == 0 or y == 0 or x == grid[0] - 1 or y == grid[1] - 1 or
+                    not (px[x - 1, y] and px[x + 1, y] and px[x, y - 1] and px[x, y + 1]))
+            if edge and rng.random() < INKJET_SATELLITES:
+                sx = cx + rng.uniform(-2.5, 2.5) * dot
+                sy = cy + rng.uniform(-1.0, 1.0) * dot
+                sr = rng.uniform(0.15, 0.3) * dot
+                draw.ellipse(xy=[sx - sr, sy - sr, sx + sr, sy + sr], fill=170)
+
+    # Ink wicks along the paper fibers: soften the droplets, then re-harden
+    # the edge with a little correlated noise so the outline turns fibrous
+    ink = ink.filter(ImageFilter.GaussianBlur(dot * 0.25))
+    fibers = noise_image(size, rng).filter(ImageFilter.GaussianBlur(1.6))
+    fibers = fibers.point(lambda v: 128 + (v - 128) * 1.8)
+    ink = ImageChops.add(ink, fibers, scale=1.0, offset=-128)
+    ink = ink.point(lambda v: min(255, max(0, (v - 128) * 4 + 128)))
+    ink = ink.filter(ImageFilter.GaussianBlur(0.5))
+
+    # Uneven absorption: the ink density drifts a little across the page
+    density = noise_image((size[0] // 96 + 1, size[1] // 96 + 1), rng)
+    density = density.resize(size, Image.BICUBIC).point(lambda v: 222 + v * 33 // 255)
+    ink = ImageChops.multiply(ink, density)
+
+    paper = shade(Image.new("RGB", size, PAPER_COLOR),
+                  grain_field(size, rng, PAPER_GRAIN))
+
+    return Image.composite(Image.new("RGB", size, INKJET_INK), paper, ink)
+
+
+def build_axes():
+    """A proof card for the variation axes, run off on an early inkjet: each
+    axis shown by its own name, typeset with that axis at its extreme, drawn
+    directly at a large size so the font's own axis effects reproduce
+    faithfully, then rasterized to the printer's dots.
+
+    The card is spaced on the ink rather than on the metrics: the axes push
+    the glyphs to their own heights, so blocks stepped by a fixed baseline
+    pitch would leave visibly uneven gaps. Each tag instead clears the
+    descenders of its own row, and the space left over spreads evenly.
+    """
+    rng = random.Random(NOISE_SEED)
+    mask = Image.new("L", CANVAS, 0)
+    draw = ImageDraw.Draw(mask)
+
+    def put(xy, scale, string, anchor="ls", **variant):
+        font = get_font(scale, **variant)
+        x = xy[0]
+        if anchor[0] == "r":
+            # Right-align on the ink, so the running head sits flush to the
+            # margin at both ends; the advance runs a pixel past the ink
+            x -= draw.textlength(string, font=font) - scale
+            anchor = "l" + anchor[1]
+        draw.text(xy=(x, xy[1]), text=string, fill=255, font=font, anchor=anchor)
+
+    def ink(scale, strings):
+        """Return how far the tallest of the strings inks above the baseline,
+        and the deepest of them below it."""
+        boxes = [draw.textbbox((0, 0), string, font=get_font(scale, **variant),
+                               anchor="ls")
+                 for string, variant in strings]
+
+        return max(-box[1] for box in boxes), max(box[3] for box in boxes)
+
+    left, right = PROOF_MARGIN, CANVAS[0] - PROOF_MARGIN
+    head = [("Tiny5 variation test", {}), (VERSION, {})]
+    rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
+
+    # Measure every line, then share out what the blocks leave: one gap
+    # above each row, all equal
+    head_above, head_below = ink(PROOF_TAG_SCALE, head)
+    blocks = []
+    for row in rows:
+        above, below = ink(PROOF_WORD_SCALE, [(word, v) for word, _, v in row])
+        tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {}) for _, tag, _ in row])
+        blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
+    filled = head_above + head_below + sum(sum(block) for block in blocks)
+    gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
+
+    y = PROOF_MARGIN_Y + head_above
+    put((left, y), PROOF_TAG_SCALE, "Tiny5 variation test")
+    put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs")
+    y += head_below
+
+    for row, (above, tag_offset, tag_below) in zip(rows, blocks):
+        y += gap + above
+        for column, (word, tag, variant) in enumerate(row):
+            x = left + column * PROOF_COLUMN
+            put((x, y), PROOF_WORD_SCALE, word, **variant)
+            put((x, y + tag_offset), PROOF_TAG_SCALE, tag)
+        y += tag_offset + tag_below
+
+    save_image(render_inkjet(mask, rng), "tiny5-sample4.jpg")
 
 
 # --- Cathode ray tube: the terminal session ---------------------------------
@@ -611,272 +1189,7 @@ def build_terminal():
     d.draw.rectangle(xy=[(left + 7, cursor_top), (left + 10, cursor_top + CAP_PIXELS - 1)],
                      fill=255)
 
-    save_image(render_crt(d, CRT_CELL, CRT_BG), "tiny5-sample3.jpg")
-
-
-# --- Active-matrix TFT: the size ramp ---------------------------------------
-
-TFT_GRID = (320, 180)
-TFT_CELL = 6
-TFT_BG = (238, 239, 240)
-TFT_CHROME = (132, 134, 138)
-TFT_LEAK = (28, 28, 28)         # backlight leaking through the closed cells
-TFT_BOOST = (120, 120, 120)     # lift, so a lit pixel reads as its own color
-
-# The same face from headline to native size, in device pixels, each step
-# in its own color on the color LCD
-# High key: a bright backlit panel, the text in a restrained palette that
-# reads as one set, warm to cool as the size drops, none at full saturation
-RAMP_ROWS = [
-    (6, "Lorem ipsum", (206, 70, 56)),                               # coral
-    (4, "Lorem ipsum dolor", (200, 138, 28)),                        # mustard
-    (3, "Lorem ipsum dolor sit", (76, 138, 84)),                     # sage
-    (2, "Lorem ipsum dolor sit amet", (48, 104, 176)),               # slate blue
-    (1, "Lorem ipsum dolor sit amet, consectetur.", (56, 58, 62)),   # charcoal
-]
-
-
-def subpixel_pattern(size, cell):
-    """Build the RGB stripe of an active-matrix color LCD: each cell split
-    into a red, a green and a blue subpixel column, with the black matrix
-    between them and between the rows."""
-    width, height = size
-    third = cell / 3
-    row_on = []
-    for x in range(width):
-        cx = x % cell
-        if cx >= cell - 1:
-            row_on.append((0, 0, 0))
-            continue
-        band = int(cx / third)
-        edge = cx % third
-        on = edge >= 0.5 and edge < third - 0.5
-        level = 255 if on else 110
-        row_on.append([(level, 0, 0), (0, level, 0), (0, 0, level)][min(band, 2)])
-    row_off = [(0, 0, 0)] * width
-    data = []
-    for y in range(height):
-        data.extend(row_on if y % cell < cell - 1 else row_off)
-    img = Image.new("RGB", size)
-    img.putdata(data)
-
-    return img
-
-
-def render_tft(layers, cell, bg_color, backlight=(90, 96, 100),
-               falloff=190, bezel=175):
-    """Render as an active-matrix TFT LCD: backlit color pixels made of RGB
-    subpixel stripes, glowing on dark glass, under a soft bezel shadow. Each
-    layer carries the pixels of one color."""
-    full = layers[0][0].image_size(cell)
-    stripes = subpixel_pattern(full, cell)
-    lits = [(display.lit(cell), color) for display, color in layers]
-
-    # Backlight leaking through the closed cells, brighter at the center
-    img = Image.new("RGB", full, bg_color)
-    img = shade(img, radial_light(full, 255, falloff))
-    img = ImageChops.add(img, ImageChops.multiply(
-        stripes, Image.new("RGB", full, TFT_LEAK)))
-
-    # Each layer's pixels open their subpixels to the layer's color, boosted
-    # so the pixel reads as the intended color at viewing distance
-    for lit, color in lits:
-        colored = ImageChops.multiply(stripes, Image.new("RGB", full, color))
-        colored = ImageChops.add(colored, ImageChops.multiply(
-            Image.new("RGB", full, color), Image.new("RGB", full, TFT_BOOST)))
-        img.paste(colored, (0, 0), lit)
-
-    # Slight backlight bloom around the lit pixels
-    all_lit = lits[0][0]
-    for lit, _ in lits[1:]:
-        all_lit = ImageChops.lighter(all_lit, lit)
-    glow = all_lit.filter(ImageFilter.GaussianBlur(cell * 0.8)).point(lambda v: v * 30 // 100)
-    img = ImageChops.screen(img, colorize(glow, backlight))
-
-    return shade(img, edge_shadow(full, bezel))
-
-
-def build_ramp():
-    """A size ramp on a reflective color LCD module, 320x180 pixels: the
-    same face from headline pixels down to the native size, each step in
-    its own color, labeled in device pixels."""
-    width = TFT_GRID[0]
-    margin = 10
-
-    chrome = Display(TFT_GRID)
-    chrome.text((margin, 16), 1, "Tiny5 display test")
-    chrome.text((width - margin, 16), 1, VERSION, anchor="rs")
-    layers = [(chrome, TFT_CHROME)]
-
-    baseline = 28
-    for scale, string, color in RAMP_ROWS:
-        d = Display(TFT_GRID)
-        baseline += scale * CAP_PIXELS
-        d.text((margin, baseline), scale, string)
-        d.text((width - margin, baseline), 1, f"{scale * 6} pt", anchor="rs")
-        baseline += 2 * scale + 8
-        layers.append((d, color))
-
-    save_image(render_tft(layers, TFT_CELL, TFT_BG, falloff=228, bezel=222),
-               "tiny5-sample4.jpg")
-
-
-# --- Paper -----------------------------------------------------------------
-
-# Both printers run the same stock
-PAPER_COLOR = (250, 249, 246)
-PAPER_GRAIN = 9                 # depth of the paper grain, of 255
-
-
-# --- Inkjet: the variation axes proof ---------------------------------------
-
-INKJET_DOT = 4                  # Printer dot pitch, in image pixels
-INKJET_INK = (36, 40, 52)       # Dye-based black: slightly weak and bluish
-INKJET_SWATH = 50               # Nozzles per print head pass
-INKJET_GAIN = (0.56, 0.70)      # Droplet radius range, in dots (dot gain > 0.5)
-INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
-
-# The proof card: a running head over three rows of two blocks, each block
-# an axis name with its technical tag beneath
-PROOF_MARGIN = 120              # side margin, in image pixels
-PROOF_MARGIN_Y = 84             # head and foot margin
-PROOF_COLUMN = 900              # distance between the two columns
-PROOF_WORD_SCALE = 22           # the axis name, in image pixels per font pixel
-PROOF_TAG_SCALE = 8             # its tag, and the running head
-PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
-
-# Each variation axis demonstrated by its own name, set with that axis
-# pushed to its extreme
-AXIS_ROWS = [
-    ("weight", "wght 700", {"axes": [700, 100, 0, 0, 0]}),
-    ("width", "wdth 75", {"axes": [300, 75, 0, 0, 0]}),
-    ("slant", "italic", {"axes": [300, 100, 0, 0, 0], "italic": True}),
-    ("roundness", "ROND 100", {"axes": [300, 100, 100, 0, 0]}),
-    ("bleed", "BLED 70", {"axes": [200, 100, 0, 80, 0]}),
-    ("jitter", "JITT 100", {"axes": [300, 100, 0, 0, 100]}),
-]
-
-
-def render_inkjet(mask, rng):
-    """Print a full-resolution ink mask as an early inkjet would: rasterized
-    to the printer's dot grid, each dot an overgrown droplet placed with a
-    little error and the odd satellite, feathered into the paper fibers,
-    with faint banding where the head passes meet."""
-    size = mask.size
-    dot = INKJET_DOT
-    grid = (size[0] // dot, size[1] // dot)
-    dots = mask.resize(grid, Image.BOX).point(lambda v: 255 if v >= 128 else 0)
-    px = dots.load()
-
-    ink = Image.new("L", size, 0)
-    draw = ImageDraw.Draw(ink)
-    lo, hi = INKJET_GAIN
-    pass_offset = 0
-    for y in range(grid[1]):
-        # Each swath is a separate pass: a small vertical registration
-        # error, and the last nozzle rows lay down a little less ink
-        if y % INKJET_SWATH == 0:
-            pass_offset = rng.uniform(-0.6, 0.6)
-        row_level = 255 if y % INKJET_SWATH < INKJET_SWATH - 2 else 215
-        for x in range(grid[0]):
-            if not px[x, y]:
-                continue
-            cx = (x + 0.5) * dot + rng.uniform(-0.5, 0.5)
-            cy = (y + 0.5) * dot + pass_offset + rng.uniform(-0.4, 0.4)
-            r = rng.uniform(lo, hi) * dot
-            draw.ellipse(xy=[cx - r, cy - r, cx + r, cy + r], fill=row_level)
-            # Satellites spray off the edge dots
-            edge = (x == 0 or y == 0 or x == grid[0] - 1 or y == grid[1] - 1 or
-                    not (px[x - 1, y] and px[x + 1, y] and px[x, y - 1] and px[x, y + 1]))
-            if edge and rng.random() < INKJET_SATELLITES:
-                sx = cx + rng.uniform(-2.5, 2.5) * dot
-                sy = cy + rng.uniform(-1.0, 1.0) * dot
-                sr = rng.uniform(0.15, 0.3) * dot
-                draw.ellipse(xy=[sx - sr, sy - sr, sx + sr, sy + sr], fill=170)
-
-    # Ink wicks along the paper fibers: soften the droplets, then re-harden
-    # the edge with a little correlated noise so the outline turns fibrous
-    ink = ink.filter(ImageFilter.GaussianBlur(dot * 0.25))
-    fibers = noise_image(size, rng).filter(ImageFilter.GaussianBlur(1.6))
-    fibers = fibers.point(lambda v: 128 + (v - 128) * 1.8)
-    ink = ImageChops.add(ink, fibers, scale=1.0, offset=-128)
-    ink = ink.point(lambda v: min(255, max(0, (v - 128) * 4 + 128)))
-    ink = ink.filter(ImageFilter.GaussianBlur(0.5))
-
-    # Uneven absorption: the ink density drifts a little across the page
-    density = noise_image((size[0] // 96 + 1, size[1] // 96 + 1), rng)
-    density = density.resize(size, Image.BICUBIC).point(lambda v: 222 + v * 33 // 255)
-    ink = ImageChops.multiply(ink, density)
-
-    paper = shade(Image.new("RGB", size, PAPER_COLOR),
-                  grain_field(size, rng, PAPER_GRAIN))
-
-    return Image.composite(Image.new("RGB", size, INKJET_INK), paper, ink)
-
-
-def build_axes():
-    """A proof card for the variation axes, run off on an early inkjet: each
-    axis shown by its own name, typeset with that axis at its extreme, drawn
-    directly at a large size so the font's own axis effects reproduce
-    faithfully, then rasterized to the printer's dots.
-
-    The card is spaced on the ink rather than on the metrics: the axes push
-    the glyphs to their own heights, so blocks stepped by a fixed baseline
-    pitch would leave visibly uneven gaps. Each tag instead clears the
-    descenders of its own row, and the space left over spreads evenly.
-    """
-    rng = random.Random(NOISE_SEED)
-    mask = Image.new("L", CANVAS, 0)
-    draw = ImageDraw.Draw(mask)
-
-    def put(xy, scale, string, anchor="ls", **variant):
-        font = get_font(scale, **variant)
-        x = xy[0]
-        if anchor[0] == "r":
-            # Right-align on the ink, so the running head sits flush to the
-            # margin at both ends; the advance runs a pixel past the ink
-            x -= draw.textlength(string, font=font) - scale
-            anchor = "l" + anchor[1]
-        draw.text(xy=(x, xy[1]), text=string, fill=255, font=font, anchor=anchor)
-
-    def ink(scale, strings):
-        """Return how far the tallest of the strings inks above the baseline,
-        and the deepest of them below it."""
-        boxes = [draw.textbbox((0, 0), string, font=get_font(scale, **variant),
-                               anchor="ls")
-                 for string, variant in strings]
-
-        return max(-box[1] for box in boxes), max(box[3] for box in boxes)
-
-    left, right = PROOF_MARGIN, CANVAS[0] - PROOF_MARGIN
-    head = [("Tiny5 variation test", {}), (VERSION, {})]
-    rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
-
-    # Measure every line, then share out what the blocks leave: one gap
-    # above each row, all equal
-    head_above, head_below = ink(PROOF_TAG_SCALE, head)
-    blocks = []
-    for row in rows:
-        above, below = ink(PROOF_WORD_SCALE, [(word, v) for word, _, v in row])
-        tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {}) for _, tag, _ in row])
-        blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
-    filled = head_above + head_below + sum(sum(block) for block in blocks)
-    gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
-
-    y = PROOF_MARGIN_Y + head_above
-    put((left, y), PROOF_TAG_SCALE, "Tiny5 variation test")
-    put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs")
-    y += head_below
-
-    for row, (above, tag_offset, tag_below) in zip(rows, blocks):
-        y += gap + above
-        for column, (word, tag, variant) in enumerate(row):
-            x = left + column * PROOF_COLUMN
-            put((x, y), PROOF_WORD_SCALE, word, **variant)
-            put((x, y + tag_offset), PROOF_TAG_SCALE, tag)
-        y += tag_offset + tag_below
-
-    save_image(render_inkjet(mask, rng), "tiny5-sample5.jpg")
+    save_image(render_crt(d, CRT_CELL, CRT_BG), "tiny5-sample5.jpg")
 
 
 # --- 9-pin dot matrix: the printer self test --------------------------------
@@ -904,7 +1217,7 @@ CONTENT_LEFT = LINE_PITCH       # text starts one line height in
 # As on a real 9-pin self test, the printable character set streams line
 # after line in a continuous wrap; an international section follows.
 CHARSET_STREAM = "".join(chr(code) for code in range(33, 127))
-ROLLING_LINES = 6
+ROLLING_LINES = 4
 INTL_LINES = [
     # Vietnamese first: its tall diacritic stacks rise into the blank
     # separator line above
@@ -913,6 +1226,8 @@ INTL_LINES = [
     "Zombif parvînt jusqu'à deux whisky-glace.",
     "Эх, чужак, общий съём цен шляп (юфть) – вдрызг!",
     "Γκόλφω, βάδιζε μπροστά ξανθή ψυχή!",
+    "Pchnąć w tę łódź jeża lub ośm skrzyń fig.",
+    "Pijamalı hasta yağız şoföre çabucak güvendi.",
 ]
 
 
@@ -1026,9 +1341,9 @@ def build_printout():
 
 if __name__ == "__main__":
     build_hero()
-    build_charset(False, "tiny5-sample1.jpg")   # 1: character ROM on a VFD
-    build_charset(True, "tiny5-sample2.jpg")    # 2: Tiny5 Duo character ROM
-    build_terminal()                            # 3: login session on an amber CRT
-    build_ramp()                                # 4: size ramp on a color TFT
-    build_axes()                                # 5: variation axes, inkjet proof
+    build_charset()                             # 1: character ROM on a VFD
+    build_ramp()                                # 2: size ramp on a color TFT
+    build_departures()                          # 3: departures board, flip discs
+    build_axes()                                # 4: variation axes, inkjet proof
+    build_terminal()                            # 5: login session on an amber CRT
     build_printout()                            # 6: 9-pin printer self test
