@@ -134,10 +134,18 @@ class Display:
         return draw.textlength(string, font=font) / unit - scale
 
     def char_row(self, left, baseline, pitch, scale, chars, duo=False):
-        """Draw characters on a fixed pitch, centered in each column."""
+        """Draw characters on a fixed pitch, centered in each column.
+
+        A column has no center cell to anchor on: with an odd pitch the
+        center falls between two cells, and rounding the anchor there would
+        push every odd-width character a whole cell off. The slack the
+        character leaves in its column is split instead, which lands on
+        whole cells by construction.
+        """
         for column, char in enumerate(chars):
-            x = left + column * pitch + pitch // 2
-            self.text((x, baseline), scale, char, anchor="ms", duo=duo)
+            slack = pitch - round(self.text_width(scale, char, duo))
+            self.text((left + column * pitch + slack // 2, baseline),
+                      scale, char, duo=duo)
 
 
 # --- Image helpers ----------------------------------------------------------
