@@ -53,7 +53,7 @@ def get_font(scale, duo=False, axes=None, italic=False):
 
 def get_baseline(line_height, cap_height):
     """Return the baseline offset that centers capital letters within a line."""
-    return (line_height - cap_height) // 2 + cap_height
+    return (line_height - cap_height  + 1) // 2 + cap_height
 
 
 # --- The cell grid ----------------------------------------------------------
