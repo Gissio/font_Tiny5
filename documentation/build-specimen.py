@@ -614,17 +614,17 @@ FLIP_SHADOW_DROP = (0.06, 0.16)  # how far that shadow falls, in cells, right an
 # The wider of them goes to the left, where every line starts; only
 # CANCELLED, the one remark that outruns its own head, reaches the right.
 FLIP_MARGIN = 2
-DEPARTURE_COLUMNS = [("Time", FLIP_MARGIN), ("Destination", 29), ("Gate", 89),
-                     ("Remarks", 115)]
+DEPARTURE_COLUMNS = [("Time", FLIP_MARGIN), ("Destination", 29), ("Flight", 90),
+                     ("Status", 123)]
 DEPARTURES = [
-    ("14:55", "MONTEVIDEO", "A04", "LAST CALL"),
-    ("15:05", "SÃO PAULO", "B12", "BOARDING"),
-    ("15:20", "ZÜRICH", "A09", "ON TIME"),
-    ("15:35", "REYKJAVÍK", "C01", "DELAYED"),
-    ("15:45", "MÁLAGA", "B03", "ON TIME"),
-    ("16:00", "BUENOS AIRES", "A11", "ON TIME"),
-    ("16:20", "TOKYO", "C07", "CANCELLED"),
-    ("16:35", "HELSINKI", "B08", "ON TIME"),
+    ("20:45", "ZÜRICH", "LX1077", "GATE A1"),
+    ("20:45", "TOKYO", "NH224", "DELAYED"),
+    ("20:55", "BARCELONA", "DE4327", "DELAYED"),
+    ("21:00", "HELSINKI", "VL852", "ON TIME"),
+    ("21:15", "KØBENHAVN", "SK676", "DELAYED"),
+    ("21:22", "DÜSSELDORF", "LH3530", "ON TIME"),
+    ("21:30", "SÃO PAULO", "LA8071", "ON TIME"),
+    ("21:40", "REYKJAVÍK", "LH846", "ON TIME"),
 ]
 # The heads take the first line of the board, the flights the lines after
 # it, all on the module pitch, capitals centered in the line
