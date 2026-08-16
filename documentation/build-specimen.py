@@ -614,8 +614,8 @@ FLIP_SHADOW_DROP = (0.06, 0.16)  # how far that shadow falls, in cells, right an
 # The wider of them goes to the left, where every line starts; only
 # CANCELLED, the one remark that outruns its own head, reaches the right.
 FLIP_MARGIN = 2
-DEPARTURE_COLUMNS = [("Time", FLIP_MARGIN), ("Destination", 29), ("Flight", 90),
-                     ("Status", 123)]
+DEPARTURE_COLUMNS = [("Time", FLIP_MARGIN), ("Destination", 30), ("Flight", 91),
+                     ("Status", 124)]
 DEPARTURES = [
     ("20:45", "ZÜRICH", "LX1077", "GATE A1"),
     ("20:45", "TOKYO", "NH224", "DELAYED"),
