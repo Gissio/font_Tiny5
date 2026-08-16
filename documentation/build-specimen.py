@@ -107,26 +107,31 @@ class Display:
     def text(self, xy, scale, string, anchor="ls", duo=False):
         """Draw text with the baseline (or anchor) at cell position xy.
 
-        Center and right anchors are resolved against the ink extents of the
-        string (not its advance width), so text centers optically. On the fine
-        layer the anchor is quantized to whole cells and the pen shifted half
-        a cell left: native-size text must keep a constant pixel phase, and
-        the glyph squares sit half a font pixel right of the pen at that size.
+        Center and right anchors are resolved against the inked width, and
+        quantized to whole cells: native-size text must keep a constant
+        pixel phase, and the font sets its glyph squares flush with the pen,
+        one square per cell.
         """
         draw, font, unit = self.pen(scale, duo)
         x = xy[0] * unit
         if anchor[0] in "mr":
-            bbox = draw.textbbox((0, 0), string, font=font, anchor="ls")
-            ink = (bbox[0] + bbox[2]) / 2 if anchor[0] == "m" else bbox[2]
-            x -= round(ink / unit) * unit
-        draw.text(xy=(x - unit // 2, xy[1] * unit), text=string, fill=255,
+            width = self.text_width(scale, string, duo)
+            x -= round(width / 2 if anchor[0] == "m" else width) * unit
+        draw.text(xy=(x, xy[1] * unit), text=string, fill=255,
                   font=font, anchor="l" + anchor[1])
 
     def text_width(self, scale, string, duo=False):
-        """Return the width of the string, in cells."""
+        """Return the inked width of the string, in cells.
+
+        Every glyph keeps its rightmost pixel column empty, as the gap to the
+        next one, so a string inks one font pixel short of its advance. That
+        trailing gap is spacing, not text: counted in, it would push centered
+        text off center and hold right-aligned text a pixel shy of its
+        margin, so it is taken off every measurement.
+        """
         draw, font, unit = self.pen(scale, duo)
 
-        return draw.textlength(string, font=font) / unit
+        return draw.textlength(string, font=font) / unit - scale
 
     def char_row(self, left, baseline, pitch, scale, chars, duo=False):
         """Draw characters on a fixed pitch, centered in each column."""
@@ -305,7 +310,7 @@ def build_hero():
     d.draw.rectangle(xy=[(11, 2), (11, 3)], fill=255)
     d.draw.rectangle(xy=[(6, 4), (12, 7)], fill=255)        # lock body
     d.draw.rectangle(xy=[(9, 5), (9, 6)], fill=0)           # keyhole
-    d.text((width - 5, 7), 1, "5:55", anchor="rs")
+    d.text((width - 6, 7), 1, "5:55", anchor="rs")
 
     # Title with its subtitle, and the softkey label
     d.text((center, 25), 3, "Tiny5", anchor="ms")
@@ -817,8 +822,14 @@ def build_axes():
     draw = ImageDraw.Draw(mask)
 
     def put(xy, scale, string, anchor="ls", **variant):
-        draw.text(xy=xy, text=string, fill=255,
-                  font=get_font(scale, **variant), anchor=anchor)
+        font = get_font(scale, **variant)
+        x = xy[0]
+        if anchor[0] == "r":
+            # Right-align on the ink, so the running head sits flush to the
+            # margin at both ends; the advance runs a pixel past the ink
+            x -= draw.textlength(string, font=font) - scale
+            anchor = "l" + anchor[1]
+        draw.text(xy=(x, xy[1]), text=string, fill=255, font=font, anchor=anchor)
 
     def ink(scale, strings):
         """Return how far the tallest of the strings inks above the baseline,

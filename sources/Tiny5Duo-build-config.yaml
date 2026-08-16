@@ -28,7 +28,7 @@ subscript_offset: [0, -1]
 
 # Glyph offset in pixel units, applied to all glyphs.
 # This can be used to adjust the position of all glyphs.
-glyph_offset: [0.5, 0]
+glyph_offset: [0, 0]
 
 # Units per em and units per element.
 # These values are used to convert pixel units to vector units in the UFO file.
