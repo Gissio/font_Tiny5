@@ -590,9 +590,11 @@ FLIP_DARK = (58, 58, 62)        # the black face of a disc, at its brightest
 FLIP_YELLOW = (250, 232, 60)    # day-glo, so it reads brighter than paper
 FLIP_YELLOW_SCATTER = (8, 8, 10)  # how far one disc's pigment strays from it, per channel
 FLIP_YELLOW_FADE = 0.03         # and how much one disc has bleached, of its brightness
-FLIP_RADIUS = 0.48              # disc radius, in cells: they nearly touch
-FLIP_BITE = 0.09                # the notch bitten out of a disc at each of the two
-                                # points where it is hung, in cells
+FLIP_RADIUS = 0.49              # disc radius, in cells: they practically touch
+FLIP_BITE = 0.09                # the notch bitten out of a disc where it is hung,
+                                # in cells
+FLIP_BITE_ANGLE = 15            # and where that notch sits, in degrees clockwise
+                                # from the top: one o'clock
 FLIP_RIM = 0.62                 # the rim of a black disc, turned from the light
 FLIP_LIT_RIM = 0.90             # a day-glo face barely shades towards its rim
 FLIP_RIM_START = 0.76           # where the rim starts, in fractions of radius
@@ -708,9 +710,9 @@ def draw_discs(size, layout, bite, shaded=True):
     """Draw the discs of a layout into a mask, each at its own brightness,
     or all full on for a plain cut-out.
 
-    A disc is not quite a circle. It hangs on its shaft by a tab at either
-    side, and is bitten away around each of them, so that where two discs
-    meet along a row the dark of the frame shows through between them.
+    A disc is not quite a circle. It hangs off its shaft by a single tab,
+    and is bitten away around it, up at one o'clock; the discs sit so close
+    that this notch is where the dark of the panel behind shows through.
     Every disc is laid down before any bite is taken, or a neighbour coming
     afterwards would fill one in again.
     """
@@ -719,11 +721,11 @@ def draw_discs(size, layout, bite, shaded=True):
     for x, y, rx, ry, level in layout:
         draw.ellipse(xy=[x - rx, y - ry, x + rx, y + ry],
                      fill=max(0, min(255, round(255 * level))) if shaded else 255)
+    angle = math.radians(FLIP_BITE_ANGLE)
+    ux, uy = math.sin(angle), -math.cos(angle)
     for x, y, rx, ry, level in layout:
-        for side in (-1, 1):
-            hinge = x + side * rx
-            draw.ellipse(xy=[hinge - bite, y - bite, hinge + bite, y + bite],
-                         fill=0)
+        hx, hy = x + ux * rx, y + uy * ry
+        draw.ellipse(xy=[hx - bite, hy - bite, hx + bite, hy + bite], fill=0)
 
     return mask
 
