@@ -853,10 +853,9 @@ INKJET_GAIN = (0.56, 0.70)      # Droplet radius range, in dots (dot gain > 0.5)
 INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
 
 # The proof card: a running head over three rows of two blocks, each block
-# an axis name with its technical tag beneath
-PROOF_MARGIN = 120              # side margin, in image pixels
-PROOF_MARGIN_Y = 84             # head and foot margin
-PROOF_COLUMN = 900              # distance between the two columns
+# an axis name with its technical tag beneath. The card is trimmed to one
+# margin all round, and the blocks stand in two equal columns across it
+PROOF_MARGIN = 84               # margin on every side, in image pixels
 PROOF_WORD_SCALE = 22           # the axis name, in image pixels per font pixel
 PROOF_TAG_SCALE = 8             # its tag, and the running head
 PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
@@ -940,31 +939,56 @@ def build_axes():
     the glyphs to their own heights, so blocks stepped by a fixed baseline
     pitch would leave visibly uneven gaps. Each tag instead clears the
     descenders of its own row, and the space left over spreads evenly.
+
+    Across the page it is set the same way. Bleed swells the ink past the
+    pen and slant and jitter lean and shift it, so lines placed by their
+    pens would hang off the column by a fraction of a font pixel: every
+    line is set against its own ink instead. That squares the running head
+    with the margin at both ends, ranges each tag under its axis name, and
+    leaves the two columns to divide the measure equally.
     """
     rng = random.Random(NOISE_SEED)
     mask = Image.new("L", CANVAS, 0)
     draw = ImageDraw.Draw(mask)
 
-    def put(xy, scale, string, anchor="ls", **variant):
+    def ink_box(scale, string, **variant):
+        """Return the box the string's ink covers, relative to its pen.
+
+        The axes carry the ink outside the glyph boxes: bleed spreads it past
+        every side, and slant and jitter lean and shift it. The text metrics
+        report the advance and the nominal line instead, so the ink is
+        measured by setting the string on its own and taking the box that
+        comes back.
+        """
         font = get_font(scale, **variant)
-        x = xy[0]
-        if anchor[0] == "r":
-            # Right-align on the ink, so the running head sits flush to the
-            # margin at both ends; the advance runs a pixel past the ink
-            x -= draw.textlength(string, font=font) - scale
-            anchor = "l" + anchor[1]
-        draw.text(xy=(x, xy[1]), text=string, fill=255, font=font, anchor=anchor)
+        pad = 2 * scale          # room for the ink that falls outside the pen
+        width = round(draw.textlength(string, font=font)) + 2 * pad
+        height = 2 * (font.size + pad)
+        proof = Image.new("L", (width, height), 0)
+        ImageDraw.Draw(proof).text(xy=(pad, height // 2), text=string, fill=255,
+                                   font=font, anchor="ls")
+        box = proof.getbbox()
+
+        return (box[0] - pad, box[1] - height // 2,
+                box[2] - pad, box[3] - height // 2)
+
+    def put(xy, scale, string, anchor="ls", **variant):
+        """Draw a string set against x by its ink rather than by its pen, so
+        that a column edge, and the running head, line up on what shows."""
+        box = ink_box(scale, string, **variant)
+        x = xy[0] - (box[2] if anchor[0] == "r" else box[0])
+        draw.text(xy=(x, xy[1]), text=string, fill=255,
+                  font=get_font(scale, **variant), anchor="l" + anchor[1])
 
     def ink(scale, strings):
         """Return how far the tallest of the strings inks above the baseline,
         and the deepest of them below it."""
-        boxes = [draw.textbbox((0, 0), string, font=get_font(scale, **variant),
-                               anchor="ls")
-                 for string, variant in strings]
+        boxes = [ink_box(scale, string, **variant) for string, variant in strings]
 
         return max(-box[1] for box in boxes), max(box[3] for box in boxes)
 
     left, right = PROOF_MARGIN, CANVAS[0] - PROOF_MARGIN
+    column = (right - left) // 2        # pitch of the two columns
     head = [("Tiny5 variation test", {}), (VERSION, {})]
     rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
 
@@ -977,17 +1001,17 @@ def build_axes():
         tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {}) for _, tag, _ in row])
         blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
     filled = head_above + head_below + sum(sum(block) for block in blocks)
-    gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
+    gap = (CANVAS[1] - 2 * PROOF_MARGIN - filled) // len(rows)
 
-    y = PROOF_MARGIN_Y + head_above
+    y = PROOF_MARGIN + head_above
     put((left, y), PROOF_TAG_SCALE, "Tiny5 variation test")
     put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs")
     y += head_below
 
     for row, (above, tag_offset, tag_below) in zip(rows, blocks):
         y += gap + above
-        for column, (word, tag, variant) in enumerate(row):
-            x = left + column * PROOF_COLUMN
+        for index, (word, tag, variant) in enumerate(row):
+            x = left + index * column
             put((x, y), PROOF_WORD_SCALE, word, **variant)
             put((x, y + tag_offset), PROOF_TAG_SCALE, tag)
         y += tag_offset + tag_below
