@@ -853,9 +853,11 @@ INKJET_GAIN = (0.56, 0.70)      # Droplet radius range, in dots (dot gain > 0.5)
 INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
 
 # The proof card: a running head over three rows of two blocks, each block
-# an axis name with its technical tag beneath. The card is trimmed to one
-# margin all round, and the blocks stand in two equal columns across it
-PROOF_MARGIN = 84               # margin on every side, in image pixels
+# an axis name with its technical tag beneath. The card is trimmed to a wide
+# side margin and a narrower one head and foot, and the blocks stand in two
+# equal columns across the measure it leaves
+PROOF_MARGIN_X = 181            # side margin, in image pixels
+PROOF_MARGIN_Y = 84             # head and foot margin, in image pixels
 PROOF_WORD_SCALE = 22           # the axis name, in image pixels per font pixel
 PROOF_TAG_SCALE = 8             # its tag, and the running head
 PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
@@ -987,7 +989,7 @@ def build_axes():
 
         return max(-box[1] for box in boxes), max(box[3] for box in boxes)
 
-    left, right = PROOF_MARGIN, CANVAS[0] - PROOF_MARGIN
+    left, right = PROOF_MARGIN_X, CANVAS[0] - PROOF_MARGIN_X
     column = (right - left) // 2        # pitch of the two columns
     head = [("Tiny5 variation test", {}), (VERSION, {})]
     rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
@@ -1001,9 +1003,9 @@ def build_axes():
         tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {}) for _, tag, _ in row])
         blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
     filled = head_above + head_below + sum(sum(block) for block in blocks)
-    gap = (CANVAS[1] - 2 * PROOF_MARGIN - filled) // len(rows)
+    gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
 
-    y = PROOF_MARGIN + head_above
+    y = PROOF_MARGIN_Y + head_above
     put((left, y), PROOF_TAG_SCALE, "Tiny5 variation test")
     put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs")
     y += head_below
@@ -1237,7 +1239,8 @@ INK_PATCH_LEVEL = 165           # Ink level of the faintest patch, of 255
 WEAK_PINS = 2                   # Print head pins that strike faintly
 
 CONTENT_TOP = 4                 # top of the printed area, in cells
-CONTENT_LEFT = LINE_PITCH       # text starts one line height in
+CONTENT_LEFT = LINE_PITCH       # the paper's pre-cut, one line height in
+TEXT_INDENT = 9                 # text starts this far right of the pre-cut, in cells
 
 # As on a real 9-pin self test, the printable character set streams line
 # after line in a continuous wrap; an international section follows.
@@ -1302,7 +1305,7 @@ def build_printout():
     first_baseline = CONTENT_TOP + get_baseline(PIN_ROWS, CAP_PIXELS) + 1
     glyph_top = first_baseline - CAP_PIXELS
 
-    text_left = CONTENT_LEFT + 2
+    text_left = CONTENT_LEFT + TEXT_INDENT
     max_width = MATRIX_GRID[0] - text_left - 6
 
     # The character set streams continuously: each line picks up where the
