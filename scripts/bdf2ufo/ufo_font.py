@@ -346,59 +346,76 @@ class UFOFont:
         self.ufo_font.features.text = "\n".join(lines)
 
     def _add_element_glyph(self, ufo_glyph, offset: Vec2) -> None:
-        size = self.units_per_element * Vec2(self.location["wght"] / 400)
-        halfsize = size * Vec2(0.5)
-        radius = halfsize * Vec2(self.location["ROND"] / 100)
+        # Axes
+        width = self.location["wdth"] / 100
+        weight = self.location["wght"] / 400
+        roundness = self.location["ROND"] / 100
+        bleed = self.location["BLED"] / 100
 
-        outer = halfsize + Vec2(
-            (self.units_per_element.x - halfsize.x) * self.location["BLED"] / 100, 0
-        )
-        inner = outer - radius
+        # Size
+        element_size = self.units_per_element * Vec2(width, 1)
+        half_size = element_size * Vec2(weight * 0.5)
+
+        # Roundness
+        half_size = half_size * Vec2(1 - roundness) + half_size.y * Vec2(roundness)
+        corner_radius = Vec2(half_size.y * roundness)
+
+        # Bleed
+        outer_right = half_size + Vec2(element_size.x * bleed, 0)
+        outer = half_size
+        inner_right = outer_right - corner_radius
+        inner = outer - corner_radius
 
         if self.curves == "quadratic":
-            tangent = inner + radius * Vec2(math.tan(math.radians(90 / 4)))
-            midarc = inner + radius * Vec2(math.cos(math.radians(45)))
+            tangent_factor = Vec2(math.tan(math.radians(90 / 4)))
+            midarc_factor = Vec2(math.cos(math.radians(45)))
+            tangent_right = inner_right + corner_radius * tangent_factor
+            midarc_right = inner_right + corner_radius * midarc_factor
+            tangent = inner + corner_radius * tangent_factor
+            midarc = inner + corner_radius * midarc_factor
             element_points = [
-                [Vec2(outer.x, inner.y), "line"],
-                [Vec2(outer.x, tangent.y), "offcurve"],
-                [Vec2(midarc.x, midarc.y), "qcurve"],
-                [Vec2(tangent.x, outer.y), "offcurve"],
-                [Vec2(inner.x, outer.y), "qcurve"],
-                [Vec2(-inner.x, outer.y), "line"],
-                [Vec2(-tangent.x, outer.y), "offcurve"],
-                [Vec2(-midarc.x, midarc.y), "qcurve"],
-                [Vec2(-outer.x, tangent.y), "offcurve"],
-                [Vec2(-outer.x, inner.y), "qcurve"],
-                [Vec2(-outer.x, -inner.y), "line"],
-                [Vec2(-outer.x, -tangent.y), "offcurve"],
-                [Vec2(-midarc.x, -midarc.y), "qcurve"],
-                [Vec2(-tangent.x, -outer.y), "offcurve"],
-                [Vec2(-inner.x, -outer.y), "qcurve"],
-                [Vec2(inner.x, -outer.y), "line"],
-                [Vec2(tangent.x, -outer.y), "offcurve"],
-                [Vec2(midarc.x, -midarc.y), "qcurve"],
-                [Vec2(outer.x, -tangent.y), "offcurve"],
-                [Vec2(outer.x, -inner.y), "qcurve"],
+                [Vec2(outer_right.x, inner_right.y), "line"],
+                [Vec2(outer_right.x, tangent_right.y), "offcurve"],
+                [Vec2(midarc_right.x, midarc_right.y), "qcurve"],
+                [Vec2(tangent_right.x, outer_right.y), "offcurve"],
+                [Vec2(inner_right.x, outer_right.y), "qcurve"],
+                [Vec2(-inner.x, outer_right.y), "line"],
+                [Vec2(-tangent.x, outer_right.y), "offcurve"],
+                [Vec2(-midarc.x, midarc_right.y), "qcurve"],
+                [Vec2(-outer.x, tangent_right.y), "offcurve"],
+                [Vec2(-outer.x, inner_right.y), "qcurve"],
+                [Vec2(-outer.x, -inner_right.y), "line"],
+                [Vec2(-outer.x, -tangent_right.y), "offcurve"],
+                [Vec2(-midarc.x, -midarc_right.y), "qcurve"],
+                [Vec2(-tangent.x, -outer_right.y), "offcurve"],
+                [Vec2(-inner.x, -outer_right.y), "qcurve"],
+                [Vec2(inner_right.x, -outer_right.y), "line"],
+                [Vec2(tangent_right.x, -outer_right.y), "offcurve"],
+                [Vec2(midarc_right.x, -midarc_right.y), "qcurve"],
+                [Vec2(outer_right.x, -tangent_right.y), "offcurve"],
+                [Vec2(outer_right.x, -inner_right.y), "qcurve"],
             ]
         elif self.curves == "cubic":
-            tangent = inner + radius * Vec2((4 / 3) * math.tan(math.radians(90 / 4)))
+            tangent_factor = Vec2((4 / 3) * math.tan(math.radians(90 / 4)))
+            tangent_right = inner_right + corner_radius * tangent_factor
+            tangent = inner + corner_radius * tangent_factor
             element_points = [
-                [Vec2(outer.x, inner.y), "line"],
-                [Vec2(outer.x, tangent.y), "offcurve"],
-                [Vec2(tangent.x, outer.y), "offcurve"],
-                [Vec2(inner.x, outer.y), "curve"],
-                [Vec2(-inner.x, outer.y), "line"],
-                [Vec2(-tangent.x, outer.y), "offcurve"],
-                [Vec2(-outer.x, tangent.y), "offcurve"],
-                [Vec2(-outer.x, inner.y), "curve"],
-                [Vec2(-outer.x, -inner.y), "line"],
-                [Vec2(-outer.x, -tangent.y), "offcurve"],
-                [Vec2(-tangent.x, -outer.y), "offcurve"],
-                [Vec2(-inner.x, -outer.y), "curve"],
-                [Vec2(inner.x, -outer.y), "line"],
-                [Vec2(tangent.x, -outer.y), "offcurve"],
-                [Vec2(outer.x, -tangent.y), "offcurve"],
-                [Vec2(outer.x, -inner.y), "curve"],
+                [Vec2(outer_right.x, inner_right.y), "line"],
+                [Vec2(outer_right.x, tangent_right.y), "offcurve"],
+                [Vec2(tangent_right.x, outer_right.y), "offcurve"],
+                [Vec2(inner_right.x, outer_right.y), "curve"],
+                [Vec2(-inner.x, outer_right.y), "line"],
+                [Vec2(-tangent.x, outer_right.y), "offcurve"],
+                [Vec2(-outer.x, tangent_right.y), "offcurve"],
+                [Vec2(-outer.x, inner_right.y), "curve"],
+                [Vec2(-outer.x, -inner_right.y), "line"],
+                [Vec2(-outer.x, -tangent_right.y), "offcurve"],
+                [Vec2(-tangent.x, -outer_right.y), "offcurve"],
+                [Vec2(-inner.x, -outer_right.y), "curve"],
+                [Vec2(inner_right.x, -outer_right.y), "line"],
+                [Vec2(tangent_right.x, -outer_right.y), "offcurve"],
+                [Vec2(outer_right.x, -tangent_right.y), "offcurve"],
+                [Vec2(outer_right.x, -inner_right.y), "curve"],
             ]
         else:
             element_points = []

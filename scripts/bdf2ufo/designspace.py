@@ -7,6 +7,7 @@ Design space module for managing variable font design spaces.
 License: MIT
 """
 
+import itertools
 import logging
 import os
 from pathlib import Path
@@ -25,6 +26,7 @@ from .ufo_font import UFOFont
 # Constants
 DEFAULT_STRIKE_COUNT_SINGLE = 1
 DEFAULT_STRIKE_COUNT_DOUBLE = 2
+COMBINATION_AXES = ("wght", "wdth", "ROND", "BLED")
 
 # Definitions
 logger = logging.getLogger(__name__)
@@ -178,17 +180,37 @@ class DesignSpace:
             name, location = self._get_master(variable_axes)
             masters[name] = location
 
-        # Masters for wght and ROND axes combinations
-        if "wght" in self.variable_axes and "ROND" in self.variable_axes:
-            for wght_limits in ["min", "max"]:
-                for rond_limits in ["min", "max"]:
-                    variable_axes = self.default_axis_values.copy()
+        # Masters for all combinations of the combination axes, except those
+        # where both ROND and BLED are at their maximum
+        combination_axes = {}
 
-                    variable_axes["wght"] = self.variable_axes["wght"][wght_limits]
-                    variable_axes["ROND"] = self.variable_axes["ROND"][rond_limits]
+        for axis_name in COMBINATION_AXES:
+            if axis_name not in self.variable_axes:
+                continue
 
-                    name, location = self._get_master(variable_axes)
-                    masters[name] = location
+            axis_values = self.variable_axes[axis_name]
+            combination_axes[axis_name] = sorted(
+                {
+                    axis_values["min"],
+                    self.default_axis_values[axis_name],
+                    axis_values["max"],
+                }
+            )
+
+        for axis_combination in itertools.product(*combination_axes.values()):
+            variable_axes = self.default_axis_values.copy()
+            variable_axes.update(zip(combination_axes, axis_combination))
+
+            if (
+                "ROND" in combination_axes
+                and "BLED" in combination_axes
+                and variable_axes["ROND"] == self.variable_axes["ROND"]["max"]
+                and variable_axes["BLED"] == self.variable_axes["BLED"]["max"]
+            ):
+                continue
+
+            name, location = self._get_master(variable_axes)
+            masters[name] = location
 
         return [
             {"name": name, "location": location} for name, location in masters.items()

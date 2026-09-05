@@ -1190,6 +1190,9 @@ variable_instances:
     "wght": 500
   "Bold":
     "wght": 700
+  "Italic":
+    "wght": 400
+    "slnt": -8
   "LCD":
     "wght": 340
   "CRT":
