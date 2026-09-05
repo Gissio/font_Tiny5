@@ -858,7 +858,7 @@ INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
 # equal columns across the measure it leaves
 PROOF_MARGIN_X = 181            # side margin, in image pixels
 PROOF_MARGIN_Y = 84             # head and foot margin, in image pixels
-PROOF_WORD_SCALE = 22           # the axis name, in image pixels per font pixel
+PROOF_WORD_SCALE = 23           # the axis name, in image pixels per font pixel
 PROOF_TAG_SCALE = 8             # its tag, and the running head
 PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
 
