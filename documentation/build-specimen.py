@@ -1062,7 +1062,7 @@ TERMINAL_LINES = [
     "    family: \"Tiny5\"",
     "    version: " + VERSION,
     "    glyphs: 1655",
-    "    languages: 897",
+    "    languages: 973",
     "    axes: weight width slant round bleed jitter",
     "    pixel-perfect render: multiples of 6 pt (8 px)",
     "$ setfont Tiny5",

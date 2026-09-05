@@ -13,7 +13,7 @@ Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean mi
 - Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **897 languages** and **1,655 glyphs**.
+The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **973 languages** and **1,655 glyphs**.
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
