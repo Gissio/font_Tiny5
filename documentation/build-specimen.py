@@ -29,7 +29,7 @@ TINY5_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5-Italic[BLED,JITT,ROND,wdth
 
 # Font version, as the devices display it; keep in sync with the font's
 # version (name ID 5)
-VERSION = "V2.003"
+VERSION = "V2.004"
 
 # Tiny5 draws one font pixel per 8 font units, and is 5 font pixels tall
 FONT_PIXEL_SIZE = 8

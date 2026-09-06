@@ -49,6 +49,10 @@ If you want to build fonts manually on your own computer:
 
 ## Changelog
 
+### 2.004
+
+- Improved how pixel elements respond to the variable axes.
+
 ### 2.003
 
 - Renamed bold weight to **Tiny5 Duo** variant.
