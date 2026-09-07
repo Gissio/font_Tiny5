@@ -13,7 +13,7 @@ Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean mi
 - Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, and Cyrillic scripts** across **973 languages** and **1,655 glyphs**.
+The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,749 glyphs**.
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
@@ -46,6 +46,12 @@ If you want to build fonts manually on your own computer:
 - `make build` will produce font files.
 - `make test` will run [Fontspector](https://fonttools.github.io/fontspector/)'s quality assurance tests.
 - `make proof` will generate HTML proof files.
+
+## Acknowledgements
+
+- Thanks to [type.today](https://type.today/en/journal/display2#tiny5httpsfontsgooglecomspecimentiny5targetblank) for reviewing Tiny5 and offering invaluable criticism.
+- Thanks to the Google Fonts team for their superb support.
+- Thanks to [Fontesk](https://fontesk.com) and [1001 Fonts](https://1001fonts.com) for their friendly support.
 
 ## Changelog
 

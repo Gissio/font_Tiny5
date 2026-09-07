@@ -16,6 +16,7 @@ import ufoLib2
 from .data import (
     WIDTH_CLASSES,
     WEIGHT_CLASSES,
+    SCRIPTS,
     MARKS,
     CCMP_SOFTDOT_DECOMPOSITION,
     CCMP_SOFTDOT_COMPOSITION,
@@ -242,22 +243,17 @@ class UFOFont:
         lines = []
 
         # Properties
-        languages = []
-        if "A" in self.bdf_font.names:
-            languages.append("latn")
-        if "А" in self.bdf_font.names:
-            languages.append("cyrl")
-        if "Α" in self.bdf_font.names:
-            languages.append("grek")
-        if "\u4e2d" in self.bdf_font.names:
-            languages.append("hani")
-        if "\uac00" in self.bdf_font.names:
-            languages.append("hang")
+        script_tags = []
+        script_langtags = []
+        for character, (script_tag, script_langtag) in SCRIPTS.items():
+            if character in self.bdf_font.names:
+                script_tags.append(script_tag)
+                script_langtags.append(script_langtag)
 
         # Set default script and language system
         self.ufo_font.lib["public.openTypeMeta"] = {
-            "dlng": languages,
-            "slng": languages,
+            "dlng": script_langtags,
+            "slng": script_langtags,
         }
            
         # Define classes
@@ -287,8 +283,8 @@ class UFOFont:
 
         # Set default language systems
         lines.append("languagesystem DFLT dflt;")
-        for language in languages:
-            lines.append(f"languagesystem {language} dflt;")
+        for script_tag in script_tags:
+            lines.append(f"languagesystem {script_tag} dflt;")
         lines.append("")
 
         # Define ccmp feature

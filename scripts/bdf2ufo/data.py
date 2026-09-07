@@ -40,6 +40,21 @@ SLOPE_FROM_SLANT = {
     "RO": "Oblique",
 }
 
+# Maps a representative character to the OpenType script tag and the BCP 47
+# script subtag of the script it belongs to. The former is used for the
+# "languagesystem" statements of the feature file, the latter for the
+# "dlng"/"slng" fields of the OpenType meta table. Both tags are listed
+# explicitly because they do not match for every script (Lao, for instance,
+# is "lao " and "Laoo").
+SCRIPTS = {
+    "\u0041": ("latn", "Latn"),  # Latin capital letter a
+    "\u0391": ("grek", "Grek"),  # Greek capital letter alpha
+    "\u0410": ("cyrl", "Cyrl"),  # Cyrillic capital letter a
+    "\u0531": ("armn", "Armn"),  # Armenian capital letter ayb
+    "\u4e2d": ("hani", "Hani"),  # CJK unified ideograph 4e2d
+    "\uac00": ("hang", "Hang"),  # Hangul syllable ga
+}
+
 CUSTOM_DECOMPOSITIONS = {
     "\u0069": "0131 0307",  # Dotless i with dot above
     "\u006a": "0237 0307",  # Dotless j with dot above
