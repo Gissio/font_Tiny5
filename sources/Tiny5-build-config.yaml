@@ -1225,7 +1225,7 @@ variable_axes:
     max: 100
 
 # Define static font instances and their axis values.
-# variable_instances:
+variable_instances:
   "Regular":
     "wght": 400
   "Medium":

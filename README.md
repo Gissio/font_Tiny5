@@ -58,6 +58,7 @@ If you want to build fonts manually on your own computer:
 ### 2.004
 
 - Improved how pixel elements respond to the variable axes.
+- Added Armenian language support.
 
 ### 2.003
 
@@ -78,7 +79,7 @@ If you want to build fonts manually on your own computer:
 
 - Added variable font support with axes for: **Element Size**, **Roundness** and **Bleed**.
 - Added bold weight.
-- Added vietnamese support (Google Fonts Latin Vietnamese character set).
+- Added Vietnamese language support (Google Fonts Latin Vietnamese character set).
 - Added Google Fonts Latin Beyond, Latin PriAfrican, Greek Plus and Greek Pro character sets.
 - Improved build workflow with [bdf2ufo](https://github.com/Gissio/bdf2ufo).
 - Major corrections to the greek and cyrillic character sets.
