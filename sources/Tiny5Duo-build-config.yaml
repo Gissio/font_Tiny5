@@ -1227,40 +1227,40 @@ variable_axes:
   "wght":
     min: 100
     max: 700
-  # "wdth":
-  #   min: 50
-  #   max: 200
-  # "slnt":
-  #   min: -8
-  #   max: 0
-  # "ROND":
-  #   min: 0
-  #   max: 100
-  # "BLED":
-  #   min: 0
-  #   max: 100
-  # "JITT":
-  #   min: 0
-  #   max: 100
+  "wdth":
+    min: 50
+    max: 200
+  "slnt":
+    min: -8
+    max: 0
+  "ROND":
+    min: 0
+    max: 100
+  "BLED":
+    min: 0
+    max: 100
+  "JITT":
+    min: 0
+    max: 100
 
 # Define static font instances and their axis values.
-# variable_instances:
-#   "Regular":
-#     "wght": 400
-#   "Medium":
-#     "wght": 500
-#   "Bold":
-#     "wght": 700
-#   "Italic":
-#     "wght": 400
-#     "slnt": -8
-#   "LCD":
-#     "wght": 340
-#   "CRT":
-#     "wght": 280
-#     "ROND": 80
-#     "BLED": 64
-#   "Matrix":
-#     "wght": 340
-#     "ROND": 100
-#     "JITT": 50
+variable_instances:
+  "Regular":
+    "wght": 400
+  "Medium":
+    "wght": 500
+  "Bold":
+    "wght": 700
+  "Italic":
+    "wght": 400
+    "slnt": -8
+  "LCD":
+    "wght": 340
+  "CRT":
+    "wght": 280
+    "ROND": 80
+    "BLED": 64
+  "Matrix":
+    "wght": 340
+    "ROND": 100
+    "JITT": 50
