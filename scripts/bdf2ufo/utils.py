@@ -10,6 +10,8 @@ License: MIT
 import random
 from typing import Iterable
 
+from .data import STATIC_STYLES
+
 
 def combine_strings(a: str, b: str) -> str:
     """
@@ -37,25 +39,67 @@ def filter_name(name: str) -> str:
     return "".join(c for c in name.lower() if c.isalpha())
 
 
-def get_style_map_style_name(style_name: str) -> tuple[str, str]:
+def split_family_style_names(family_name: str, style_name: str) -> tuple[str, str]:
     """
-    Determine the style map style name based on the family name and style name.    
+    Split a family name and a style name following the Google Fonts naming scheme.
+
+    Google Fonts only accepts a weight name, optionally followed by "Italic", as
+    a style name (see https://googlefonts.github.io/gf-guide/statics.html).
+    Every other style name component (e.g. "LCD") becomes part of the family
+    name instead. These names end up in the name table's nameID 16 (typographic
+    family name) and nameID 17 (typographic subfamily name).
 
     Args:
         family_name: The font family name.
         style_name: The font style name.
 
     Returns:
-        The style map style name.
+        A tuple with the typographic family name and the typographic subfamily name.
     """
+    family_components = family_name.split()
+    style_components = []
+
+    for component in style_name.split():
+        if component in STATIC_STYLES:
+            style_components.append(component)
+        elif component not in family_components:
+            family_components.append(component)
+
+    # "Regular" is implied by any other style name component
+    if len(style_components) > 1:
+        style_components = [c for c in style_components if c != "Regular"]
+
+    return " ".join(family_components), " ".join(style_components) or "Regular"
+
+
+def get_style_map_names(family_name: str, style_name: str) -> tuple[str, str]:
+    """
+    Determine the style map names of a family name and a style name.
+
+    The style map names are the legacy, RIBBI-only names: the style map style
+    name can only be one of "regular", "italic", "bold" or "bold italic", so any
+    other style name component moves to the style map family name. These names
+    end up in the name table's nameID 1 (family name) and nameID 2 (subfamily
+    name).
+
+    Args:
+        family_name: The font family name.
+        style_name: The font style name.
+
+    Returns:
+        A tuple with the style map family name and the style map style name.
+    """
+    family_components = family_name.split()
     bold = False
     italic = False
 
-    for style in style_name.split(" "):
-        if style == "Bold":
+    for component in style_name.split():
+        if component == "Bold":
             bold = True
-        elif style == "Italic":
+        elif component == "Italic":
             italic = True
+        elif component != "Regular" and component not in family_components:
+            family_components.append(component)
 
     if not bold:
         if not italic:
@@ -68,7 +112,7 @@ def get_style_map_style_name(style_name: str) -> tuple[str, str]:
         else:
             style_map_style_name = "bold italic"
 
-    return style_map_style_name
+    return " ".join(family_components), style_map_style_name
 
 
 class Vec2:

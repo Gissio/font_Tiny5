@@ -29,7 +29,7 @@ TINY5_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5-Italic[BLED,JITT,ROND,wdth
 
 # Font version, as the devices display it; keep in sync with the font's
 # version (name ID 5)
-VERSION = "V2.004"
+VERSION = "V2.005"
 
 # Tiny5 draws one font pixel per 8 font units, and is 5 font pixels tall
 FONT_PIXEL_SIZE = 8
@@ -867,7 +867,7 @@ PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
 AXIS_ROWS = [
     ("weight", "wght 700", {"axes": [700, 100, 0, 0, 0]}),
     ("width", "wdth 75", {"axes": [300, 75, 0, 0, 0]}),
-    ("slant", "italic", {"axes": [300, 100, 0, 0, 0], "italic": True}),
+    ("italic", "ital 1", {"axes": [300, 100, 0, 0, 0], "italic": True}),
     ("roundness", "ROND 100", {"axes": [300, 100, 100, 0, 0]}),
     ("bleed", "BLED 70", {"axes": [200, 100, 0, 80, 0]}),
     ("jitter", "JITT 100", {"axes": [300, 100, 0, 0, 100]}),
@@ -1063,7 +1063,7 @@ TERMINAL_LINES = [
     "    version: " + VERSION,
     "    glyphs: 1749",
     "    languages: 974",
-    "    axes: weight width slant round bleed jitter",
+    "    axes: weight width italic round bleed jitter",
     "    pixel-perfect render: multiples of 6 pt (8 px)",
     "$ setfont Tiny5",
     "$",

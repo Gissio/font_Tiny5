@@ -1194,11 +1194,14 @@ kerning:
   - ["մ", "Ժզօ", -1]
   - ["մ", "ջց", -1]
 
+# The italic angle, in degrees, of the "ital" axis at its maximum value.
+italic_angle: 8
+
 # Define default values for variable axes.
 default_axis_values:
   "wght": 400
   "wdth": 100
-  "slnt": 0
+  "ital": 0
   "ROND": 0
   "BLED": 0
   "JITT": 0
@@ -1211,9 +1214,9 @@ variable_axes:
   "wdth":
     min: 50
     max: 200
-  "slnt":
-    min: -8
-    max: 0
+  "ital":
+    min: 0
+    max: 1
   "ROND":
     min: 0
     max: 100
@@ -1234,7 +1237,7 @@ variable_instances:
     "wght": 700
   "Italic":
     "wght": 400
-    "slnt": -8
+    "ital": 1
   "LCD":
     "wght": 340
   "CRT":

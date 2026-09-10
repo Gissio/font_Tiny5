@@ -16,8 +16,13 @@ import random
 import fontTools
 import fontTools.designspaceLib
 
-from .data import WEIGHT_CLASSES, AXES_INFO
-from .utils import Vec2, combine_strings, get_style_map_style_name
+from .data import (
+    AXES_INFO,
+    DEFAULT_ITALIC_ANGLE,
+    WEIGHT_NAME_FROM_WGHT,
+    WIDTH_NAME_FROM_WDTH,
+)
+from .utils import Vec2, get_style_map_names, split_family_style_names
 from .bdf_font import BDFFont
 from .decomposition import build_decomposition
 from .anchors import build_anchors
@@ -27,6 +32,10 @@ from .ufo_font import UFOFont
 DEFAULT_STRIKE_COUNT_SINGLE = 1
 DEFAULT_STRIKE_COUNT_DOUBLE = 2
 COMBINATION_AXES = ("wght", "wdth", "ROND", "BLED")
+
+# The axes whose style name components come first, in this order. The remaining
+# axes follow in the order they are defined in AXES_INFO.
+STYLE_NAME_AXES = ("wdth", "wght", "ital")
 
 # Definitions
 logger = logging.getLogger(__name__)
@@ -95,6 +104,9 @@ class DesignSpace:
             )
         )
         self.ufo_config["use_element_glyph"] = config.get("use_element_glyph", True)
+        self.ufo_config["italic_angle"] = float(
+            config.get("italic_angle", DEFAULT_ITALIC_ANGLE)
+        )
         self.ufo_config["components"] = components
         self.ufo_config["anchors"] = anchors
         self.ufo_config["kerning"] = config.get("kerning", [])
@@ -230,10 +242,46 @@ class DesignSpace:
 
         return "_".join(name), location
 
+    def _get_master_style_name(self, location: dict) -> str:
+        """Build the style name of a master from its design space location.
+
+        Axes at their default value are elided, so the default master gets the
+        style name of the source .bdf font.
+
+        Args:
+            location: The design space location of the master.
+
+        Returns:
+            The style name of the master.
+        """
+        axis_tags = [tag for tag in STYLE_NAME_AXES if tag in self.variable_axes]
+        axis_tags += [tag for tag in self.variable_axes if tag not in STYLE_NAME_AXES]
+
+        style_components = []
+        for axis_tag in axis_tags:
+            axis_value = location[axis_tag]
+
+            if axis_value == self.default_axis_values[axis_tag]:
+                continue
+
+            if axis_tag == "wght" and axis_value in WEIGHT_NAME_FROM_WGHT:
+                style_components.append(WEIGHT_NAME_FROM_WGHT[axis_value])
+            elif axis_tag == "wdth" and axis_value in WIDTH_NAME_FROM_WDTH:
+                style_components.append(WIDTH_NAME_FROM_WDTH[axis_value])
+            elif axis_tag == "ital":
+                style_components.append("Italic")
+            else:
+                style_components.append(
+                    f"{AXES_INFO[axis_tag]['name']}{int(axis_value)}"
+                )
+
+        return " ".join(style_components) or self.bdf_font.style_name or "Regular"
+
     def _write_masters(self, output_path: Path) -> None:
         for master in self._get_masters():
             master_name = master["name"]
             master_location = master["location"]
+            master_style_name = self._get_master_style_name(master_location)
 
             ufo_file_name = (
                 self._get_file_name(self.bdf_font.family_name, master_name) + ".ufo"
@@ -245,7 +293,9 @@ class DesignSpace:
 
             ufo_font = UFOFont()
 
-            ufo_font.setup(self.bdf_font, self.ufo_config, master_location)
+            ufo_font.setup(
+                self.bdf_font, self.ufo_config, master_location, master_style_name
+            )
 
             ufo_font.save(output_path / ufo_file_name)
 
@@ -285,6 +335,7 @@ class DesignSpace:
                 filename=master_file_name + ".ufo",
                 name=master_file_name,
                 familyName=self.bdf_font.family_name,
+                styleName=self._get_master_style_name(master["location"]),
                 location=master_location,
             )
 
@@ -294,14 +345,13 @@ class DesignSpace:
 
             instance_file_name = self._get_file_name(family_name, name)
 
-            if name in WEIGHT_CLASSES:
-                instance_family_name = family_name
-                instance_style_name = name
-            else:
-                instance_family_name = combine_strings(family_name, name)
-                instance_style_name = "Regular"
-
-            instance_style_map_style_name = get_style_map_style_name(name)
+            instance_family_name, instance_style_name = split_family_style_names(
+                family_name, name
+            )
+            (
+                instance_style_map_family_name,
+                instance_style_map_style_name,
+            ) = get_style_map_names(instance_family_name, instance_style_name)
 
             instance_location = {}
             for axis_tag, axis_value in master_location.items():
@@ -314,7 +364,7 @@ class DesignSpace:
                 filename=instance_file_name + ".ufo",
                 familyName=instance_family_name,
                 styleName=instance_style_name,
-                styleMapFamilyName=instance_family_name,
+                styleMapFamilyName=instance_style_map_family_name,
                 styleMapStyleName=instance_style_map_style_name,
                 location=instance_location,
             )

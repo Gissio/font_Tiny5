@@ -13,15 +13,16 @@ from pathlib import Path
 
 import ufoLib2
 
+from fontTools.varLib.models import piecewiseLinearMap
+
 from .data import (
-    WIDTH_CLASSES,
-    WEIGHT_CLASSES,
+    WIDTH_CLASS_FROM_WDTH,
     SCRIPTS,
     MARKS,
     CCMP_SOFTDOT_DECOMPOSITION,
     CCMP_SOFTDOT_COMPOSITION,
 )
-from .utils import Vec2, get_style_map_style_name
+from .utils import Vec2, get_style_map_names
 from .bdf_font import BDFFont
 
 
@@ -42,10 +43,12 @@ class UFOFont:
         strike_num (int): The number of strikes to use for each glyph.
         units_per_em (int): The number of units per em in the UFO font.
         units_per_element (Vec2): The number of units per element in the X and Y directions.
+        italic_angle (float): The italic angle, in degrees, of a fully italic master.
         components (dict): A dictionary containing the components of glyphs.
         anchors (dict): A dictionary containing the anchors of glyphs.
 
         location (dict): A dictionary containing the location of the font in the design space.
+        style_name (str): The style name of the font.
     """
 
     def __init__(self):
@@ -57,21 +60,26 @@ class UFOFont:
         self.units_per_em = 2048
         self.units_per_element = Vec2(1)
         self.curves = "cubic"  # "quadratic" or "cubic"
+        self.italic_angle = 0.0
         self.components = {}
         self.anchors = {}
         self.kerning = {}
 
         self.location = {}
+        self.style_name = ""
 
         self.glyph_scale = Vec2(1)
 
-    def setup(self, bdf_font: BDFFont, ufo_config: dict, location: dict) -> None:
+    def setup(
+        self, bdf_font: BDFFont, ufo_config: dict, location: dict, style_name: str
+    ) -> None:
         """Set up the UFO font structure from a BDF font.
 
         Args:
             bdf_font: The BDF font object to convert.
             ufo_config: A dictionary containing UFO configuration settings.
             location: A dictionary containing the location of the font in the design space.
+            style_name: The style name of the font at this design space location.
         """
 
         # Configure
@@ -83,11 +91,13 @@ class UFOFont:
         self.units_per_em = ufo_config["units_per_em"]
         self.units_per_element = ufo_config["units_per_element"]
         self.use_element_glyph = ufo_config["use_element_glyph"]
+        self.italic_angle = ufo_config["italic_angle"]
         self.components = ufo_config["components"]
         self.anchors = ufo_config["anchors"]
         self.kerning = ufo_config["kerning"]
 
         self.location = location
+        self.style_name = style_name
 
         self.glyph_scale = self.units_per_element * Vec2(self.location["wdth"] / 100, 1)
 
@@ -127,19 +137,25 @@ class UFOFont:
         descender = line_descender - int((self.units_per_em - line_height) / 2)
         ascender = self.units_per_em + descender
 
-        # Width and weight class
-        width_class = 5
-        weight_class = 400
-        for style_component in self.bdf_font.style_name.split(" "):
-            if style_component in WIDTH_CLASSES:
-                width_class = WIDTH_CLASSES[style_component]
-            if style_component in WEIGHT_CLASSES:
-                weight_class = WEIGHT_CLASSES[style_component]
+        # Width and weight class, from the design space location
+        width_class = piecewiseLinearMap(self.location["wdth"], WIDTH_CLASS_FROM_WDTH)
+        width_class = int(min(9, max(1, round(width_class))))
+        weight_class = int(min(1000, max(1, round(self.location["wght"]))))
+
+        # Italic angle. UFO italic angles are counter-clockwise, so a forward
+        # leaning italic has a negative angle.
+        italic_angle = -self.italic_angle * self.location["ital"]
+        if italic_angle == 0:
+            italic_angle = 0.0
+
+        # Names
+        style_map_family_name, style_map_style_name = get_style_map_names(
+            self.bdf_font.family_name, self.style_name
+        )
 
         # Version
         version_components = self.bdf_font.font_version.split(";", 2)
-        if version_components[0].startswith("Version "):
-            version_components[0] = version_components[8:]
+        version_components[0] = version_components[0].removeprefix("Version ")
         font_version = "Version " + ";".join(version_components)
 
         version_number_components = version_components[0].split(".")
@@ -157,13 +173,14 @@ class UFOFont:
         font_info = self.ufo_font.info
 
         font_info.familyName = self.bdf_font.family_name
-        font_info.styleName = self.bdf_font.style_name
-        font_info.styleMapFamilyName = self.bdf_font.family_name
-        font_info.styleMapStyleName = get_style_map_style_name(self.bdf_font.style_name)
+        font_info.styleName = self.style_name
+        font_info.styleMapFamilyName = style_map_family_name
+        font_info.styleMapStyleName = style_map_style_name
         font_info.versionMajor, font_info.versionMinor = version_majorminor
 
         font_info.copyright = self.bdf_font.font_copyright
         font_info.unitsPerEm = self.units_per_em
+        font_info.italicAngle = italic_angle
         font_info.descender = descender
         font_info.xHeight = self.bdf_font.x_height * self.units_per_element.y
         font_info.capHeight = self.bdf_font.cap_height * self.units_per_element.y
@@ -443,13 +460,13 @@ class UFOFont:
             else:
                 self._add_bitmap(ufo_glyph, bdf_glyph)
 
-    def _apply_slant(self, offset):
+    def _apply_italic(self, offset):
         y = offset.y - 0.5 * self.glyph_scale.y
-        slant = -self.location["slnt"]
+        angle = self.italic_angle * self.location["ital"]
 
-        slant_offset = Vec2(y * math.tan(slant * math.pi / 180), 0)
+        italic_offset = Vec2(y * math.tan(math.radians(angle)), 0)
 
-        return offset + slant_offset
+        return offset + italic_offset
 
     def _apply_jitter(self, offset):
         jitter = self.location["JITT"]
@@ -476,8 +493,8 @@ class UFOFont:
                             + Vec2(0, -0.5 * strike_index)
                         ) * self.glyph_scale
 
-                        # Slant offset
-                        offset = self._apply_slant(offset)
+                        # Italic offset
+                        offset = self._apply_italic(offset)
 
                         # Jitter offset
                         offset = self._apply_jitter(offset)
@@ -508,8 +525,8 @@ class UFOFont:
             ufo_component = ufoLib2.objects.Component(component_name)
             offset = component_offset * self.glyph_scale
 
-            # Slant offset
-            offset = self._apply_slant(offset)
+            # Italic offset
+            offset = self._apply_italic(offset)
 
             # Fix Fontspector/Shaperglot heuristics
             if component_character in MARKS:
@@ -536,8 +553,8 @@ class UFOFont:
                 absolute_anchor_offset = anchor_offset + self.glyph_offset
                 ufo_offset = absolute_anchor_offset * self.glyph_scale
 
-                # Slant offset
-                ufo_offset = self._apply_slant(ufo_offset)
+                # Italic offset
+                ufo_offset = self._apply_italic(ufo_offset)
 
                 # Fix Fontspector/Shaperglot heuristics
                 if glyph_character in MARKS:

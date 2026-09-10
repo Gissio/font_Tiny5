@@ -21,6 +21,25 @@ WIDTH_CLASSES = {
     "UltraExpanded": 9,
 }
 
+# Maps the "wdth" axis value to the width class name, as defined by the
+# OpenType OS/2 usWidthClass specification.
+WIDTH_NAME_FROM_WDTH = {
+    50: "UltraCondensed",
+    62.5: "ExtraCondensed",
+    75: "Condensed",
+    87.5: "SemiCondensed",
+    100: "Normal",
+    112.5: "SemiExpanded",
+    125: "Expanded",
+    150: "ExtraExpanded",
+    200: "UltraExpanded",
+}
+
+WIDTH_CLASS_FROM_WDTH = {
+    wdth_value: WIDTH_CLASSES[width_name]
+    for wdth_value, width_name in WIDTH_NAME_FROM_WDTH.items()
+}
+
 WEIGHT_CLASSES = {
     "Thin": 100,
     "ExtraLight": 200,
@@ -32,6 +51,17 @@ WEIGHT_CLASSES = {
     "ExtraBold": 800,
     "Black": 900,
 }
+
+WEIGHT_NAME_FROM_WGHT = {
+    weight_class: weight_name for weight_name, weight_class in WEIGHT_CLASSES.items()
+}
+
+# The style names Google Fonts accepts in a font's style name. Any other style
+# name component becomes part of the family name instead.
+STATIC_STYLES = set(WEIGHT_CLASSES) | {"Italic"}
+
+# The italic angle, in degrees, of a fully italic ("ital" = 1) master.
+DEFAULT_ITALIC_ANGLE = 8.0
 
 SLOPE_FROM_SLANT = {
     "I": "Italic",
@@ -294,7 +324,7 @@ CCMP_SOFTDOT_COMPOSITION = {
 AXES_INFO = {
     "wght": {"name": "Weight", "min": 100, "max": 700, "default": 400},
     "wdth": {"name": "Width", "min": 50, "max": 200, "default": 100},
-    "slnt": {"name": "Slant", "min": -8, "max": 0, "default": 0},
+    "ital": {"name": "Italic", "min": 0, "max": 1, "default": 0},
     "ROND": {"name": "Roundness", "min": 0, "max": 100, "default": 0},
     "BLED": {"name": "Bleed", "min": 0, "max": 100, "default": 0},
     "JITT": {"name": "Jitter", "min": 0, "max": 100, "default": 0},
