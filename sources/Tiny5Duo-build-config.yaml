@@ -84,6 +84,9 @@ custom_anchors:
   "\u030f": # Double grave
     "_top": [-3, 5]
     "top": [-3, 8]
+  "\u0310": # Candrabindu
+    "_top": [-3, 5]
+    "top": [-3, 10]
   "\u0311": # Inverted breve
     "_top": [-3, 5]
     "top": [-3, 8]

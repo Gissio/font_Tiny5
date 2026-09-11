@@ -55,6 +55,10 @@ If you want to build fonts manually on your own computer:
 
 ## Changelog
 
+### 2.006
+
+- Added missing characters.
+
 ### 2.005
 
 - Replaced axis **Slant** with **Italic**.

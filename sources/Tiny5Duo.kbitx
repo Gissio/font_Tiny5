@@ -12,9 +12,9 @@
 <name id="0" value="Copyright 2026 The Tiny5 Project Authors (https://github.com/Gissio/font_Tiny5)"/>
 <name id="1" value="Tiny5 Duo"/>
 <name id="2" value="Regular"/>
-<name id="3" value="2.005;KBnP;Tiny5 Duo-Regular"/>
+<name id="3" value="2.006;KBnP;Tiny5 Duo-Regular"/>
 <name id="4" value="Tiny5 Duo Regular"/>
-<name id="5" value="2.005"/>
+<name id="5" value="2.006"/>
 <name id="6" value="Tiny5"/>
 <name id="8" value="Stefan Schmidt Art"/>
 <name id="9" value="Stefan Schmidt"/>
@@ -558,6 +558,7 @@
 <g u="697" x="0" y="5" w="2" d="AgFC"/>
 <g u="699" x="0" y="5" w="2" d="AgFC"/>
 <g u="700" x="0" y="5" w="2" d="AgFC"/>
+<g u="701" x="0" y="5" w="2" d="AgFC"/>
 <g u="702" x="0" y="5" w="3" d="AwJBAkIB"/>
 <g u="703" x="0" y="5" w="3" d="AwIBQgJB"/>
 <g u="704" x="0" y="6" w="4" d="BANCA8P/AP8Cwv8A"/>
@@ -593,11 +594,12 @@
 <g u="780" x="-4" y="7" w="0" d="AgPG/wD/AP8A"/>
 <g u="781" x="-2" y="7" w="0" d="AgFC"/>
 <g u="783" x="-5" y="7" w="0" d="AgTD/wD/AsP/AP8"/>
+<g u="784" x="-4" y="9" w="0" d="BAPCAP8Exv8A/wD/AA"/>
 <g u="785" x="-4" y="7" w="0" d="AgPGAP8A/wD/"/>
 <g u="787" x="-2" y="7" w="0" d="AgFC"/>
 <g u="788" x="-2" y="7" w="0" d="AgFC"/>
 <g u="789" x="-2" y="7" w="0" d="AgFC"/>
-<g u="795" x="-2" y="6" w="0" d="AQFB"/>
+<g u="795" x="-1" y="6" w="0" d="AQFB"/>
 <g u="800" x="-4" y="-1" w="0" d="AQND"/>
 <g u="803" x="-2" y="-1" w="0" d="AQFB"/>
 <g u="804" x="-4" y="-1" w="0" d="AQPD/wD/"/>
@@ -612,12 +614,14 @@
 <g u="816" x="-6" y="-1" w="0" d="AgTDAP8AQsMA/wA"/>
 <g u="817" x="-5" y="-1" w="0" d="AQND"/>
 <g u="818" x="-6" y="-1" w="0" d="AQVF"/>
+<g u="820" x="-5" y="3" w="0" d="AgTDAP8AQsMA/wA"/>
 <g u="823" x="-1" y="3" w="0" d="AgIBQgE"/>
 <g u="824" x="-1" y="5" w="0" d="BQLDAP8AQsUA/wD/AA"/>
 <g u="834" x="-5" y="7" w="0" d="AgTDAP8AQsMA/wA"/>
 <g u="835" x="-2" y="7" w="0" d="AgFC"/>
 <g u="836" x="-4" y="9" w="0" d="BAMCw/8A/wTD/wD/"/>
 <g u="837" x="-2" y="-1" w="0" d="AgFC"/>
+<g u="856" x="-2" y="6" w="0" d="AQFB"/>
 <g u="857" x="-3" y="-1" w="0" d="AgJE"/>
 <g u="860" x="-3" y="-1" w="0" d="AgVBA8L/AEMB"/>
 <g u="863" x="-3" y="-1" w="0" d="AQVF"/>
@@ -1050,6 +1054,7 @@
 <g u="7506" x="0" y="5" w="4" d="AwPJAP8A/wD/AP8A"/>
 <g u="7507" x="0" y="5" w="4" d="AwNCA0MB"/>
 <g u="7512" x="0" y="5" w="4" d="AwPC/wBCwwD/AEI"/>
+<g u="7515" x="0" y="5" w="4" d="AwPC/wBCxQD/AP8A"/>
 <g u="7547" x="0" y="4" w="5" d="BAQBQgFEAUICQgE"/>
 <g u="7549" x="0" y="4" w="8" d="BQcBRAJHAUIBQgJEA0IE"/>
 <g u="7588" x="0" y="5" w="3" d="AwIBQ8IA/w"/>
@@ -1540,25 +1545,33 @@
 <g u="8210" x="0" y="3" w="5" d="AQRE"/>
 <g u="8211" x="0" y="3" w="7" d="AQZG"/>
 <g u="8212" x="0" y="3" w="8" d="AQdH"/>
+<g u="8213" x="0" y="3" w="8" d="AQdH"/>
 <g u="8214" x="0" y="5" w="4" d="BQPC/wBCAUIBQgFCwgD/"/>
 <g u="8216" x="0" y="5" w="3" d="AgJE"/>
 <g u="8217" x="0" y="5" w="3" d="AgJE"/>
 <g u="8218" x="0" y="1" w="3" d="AgJE"/>
+<g u="8219" x="0" y="5" w="3" d="AgJE"/>
 <g u="8220" x="0" y="5" w="6" d="AgVCAUQBQg"/>
 <g u="8221" x="0" y="5" w="6" d="AgVCAUQBQg"/>
 <g u="8222" x="0" y="1" w="6" d="AgVCAUQBQg"/>
+<g u="8223" x="0" y="5" w="4" d="AgPC/wBCwgD/"/>
 <g u="8224" x="0" y="5" w="4" d="BQPDAP8AQ8IA/wJBAsL/AA"/>
 <g u="8225" x="0" y="5" w="4" d="BQPDAP8AQ8MA/wBDwwD/AA"/>
 <g u="8226" x="0" y="4" w="3" d="AgJE"/>
+<g u="8227" x="0" y="4" w="3" d="AwLC/wBDAQ"/>
 <g u="8228" x="0" y="1" w="3" d="AQJC"/>
+<g u="8229" x="0" y="1" w="6" d="AQVCAUI"/>
 <g u="8230" x="0" y="1" w="9" d="AQhCAUIBQg"/>
 <g u="8232" x="0" y="0" w="0" d="AAA"/>
 <g u="8233" x="0" y="0" w="0" d="AAA"/>
 <g u="8240" x="0" y="4" w="7" d="BAZBAkEEQQRBBEECw/8A/w"/>
+<g u="8241" x="0" y="4" w="9" d="BAhBAkEGQQZBBkECxf8A/wD/"/>
 <g u="8242" x="0" y="5" w="3" d="AgJE"/>
 <g u="8243" x="0" y="5" w="6" d="AgVCAUQBQg"/>
+<g u="8244" x="0" y="5" w="9" d="AghCAUIBRAFCAUI"/>
 <g u="8245" x="0" y="5" w="3" d="AgJE"/>
 <g u="8246" x="0" y="5" w="6" d="AgVCAUQBQg"/>
+<g u="8247" x="0" y="5" w="9" d="AghCAUIBRAFCAUI"/>
 <g u="8249" x="0" y="4" w="4" d="AwMBRAJC"/>
 <g u="8250" x="0" y="4" w="4" d="AwNCAkQB"/>
 <g u="8251" x="0" y="5" w="6" d="BQXZ/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/w"/>
@@ -1648,6 +1661,7 @@
 <g u="8734" x="0" y="4" w="6" d="AwXPAP8A/wD/AP8A/wD/AP8A"/>
 <g u="8747" x="0" y="6" w="5" d="BwQCQgFCAkICQgJCAkIBQgI"/>
 <g u="8776" x="0" y="5" w="5" d="BQTDAP8AQsIA/wbC/wBCwwD/AA"/>
+<g u="8777" x="0" y="5" w="5" d="BQQBRMIA/wJBA8L/AEQB"/>
 <g u="8800" x="0" y="5" w="4" d="BQMCRMMA/wBEAg"/>
 <g u="8804" x="0" y="6" w="5" d="BwQCQgFCAUIDQgNCBEQ"/>
 <g u="8805" x="0" y="6" w="5" d="BwRCA0IDQgFCAUIGRA"/>
@@ -1675,6 +1689,8 @@
 <g u="9655" x="0" y="5" w="4" d="BQNBAkLDAP8AQ8IA/wI"/>
 <g u="9656" x="0" y="4" w="3" d="AwLC/wBDAQ"/>
 <g u="9657" x="0" y="4" w="3" d="AwJBAkIB"/>
+<g u="9658" x="0" y="5" w="4" d="BQNBAkIBRcIA/wI"/>
+<g u="9659" x="0" y="5" w="4" d="BQNBAkLDAP8AQ8IA/wI"/>
 <g u="9660" x="0" y="4" w="6" d="AwVFAUMDQQI"/>
 <g u="9661" x="0" y="4" w="6" d="AwVFxAD/AP8DQQI"/>
 <g u="9662" x="0" y="4" w="4" d="AgNDwwD/AA"/>
@@ -1683,6 +1699,8 @@
 <g u="9665" x="0" y="5" w="4" d="BQMCwv8AQ8MA/wBCAkE"/>
 <g u="9666" x="0" y="4" w="3" d="AwIBQ8IA/w"/>
 <g u="9667" x="0" y="4" w="3" d="AwIBQgJB"/>
+<g u="9668" x="0" y="5" w="4" d="BQMCwv8ARQFCAkE"/>
+<g u="9669" x="0" y="5" w="4" d="BQMCwv8AQ8MA/wBCAkE"/>
 <g u="9670" x="0" y="5" w="6" d="BQUCQQNDAUUBQwNBAg"/>
 <g u="9671" x="0" y="5" w="6" d="BQUCQQPF/wD/AP8Dxf8A/wD/A0EC"/>
 <g u="9674" x="0" y="5" w="4" d="BQPCAP8Cx/8A/wD/AP8Cwv8A"/>
@@ -1736,6 +1754,8 @@
 <g u="12301" x="0" y="5" w="3" d="BQLHAP8A/wD/AEM"/>
 <g u="12314" x="0" y="5" w="5" d="BQRFywD/AP8A/wD/AP8ARA"/>
 <g u="12315" x="0" y="5" w="5" d="BQREywD/AP8A/wD/AP8ARQ"/>
+<g u="42790" x="0" y="5" w="6" d="BwVCAUQBSQFEAUIDQgJCAQ"/>
+<g u="42791" x="0" y="5" w="6" d="BwVCA0QBQgFEAUQBQgNCAkIB"/>
 <g u="42816" x="0" y="5" w="7" d="BQYBQgFHAkMDRAJCAUI"/>
 <g u="42817" x="0" y="5" w="7" d="BQYBQgNDAUIBRAJCAUIBQgFC"/>
 <g u="42889" x="0" y="4" w="2" d="AwHD/wD/"/>
@@ -1745,6 +1765,8 @@
 <g u="42893" x="0" y="5" w="6" d="BQVCAUQBRwNCA0I"/>
 <g u="42898" x="0" y="5" w="6" d="BQUBQwFCAUUCQgFCAUMB"/>
 <g u="42899" x="0" y="4" w="6" d="BAUBSAFCBEQ"/>
+<g u="42920" x="0" y="5" w="7" d="BQYCRwVDBUIBRAE"/>
+<g u="42921" x="0" y="4" w="7" d="BAYCSQVCAUQB"/>
 <g u="42922" x="0" y="5" w="7" d="BQZDAUIBQgFCAUUBQgFCAUIBQg"/>
 <g u="42925" x="0" y="5" w="7" d="BQYBQgNDA0QDQgRF"/>
 <g u="42926" x="0" y="5" w="5" d="BQREAUICQgJCAUQ"/>
