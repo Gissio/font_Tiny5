@@ -61,7 +61,7 @@ WEIGHT_NAME_FROM_WGHT = {
 STATIC_STYLES = set(WEIGHT_CLASSES) | {"Italic"}
 
 # The italic angle, in degrees, of a fully italic ("ital" = 1) master.
-DEFAULT_ITALIC_ANGLE = 8.0
+DEFAULT_ITALIC_ANGLE = 12.0
 
 SLOPE_FROM_SLANT = {
     "I": "Italic",
@@ -213,6 +213,7 @@ MARKS = {
     "\u0330": ("bottom", 2),  # Tilde below
     "\u0331": ("bottom", 0),  # Macron below
     "\u0332": ("top", 0),  # Low line
+    "\u0334": ("center", 0),  # Short stroke overlay
     "\u0335": ("center", 0),  # Short stroke overlay
     "\u0337": ("center", 0),  # Short solidus overlay
     "\u0338": ("center", 0),  # Long solidus overlay
@@ -220,6 +221,7 @@ MARKS = {
     "\u0343": ("top", 0),  # Koronis for Greek
     "\u0344": ("top", 0),  # Dialytika tonos for Greek
     "\u0345": ("bottom", 0),  # Ypogegrammeni for Greek
+    "\u0358": ("topRight", 0),  # Dot above right
     "\u0359": ("bottom", 0),  # Asterisk below
     "\u035c": ("bottom", 2),  # Double breve below
     "\u035f": ("bottom", 2),  # Double macron below

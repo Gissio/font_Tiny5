@@ -1,4 +1,4 @@
-# Procedural specimen images for Tiny5.
+# Procedural specimen images for Tiny5 and Tiny5 Duo.
 #
 # Every image is an artifact of a fictional 1980s pocket-electronics maker:
 # the screens are simulated period displays, drawn entirely in code so the
@@ -10,6 +10,10 @@
 # The file runs from the general to the particular: the font, the cell grid,
 # the shared image helpers, then one section per device — its constants, its
 # renderer and the specimen it builds — in the order the images are numbered.
+#
+# Every specimen is built once per family: Tiny5 as tiny5-*.jpg, and Tiny5
+# Duo as tiny5duo-*.jpg. Duo sets wider than Tiny5, so where a line would
+# overflow its display, the Duo specimen carries its own, shorter copy.
 
 import math
 import random
@@ -26,10 +30,11 @@ OUT_PATH = Path(__file__).resolve().parent
 TINY5_PATH = ROOT_PATH / "fonts/variable/Tiny5[BLED,JITT,ROND,wdth,wght].ttf"
 TINY5_DUO_PATH = ROOT_PATH / "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wdth,wght].ttf"
 TINY5_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5-Italic[BLED,JITT,ROND,wdth,wght].ttf"
+TINY5_DUO_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5Duo-Italic[BLED,JITT,ROND,wdth,wght].ttf"
 
 # Font version, as the devices display it; keep in sync with the font's
 # version (name ID 5)
-VERSION = "V2.006"
+VERSION = "V2.007"
 
 # Tiny5 draws one font pixel per 8 font units, and is 5 font pixels tall
 FONT_PIXEL_SIZE = 8
@@ -42,13 +47,22 @@ LCD_AXES = [400, 100, 0, 0, 0]
 
 
 def get_font(scale, duo=False, axes=None, italic=False):
-    """Load Tiny5 sized so one font pixel covers `scale` display cells,
-    optionally as the italic variant or at other axis settings."""
-    path = TINY5_ITALIC_PATH if italic else (TINY5_DUO_PATH if duo else TINY5_PATH)
+    """Load Tiny5, or Tiny5 Duo, sized so one font pixel covers `scale`
+    display cells, optionally as the italic variant or at other axis
+    settings."""
+    if italic:
+        path = TINY5_DUO_ITALIC_PATH if duo else TINY5_ITALIC_PATH
+    else:
+        path = TINY5_DUO_PATH if duo else TINY5_PATH
     font = ImageFont.truetype(font=str(path), size=FONT_PIXEL_SIZE * scale)
     font.set_variation_by_axes(axes or LCD_AXES)
 
     return font
+
+
+def family_name(duo):
+    """Return the family name, as the devices display it."""
+    return "Tiny5 Duo" if duo else "Tiny5"
 
 
 def get_baseline(line_height, cap_height):
@@ -154,6 +168,10 @@ class Display:
 
 CANVAS = (1920, 1080)
 
+# Google Fonts takes its specimen images at this size; they are rendered at
+# CANVAS and resampled down
+GOOGLE_SIZE = (1600, 900)
+
 JPG_QUALITY = 95
 
 # Every random imperfection is drawn from this seed, so the specimens are
@@ -237,8 +255,13 @@ def shade(img, field):
     return ImageChops.multiply(img, field.convert("RGB"))
 
 
-def save_image(img, filename):
-    img.save(OUT_PATH / filename, optimize=True, quality=JPG_QUALITY)
+def save_image(img, name, duo):
+    """Save a specimen under the family's prefix: tiny5-, or tiny5duo-,
+    along with a -google variant resampled to GOOGLE_SIZE."""
+    stem = ("tiny5duo-" if duo else "tiny5-") + name
+    img.save(OUT_PATH / (stem + ".jpg"), optimize=True, quality=JPG_QUALITY)
+    google = img.resize(GOOGLE_SIZE, Image.LANCZOS)
+    google.save(OUT_PATH / (stem + "-google.jpg"), optimize=True, quality=JPG_QUALITY)
 
 
 # --- Reflective LCD: the hero -----------------------------------------------
@@ -296,7 +319,7 @@ def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     return img
 
 
-def build_hero():
+def build_hero(duo):
     """The hero is the home screen of an 84x48-pixel phone: signal and
     battery indicators, title and subtitle, and the softkey label."""
     d = Display(NOKIA_GRID)
@@ -322,13 +345,20 @@ def build_hero():
     d.draw.rectangle(xy=[(9, 5), (9, 6)], fill=0)           # keyhole
     d.text((width - 6, 7), 1, "7:55", anchor="rs")
 
-    # Title with its subtitle, and the softkey label
-    d.text((center, 25), 3, "Tiny5", anchor="ms")
-    d.text((center, 36), 1, "A 5-pixel font", anchor="ms")
+    # Title with its subtitle, and the softkey label. Only the title changes
+    # family: at three cells per font pixel, Duo's would run into the
+    # indicator columns, so Duo takes it on two lines instead, a size down
+    if duo:
+        d.text((center, 18), 2, "Tiny5", anchor="ms", duo=True)
+        d.text((center, 31), 2, "Duo", anchor="ms", duo=True)
+        d.text((center, 39), 1, "A 5-pixel font", anchor="ms")
+    else:
+        d.text((center, 25), 3, "Tiny5", anchor="ms")
+        d.text((center, 36), 1, "A 5-pixel font", anchor="ms")
     d.text((center, height - 1), 1, "Menu", anchor="ms", duo=True)
 
     img = render_reflective(d, NOKIA_CELL, NOKIA_BG, NOKIA_FG, CANVAS)
-    save_image(img, "tiny5-presentation.jpg")
+    save_image(img, "presentation", duo)
 
 
 # --- Vacuum fluorescent display: the character ROM --------------------------
@@ -394,7 +424,7 @@ def render_emissive(display, cell, bg_color, fg_color, glow_color):
     return img
 
 
-def build_charset():
+def build_charset(duo):
     """A character ROM chart on a HiFi deck's fluorescent display, with the
     glyphs at the native size: one font pixel per display cell."""
     d = Display(VFD_GRID)
@@ -402,8 +432,8 @@ def build_charset():
     margin = 3
     pitch = 9
 
-    d.text((margin, 7), 1, "CHARACTER ROM")
-    d.text((width - margin, 7), 1, VERSION, anchor="rs")
+    d.text((margin, 7), 1, f"{family_name(duo).upper()}")
+    d.text((width - margin, 7), 1, f"ROM {VERSION}", anchor="rs")
 
     # The six charset rows on a uniform 9-cell baseline rhythm, the block
     # centered in the space below the header. The exact left edge of the
@@ -411,10 +441,10 @@ def build_charset():
     # the character's own offset folded in
     left = (width - pitch * len(CHARSET_ROWS[0])) / 2
     for row, chars in enumerate(CHARSET_ROWS):
-        d.char_row(left, 19 + row * pitch, pitch, 1, chars)
+        d.char_row(left, 19 + row * pitch, pitch, 1, chars, duo)
 
     save_image(render_emissive(d, VFD_CELL, VFD_BG, VFD_FG, VFD_GLOW),
-               "tiny5-sample1.jpg")
+               "sample1", duo)
 
 
 # --- Active-matrix TFT: the size ramp ---------------------------------------
@@ -519,7 +549,7 @@ def render_tft(layers, cell, bg_color, backlight=(90, 96, 100),
     return img.reduce(TFT_SUPER)
 
 
-def build_ramp():
+def build_ramp(duo):
     """A size ramp on a color LCD module, 240x135 pixels: the same test
     string from headline down to the native size, each row filled to the
     measure and labeled with its size in points.
@@ -532,12 +562,12 @@ def build_ramp():
     left, right = margin, width - margin
 
     chrome = Display(TFT_GRID)
-    chrome.text((left, margin + CAP_PIXELS), 1, "Tiny5 display test")
+    chrome.text((left, margin + CAP_PIXELS), 1, f"{family_name(duo)} display test")
     chrome.text((right, margin + CAP_PIXELS), 1, VERSION, anchor="rs")
     layers = [(chrome, TFT_CHROME)]
 
     # The labels take a column at the right; the text fills what is left
-    label_width = max(round(chrome.text_width(1, f"{scale * 6} pt"))
+    label_width = max(round(chrome.text_width(1, f"{scale * 6} pt", duo))
                       for scale in RAMP_SCALES)
     measure = right - label_width - TFT_LABEL_GAP - left
 
@@ -554,15 +584,15 @@ def build_ramp():
         baseline = round(y + scale * CAP_PIXELS)
         line = ""
         for char in RAMP_TEXT:
-            if d.text_width(scale, line + char) > measure:
+            if d.text_width(scale, line + char, duo) > measure:
                 break
             line += char
-        d.text((left, baseline), scale, line.rstrip())
-        d.text((right, baseline), 1, f"{scale * 6} pt", anchor="rs")
+        d.text((left, baseline), scale, line.rstrip(), duo=duo)
+        d.text((right, baseline), 1, f"{scale * 6} pt", anchor="rs", duo=duo)
         y += row
     layers.append((d, TFT_INK))
 
-    save_image(render_tft(layers, TFT_CELL, TFT_BG), "tiny5-sample2.jpg")
+    save_image(render_tft(layers, TFT_CELL, TFT_BG), "sample2", duo)
 
 
 # --- Flip-disc board: the departures ----------------------------------------
@@ -823,7 +853,10 @@ def render_flipdisc(display, cell, rng):
 
 def build_departures():
     """The departures hall board: the column heads in Duo, and eight
-    flights below them, all in yellow discs."""
+    flights below them, all in yellow discs.
+
+    The board already shows both families, so the Duo specimens repeat it
+    as it is."""
     rng = random.Random(NOISE_SEED)
     d = Display(FLIP_GRID)
 
@@ -834,7 +867,9 @@ def build_departures():
         for (name, x), field in zip(DEPARTURE_COLUMNS, fields):
             d.text((x, baseline), 1, field)
 
-    save_image(render_flipdisc(d, FLIP_CELL, rng), "tiny5-sample3.jpg")
+    img = render_flipdisc(d, FLIP_CELL, rng)
+    for duo in (False, True):
+        save_image(img, "sample3", duo)
 
 
 # --- Paper -----------------------------------------------------------------
@@ -859,6 +894,8 @@ INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
 PROOF_MARGIN_X = 181            # side margin, in image pixels
 PROOF_MARGIN_Y = 84             # head and foot margin, in image pixels
 PROOF_WORD_SCALE = 23           # the axis name, in image pixels per font pixel
+PROOF_WORD_SCALE_DUO = 15       # and in Duo, whose "roundness" sets half again
+                                # as wide, and must still fit its column
 PROOF_TAG_SCALE = 8             # its tag, and the running head
 PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
 
@@ -931,7 +968,7 @@ def render_inkjet(mask, rng):
     return Image.composite(Image.new("RGB", size, INKJET_INK), paper, ink)
 
 
-def build_axes():
+def build_axes(duo):
     """A proof card for the variation axes, run off on an early inkjet: each
     axis shown by its own name, typeset with that axis at its extreme, drawn
     directly at a large size so the font's own axis effects reproduce
@@ -962,7 +999,7 @@ def build_axes():
         measured by setting the string on its own and taking the box that
         comes back.
         """
-        font = get_font(scale, **variant)
+        font = get_font(scale, **{"duo": duo, **variant})
         pad = 2 * scale          # room for the ink that falls outside the pen
         width = round(draw.textlength(string, font=font)) + 2 * pad
         height = 2 * (font.size + pad)
@@ -980,7 +1017,7 @@ def build_axes():
         box = ink_box(scale, string, **variant)
         x = xy[0] - (box[2] if anchor[0] == "r" else box[0])
         draw.text(xy=(x, xy[1]), text=string, fill=255,
-                  font=get_font(scale, **variant), anchor="l" + anchor[1])
+                  font=get_font(scale, **{"duo": duo, **variant}), anchor="l" + anchor[1])
 
     def ink(scale, strings):
         """Return how far the tallest of the strings inks above the baseline,
@@ -991,7 +1028,11 @@ def build_axes():
 
     left, right = PROOF_MARGIN_X, CANVAS[0] - PROOF_MARGIN_X
     column = (right - left) // 2        # pitch of the two columns
-    head = [("Tiny5 variation test", {}), (VERSION, {})]
+    title = f"{family_name(duo)} variation test"
+    word_scale = PROOF_WORD_SCALE_DUO if duo else PROOF_WORD_SCALE
+    # The running head and the tags are set in Tiny5, whichever family the
+    # card proves
+    head = [(title, {"duo": False}), (VERSION, {"duo": False})]
     rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
 
     # Measure every line, then share out what the blocks leave: one gap
@@ -999,26 +1040,26 @@ def build_axes():
     head_above, head_below = ink(PROOF_TAG_SCALE, head)
     blocks = []
     for row in rows:
-        above, below = ink(PROOF_WORD_SCALE, [(word, v) for word, _, v in row])
-        tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {}) for _, tag, _ in row])
+        above, below = ink(word_scale, [(word, v) for word, _, v in row])
+        tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {"duo": False}) for _, tag, _ in row])
         blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
     filled = head_above + head_below + sum(sum(block) for block in blocks)
     gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
 
     y = PROOF_MARGIN_Y + head_above
-    put((left, y), PROOF_TAG_SCALE, "Tiny5 variation test")
-    put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs")
+    put((left, y), PROOF_TAG_SCALE, title, duo=False)
+    put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs", duo=False)
     y += head_below
 
     for row, (above, tag_offset, tag_below) in zip(rows, blocks):
         y += gap + above
         for index, (word, tag, variant) in enumerate(row):
             x = left + index * column
-            put((x, y), PROOF_WORD_SCALE, word, **variant)
-            put((x, y + tag_offset), PROOF_TAG_SCALE, tag)
+            put((x, y), word_scale, word, **variant)
+            put((x, y + tag_offset), PROOF_TAG_SCALE, tag, duo=False)
         y += tag_offset + tag_below
 
-    save_image(render_inkjet(mask, rng), "tiny5-sample4.jpg")
+    save_image(render_inkjet(mask, rng), "sample4", duo)
 
 
 # --- Cathode ray tube: the terminal session ---------------------------------
@@ -1054,6 +1095,7 @@ BEAM_SIGMA_MIN = 0.34           # as a fraction of the scanline pitch
 BEAM_SIGMA_MAX = 0.46
 BEAM_FLOOR = 42                 # emission between scanlines, of 255
 
+LOGIN_PROMPTS = ("login:", "Last login:")
 TERMINAL_LINES = [
     "login: gissio",
     "Last login: Fri Jun 5 07:55 on tty5",
@@ -1061,7 +1103,7 @@ TERMINAL_LINES = [
     "$ fc-query --brief Tiny5",
     "    family: \"Tiny5\"",
     "    version: " + VERSION,
-    "    glyphs: 1749",
+    "    glyphs: 1771",
     "    languages: 974",
     "    axes: weight width italic round bleed jitter",
     "    pixel-perfect render: multiples of 6 pt (8 px)",
@@ -1195,28 +1237,58 @@ def render_crt(display, cell, bg_color):
 
 def build_terminal():
     """A session on an amber terminal, listing the font's specs, with the
-    capitals of each line centered within the line pitch."""
+    capitals of each line centered within the line pitch. The session is
+    set in Tiny5, and the login prompts in Duo.
+
+    The session shows both families, so the Duo specimens repeat it as it
+    is."""
     d = Display(CRT_GRID)
     width, height = CRT_GRID
     pitch = CRT_LINE_PITCH
 
+    def split(line):
+        """Split a line after its login prompt: the Duo label, and the rest."""
+        for label in LOGIN_PROMPTS:
+            if line.startswith(label):
+                return label, line[len(label):]
+        return "", line
+
+    def line_width(line):
+        """Return the inked width of a line, label and rest together; the
+        label keeps its trailing gap, as the gap to the rest."""
+        label, rest = split(line)
+        if not label:
+            return d.text_width(1, rest)
+        return d.text_width(1, label, True) + 1 + d.text_width(1, rest)
+
     # Monitors overscan: the active text sits well inside the tube, with a
     # wide dark margin all around it
-    block_width = max(d.text_width(1, line) for line in TERMINAL_LINES)
+    block_width = max(line_width(line) for line in TERMINAL_LINES)
     block_height = pitch * len(TERMINAL_LINES)
     left = round((width - block_width) / 2)
     top = (height - block_height) // 2
 
     baseline = top + get_baseline(pitch, CAP_PIXELS)
     for row, line in enumerate(TERMINAL_LINES):
-        d.text((left, baseline + row * pitch), 1, line)
+        y = baseline + row * pitch
+        label, rest = split(line)
+        x = left
+        if label:
+            d.text((x, y), 1, label, duo=True)
+            x += round(d.text_width(1, label, True)) + 1
+        d.text((x, y), 1, rest)
 
-    # Block cursor waiting on the prompt line
+    # Block cursor waiting on the prompt line, where the next character
+    # would go, as wide as a capital H
+    cursor_left = left + round(d.text_width(1, "$ ")) + 1
+    cursor_right = cursor_left + round(d.text_width(1, "H")) - 1
     cursor_top = baseline + (len(TERMINAL_LINES) - 1) * pitch - CAP_PIXELS + 1
-    d.draw.rectangle(xy=[(left + 6, cursor_top), (left + 9, cursor_top + CAP_PIXELS - 1)],
-                     fill=255)
+    d.draw.rectangle(xy=[(cursor_left, cursor_top),
+                         (cursor_right, cursor_top + CAP_PIXELS - 1)], fill=255)
 
-    save_image(render_crt(d, CRT_CELL, CRT_BG), "tiny5-sample5.jpg")
+    img = render_crt(d, CRT_CELL, CRT_BG)
+    for duo in (False, True):
+        save_image(img, "sample5", duo)
 
 
 # --- 9-pin dot matrix: the printer self test --------------------------------
@@ -1252,9 +1324,20 @@ INTL_LINES = [
     "Do bạch kim rất quý nên sẽ dùng để lắp vô xương.",
     "Jovencillo emponzoñado de whisky: ¡qué figurota exhibe!",
     "Zombif parvînt jusqu'à deux whisky-glace.",
-    "Fürge rőt róka túlszökik zsíros étkű kutyán.",
     "Pchnąć w tę łódź jeża lub ośm skrzyń fig.",
+    "Fürge rőt róka túlszökik zsíros étkű kutyán.",
     "Эх, чужак, общий съём цен шляп (юфть) – вдрызг!",
+    "Γκόλφω, βάδιζε μπροστά ξανθή ψυχή!",
+]
+# Duo sets too wide for most of these, so it prints shorter lines in the
+# same languages; the Greek pangram fits, and stays
+INTL_LINES_DUO = [
+    "Tôi có thể ăn thủy tinh mà không hại gì.",
+    "¿Qué? ¡El pingüino añoraba el frío!",
+    "Ça va? Où êtes-vous, ma sœur aînée?",
+    "Zażółć gęślą jaźń.",
+    "Árvíztűrő tükörfúrógép.",
+    "Эх, чужак, общий съём цен шляп!",
     "Γκόλφω, βάδιζε μπροστά ξανθή ψυχή!",
 ]
 
@@ -1289,7 +1372,7 @@ def draw_paper(size, cell, bar_top, rng):
     return shade(img, grain_field(size, rng, PAPER_GRAIN))
 
 
-def build_printout():
+def build_printout(duo):
     """A 9-pin self test, struck dot by dot onto tractor paper: the ROM
     version, the character set streaming in a continuous wrap, and the
     international set, printed single-spaced on every line.
@@ -1310,21 +1393,21 @@ def build_printout():
 
     # The character set streams continuously: each line picks up where the
     # last one left off, wrapping around the set
-    lines = [f"SELF TEST  ROM {VERSION}  9 PIN", ""]
+    lines = [f"{family_name(duo).upper()} ROM {VERSION}  SELF TEST  9 PIN", ""]
     position = 0
     for _ in range(ROLLING_LINES):
         line = ""
         while True:
             char = CHARSET_STREAM[position % len(CHARSET_STREAM)]
-            if d.text_width(1, line + char) > max_width:
+            if d.text_width(1, line + char, duo) > max_width:
                 break
             line += char
             position += 1
         lines.append(line)
-    lines += [""] + INTL_LINES
+    lines += [""] + (INTL_LINES_DUO if duo else INTL_LINES)
 
     for i, line in enumerate(lines):
-        d.text((text_left, first_baseline + i * PIN_ROWS), 1, line)
+        d.text((text_left, first_baseline + i * PIN_ROWS), 1, line, duo=duo)
     cells = d.cells().load()
 
     # The ribbon inks unevenly in patches
@@ -1364,14 +1447,15 @@ def build_printout():
     img = draw_paper(size, MATRIX_CELL, glyph_top - 2, rng)
     img.paste(Image.new("RGB", size, INK_COLOR), (0, 0), ink)
 
-    save_image(img, "tiny5-sample6.jpg")
+    save_image(img, "sample6", duo)
 
 
 if __name__ == "__main__":
-    build_hero()
-    build_charset()                             # 1: character ROM on a VFD
-    build_ramp()                                # 2: size ramp on a color TFT
     build_departures()                          # 3: departures board, flip discs
-    build_axes()                                # 4: variation axes, inkjet proof
     build_terminal()                            # 5: login session on an amber CRT
-    build_printout()                            # 6: 9-pin printer self test
+    for duo in (False, True):
+        build_hero(duo)
+        build_charset(duo)                      # 1: character ROM on a VFD
+        build_ramp(duo)                         # 2: size ramp on a color TFT
+        build_axes(duo)                         # 4: variation axes, inkjet proof
+        build_printout(duo)                     # 6: 9-pin printer self test

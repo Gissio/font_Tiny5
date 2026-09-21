@@ -2,34 +2,43 @@
 
 # Tiny5
 
-**Tiny5** is a compact 5-pixel variable font that captures the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, it distills letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
+**Tiny5** is a family of compact 5-pixel variable fonts that capture the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, they distill letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
-It features six variable axes — **Weight, Width, Italic, Roundness, Bleed and Jitter** — giving you precise control over its look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers. A **Tiny5 Duo** variant has been added for bolder emphasis while staying true to the pixel-perfect aesthetic.
+The family has two members, sharing the same letterforms, variable axes and character set:
 
-Tiny5 excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It's especially well-suited for:
+- [**Tiny5**](https://fonts.google.com/specimen/Tiny5) draws every stroke one pixel wide—the text face of the family, at home in body copy and dense readouts.
+- [**Tiny5 Duo**](https://fonts.google.com/specimen/Tiny5+Duo) doubles the vertical stems, giving the same letterforms a sturdier, more emphatic presence—ideal for headlines, labels and anywhere a little extra weight helps the text hold its own.
 
-- Pixel art and lo-fi games
-- Terminal-style interfaces and embedded systems
-- Micro-typography in UI/UX design
+Used together, they give you a light and a heavy voice that stay true to the pixel-perfect aesthetic.
+
+Both fonts feature six variable axes — **Weight, Width, Italic, Roundness, Bleed and Jitter** — giving you precise control over their look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers.
+
+The family excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It's especially well-suited for:
+
+- Pixel art and lo-fi games, with Tiny5 Duo for titles, headings and HUDs
+- Terminal-style interfaces and embedded systems, with Tiny5 Duo for emphasis
+- Micro-typography in UI/UX design, with Tiny5 Duo for labels and buttons
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,749 glyphs**.
+The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,771 glyphs**.
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
-Tiny5 is also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
+Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
 ![Tiny5 character ROM](documentation/tiny5-sample1.jpg)
 
-![Size ramp](documentation/tiny5-sample2.jpg)
+![Tiny5 Duo character ROM](documentation/tiny5duo-sample1.jpg)
 
-![Departures board](documentation/tiny5-sample3.jpg)
+![Size ramp, Tiny5](documentation/tiny5-sample2.jpg)
 
-![Variation axes](documentation/tiny5-sample4.jpg)
+![Departures board, Tiny5 and Tiny5 Duo](documentation/tiny5-sample3.jpg)
 
-![Amber CRT](documentation/tiny5-sample5.jpg)
+![Variation axes, Tiny5 Duo](documentation/tiny5duo-sample4.jpg)
 
-![9-pin printer self test](documentation/tiny5-sample6.jpg)
+![Amber CRT, Tiny5](documentation/tiny5-sample5.jpg)
+
+![9-pin printer self test, Tiny5](documentation/tiny5-sample6.jpg)
 
 ## About
 
@@ -54,6 +63,12 @@ If you want to build fonts manually on your own computer:
 - Thanks to [Fontesk](https://fontesk.com) and [1001 Fonts](https://1001fonts.com) for their friendly support.
 
 ## Changelog
+
+### 2.007
+
+- Fixed combining marks
+- Fixed duplicate overlapping pixels in composed glyphs.
+- Fixed the OS/2 WWS bit in the font metadata.
 
 ### 2.006
 

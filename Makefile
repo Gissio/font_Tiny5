@@ -9,6 +9,9 @@ sources/Tiny5.designspace: venv
 sources/Tiny5Duo.designspace: venv
 	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5Duo-build-config.yaml" "sources/Tiny5Duo.bdf" "sources"
 
+sources/Tiny5Mono.designspace: venv
+	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5Mono-build-config.yaml" "sources/Tiny5Mono.bdf" "sources"
+
 help:
 	@echo "###"
 	@echo "# Build targets for $(FAMILY)"
@@ -27,7 +30,7 @@ venv: venv/touchfile
 customize: venv
 	. venv/bin/activate; python3 scripts/customize.py
 
-build.stamp: venv sources/config.yaml sources/Tiny5.designspace sources/Tiny5Duo.designspace
+build.stamp: venv sources/config.yaml sources/Tiny5.designspace sources/Tiny5Duo.designspace sources/Tiny5Mono.designspace
 	rm -rf fonts
 	(for config in sources/config*.yaml; do . venv/bin/activate; gftools builder $$config; done)  && touch build.stamp
 	mkdir -p fonts/bdf && cp sources/*.bdf fonts/bdf/

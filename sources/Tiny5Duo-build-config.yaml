@@ -38,111 +38,123 @@ units_per_element: [128, 128]
 # Whether to use an element glyph for each bitmap pixel.
 use_element_glyph: true
 
+# The italic angle, in degrees, of the "ital" axis at its maximum value.
+italic_angle: 12
+
 # Override anchors for specific glyphs.
 # The position is given in pixel units, relative to the glyph's origin (bottom-left corner).
 custom_anchors:
   # Top mark anchors
   "\u0300": # Grave
-    "_top": [-2, 5]
-    "top": [-2, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0301": # Acute
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0302": # Circumflex
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0303": # Tilde
     "_top": [-4, 5]
     "top": [-4, 8]
   "\u0304": # Macron
-    "_top": [-3, 5]
-    "top": [-3, 7]
+    "_top": [-4, 5]
+    "top": [-4, 7]
   "\u0306": # Breve
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0307": # Dot above
-    "_top": [-2, 5]
-    "top": [-2, 7]
+    "_top": [-4, 5]
+    "top": [-4, 7]
   "\u0308": # Diaeresis
-    "_top": [-3, 5]
-    "top": [-3, 7]
+    "_top": [-4, 5]
+    "top": [-4, 7]
   "\u0309": # Hook above
-    "_top": [-2, 5]
-    "top": [-2, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u030a": # Ring above
-    "_top": [-3, 5]
-    "top": [-3, 9]
+    "_top": [-4, 5]
+    "top": [-4, 9]
   "\u030b": # Double acute
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u030c": # Caron
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u030d": # Vertical line above
-    "_top": [-2, 5]
-    "top": [-2, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u030f": # Double grave
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0310": # Candrabindu
-    "_top": [-3, 5]
-    "top": [-3, 10]
+    "_top": [-4, 5]
+    "top": [-4, 10]
   "\u0311": # Inverted breve
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0313": # Comma above
-    "_top": [-2, 5]
-    "top": [-2, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0314": # Reversed comma above
-    "_top": [-2, 5]
-    "top": [-2, 8]
-  "\u0315": # Comma above right
-    "_top": [-2, 5]
-    "top": [-2, 8]
-  "\u031b": # Horn
-    "_top": [-2, 5]
-    "top": [-2, 7]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0342": # Perispomeni
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0343": # Koronis
-    "_top": [-2, 5]
-    "top": [-2, 8]
+    "_top": [-4, 5]
+    "top": [-4, 8]
   "\u0344": # Dialytika tonos
-    "_top": [-3, 5]
-    "top": [-3, 10]
+    "_top": [-4, 5]
+    "top": [-4, 10]
+  "\u0361": # Double inverted breve
+    "_top": [-4, 5]
+    "top": [-4, 8]
+  "\u1dc4": # Macron acute
+    "_top": [-4, 5]
+    "top": [-4, 8]
+  "\u1dc5": # Grave macron
+    "_top": [-4, 5]
+    "top": [-4, 8]
+  "\u1dc6": # Macron grave
+    "_top": [-4, 5]
+    "top": [-4, 8]
+  "\u1dc7": # Acute macron
+    "_top": [-4, 5]
+    "top": [-4, 8]
 
   # Bottom mark anchors
   "\u0320": # Minus sign below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -3]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -3]
   "\u0323": # Dot below
-    "_bottom": [-2, -1]
-    "bottom": [-2, -3]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -3]
   "\u0324": # Diaeresis below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -3]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -3]
   "\u0325": # Ring below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -5]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -5]
   "\u0326": # Comma below
-    "_bottom": [-2, -1]
-    "bottom": [-2, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u0327": # Cedilla
-    "_bottom": [-2, -1]
-    "bottom": [-2, -3]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -3]
   "\u0329": # Vertical line below
-    "_bottom": [-2, -1]
-    "bottom": [-2, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u032d": # Circumflex below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u032e": # Breve below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u032f": # Inverted breve below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u0330": # Tilde below
     "_bottom": [-4, -1]
     "bottom": [-4, -4]
@@ -153,52 +165,63 @@ custom_anchors:
     "_bottom": [-4, -1]
     "bottom": [-4, -3]
   "\u0345": # Ypogegrammeni
-    "_bottom": [-2, -1]
-    "bottom": [-2, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u0359": # Asterisk below
-    "_bottom": [-2, -1]
-    "bottom": [-2, -4]
-
-  # Other mark anchors
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u035c": # Double breve below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
   "\u035f": # Double macron below
-    "_bottom": [-3, -1]
-    "bottom": [-3, -3]
-  "\u0361": # Double inverted breve
-    "_top": [-3, 5]
-    "top": [-3, 8]
-  "\u1dc4": # Macron acute
-    "_top": [-3, 5]
-    "top": [-3, 8]
-  "\u1dc5": # Grave macron
-    "_top": [-3, 5]
-    "top": [-3, 8]
-  "\u1dc6": # Macron grave
-    "_top": [-3, 5]
-    "top": [-3, 8]
-  "\u1dc7": # Acute macron
-    "_top": [-3, 5]
-    "top": [-3, 8]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -3]
   "\u1dca": # Small r below
-    "_bottom": [-2, -1]
-    "bottom": [-2, -4]
+    "_bottom": [-4, -1]
+    "bottom": [-4, -4]
+
+  # Right mark anchors
+  "\u0315": # Comma above right
+    "_right": [0, 0]
+    "right": [0, 0]
+  "\u0334": # Tilde overlay
+    "_right": [0, 0]
+    "right": [0, 0]
+  "\u0337": # Short solidus overlay
+    "_right": [0, 0]
+    "right": [0, 0]
+  "\u0338": # Long solidus overlay
+    "_right": [0, 0]
+    "right": [0, 0]
+  "\u0358": # Dot above right
+    "right": [0, 0]
+    "_right": [0, 0]
+
+  # Ogonek mark anchors
+  "\u0328": # Ogonek
+    "_ogonek": [-4, 0]
+    "ogonek": [-4, 0]
+
+  # Horn mark anchors
+  "\u031b": # Horn
+    "_horn": [-1, 4]
+    "horn": [-1, 4]
+
+  # Dotted circle anchors
   "\u25cc": # Dotted circle
     "top": [2, 5]
-    "topRight": [5, 5]
-    "horn": [4, 3]
-    "ogonek": [2, 0]
     "bottom": [2, -1]
+    "right": [5, 0]
+    "ogonek": [2, 0]
+    "horn": [4, 4]
 
   # Base anchors: Basic latin
   "F": # Capital f
     "bottom": [2, -1]
   "J": # Capital j
-    "top": [3, 6]
     "bottom": [2, -1]
   "L": # Capital l
-    "top": [1, 6]
+    "top": [2, 6]
   "P": # Capital p
     "bottom": [2, -1]
   "Q": # Capital q
@@ -224,7 +247,7 @@ custom_anchors:
   "x": # Small x
     "bottom": [2, -1]
   "y": # Small y
-    "ogonek": [3, -1]
+    "ogonek": [1, -1]
 
   # Base anchors: Latin-1 Supplement
   "À": # Capital a with grave
@@ -247,8 +270,8 @@ custom_anchors:
     "top": [2, 10]
     "bottom": [2, -1]
   "Æ": # Capital ae
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [4, 6]
+    "bottom": [4, -1]
   "Ç": # Capital c with cedilla
     "top": [2, 6]
     "bottom": [2, -3]
@@ -307,7 +330,7 @@ custom_anchors:
   "Ü": # Capital u with diaeresis
     "top": [2, 8]
     "bottom": [2, -1]
-    "ogonek": [3, 0]
+    "ogonek": [2, 0]
   "à": # Small a with grave
     "top": [2, 8]
     "bottom": [2, -1]
@@ -543,9 +566,9 @@ custom_anchors:
     "top": [1, 6]
     "bottom": [1, -1]
   "Ɨ": # Capital i with stroke
-    "top": [2, 6]
-    "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "top": [1, 6]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
   "ƛ": # Small lambda with stroke
     "top": [2, 6]
     "bottom": [2, -1]
@@ -639,16 +662,16 @@ custom_anchors:
   "ȷ": # Small dotless j
     "top": [1, 5]
     "bottom": [1, -2]
-    "ogonek": [1, -1]
+    "ogonek": [0, -1]
   "Ȼ": # Capital c with stroke
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [2, 7]
+    "bottom": [2, -2]
   "ȼ": # Small c with stroke
-    "top": [2, 5]
+    "top": [2, 6]
     "bottom": [2, -2]
   "Ʉ": # Capital u bar
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "Ʌ": # Capital turned v
     "top": [3, 6]
     "bottom": [3, -1]
@@ -663,7 +686,7 @@ custom_anchors:
   "ɔ": # Small open o
     "top": [2, 5]
     "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "ogonek": [2, 0]
   "ə": # Small schwa
     "top": [2, 5]
     "bottom": [2, -1]
@@ -671,7 +694,7 @@ custom_anchors:
   "ɛ": # Small open e
     "top": [2, 5]
     "bottom": [2, -1]
-    "ogonek": [2, 0]
+    "ogonek": [3, 0]
   "ɤ": # Small rams horn
     "top": [2, 5]
     "bottom": [2, -1]
@@ -679,8 +702,8 @@ custom_anchors:
     "top": [2, 5]
     "bottom": [2, -2]
   "ɨ": # Small i with stroke
-    "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "bottom": [0, -1]
+    "ogonek": [0, 0]
   "ɩ": # Small iota
     "top": [1, 5]
     "bottom": [1, -1]
@@ -697,8 +720,8 @@ custom_anchors:
     "top": [2, 5]
     "bottom": [2, -1]
   "ʉ": # Small barred u
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "ʊ": # Small upsilon
     "top": [2, 5]
     "bottom": [2, -1]
@@ -915,9 +938,9 @@ custom_anchors:
 
   # Base anchors: Phonetic Extensions
   "ᵻ": # Small capital i with stroke
-    "top": [2, 5]
-    "bottom": [2, -1]
-    "ogonek": [1, 0]
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
 
   # Base anchors: Latin Extended Additional
   "Ḛ": # Capital e with tilde below
@@ -1043,26 +1066,25 @@ custom_anchors:
     "top": [4, 5]
     "bottom": [4, -1]
   "Ꞹ": # Capital u with stroke
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 7]
+    "bottom": [2, -2]
   "ꞹ": # Small u with stroke
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -2]
   "Ɤ": # Capital rams horn
     "top": [3, 6]
-    "bottom": [3, -2]
+    "bottom": [3, -1]
   "Ꟍ": # Capital s with diagonal stroke
-    "top": [3, 6]
-    "bottom": [3, -1]
+    "top": [2, 7]
+    "bottom": [2, -2]
   "ꟍ": # Small s with diagonal stroke
-    "top": [3, 5]
-    "bottom": [3, -1]
+    "top": [2, 6]
+    "bottom": [2, -2]
   "Ƛ": # Capital lambda with stroke
     "top": [3, 6]
     "bottom": [3, -1]
 
 # Define kerning groups and their values in pixels.
-# Kerning groups are automatically generated.
 kerning:
 # Latin
   - ["-–—", "jĵǰȷ", -1]
@@ -1202,9 +1224,6 @@ kerning:
   - ["մ", "Ժզօ", -1]
   - ["մ", "ջց", -1]
 
-# The italic angle, in degrees, of the "ital" axis at its maximum value.
-italic_angle: 8
-
 # Define default values for variable axes.
 default_axis_values:
   "wght": 400
@@ -1245,6 +1264,9 @@ variable_instances:
     "wght": 700
   "Italic":
     "wght": 400
+    "ital": 1
+  "Bold Italic":
+    "wght": 700
     "ital": 1
   "LCD":
     "wght": 340

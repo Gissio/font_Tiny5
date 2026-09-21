@@ -13,6 +13,7 @@ import sys
 from typing import Any, Union
 
 import bdflib.reader
+import unicodedata2 as unicodedata
 from fontTools.agl import UV2AGL
 import numpy as np
 
@@ -57,6 +58,8 @@ class BDFFont:
         cap_height: Height of capital letters.
         x_height: Height of lowercase 'x'.
 
+        monospace: The fixed advance of a monospace font, in pixel units, or 0 if proportional.
+
         underline_position: Position of underline.
         underline_thickness: Thickness of underline.
         strikeout_position: Position of strikeout line.
@@ -90,6 +93,8 @@ class BDFFont:
         self.descent = 0.0
         self.cap_height = 0.0
         self.x_height = 0.0
+
+        self.monospace = 0
 
         self.underline_position = 0.0
         self.underline_thickness = 0.0
@@ -299,6 +304,9 @@ class BDFFont:
             self._set_property(config, "cap_height", cap_height)
             self._set_property(config, "x_height", x_height)
 
+            self._set_property(config, "monospace", 0)
+            self._verify_monospace()
+
             self._set_property(config, "underline_position", underline_position)
             self._set_property(config, "underline_thickness", underline_thickness)
             self._set_property(config, "strikeout_position", strikeout_position)
@@ -309,6 +317,37 @@ class BDFFont:
 
             self._set_property(config, "subscript_scale", subscript_scale)
             self._set_property(config, "subscript_offset", subscript_offset)
+
+    def _verify_monospace(self) -> None:
+        """Warn about glyphs whose advance differs from the monospace advance.
+
+        Combining marks (nonspacing and enclosing) are exempt: they are expected
+        to have a zero advance so they stack on the preceding base glyph without
+        consuming a cell.
+
+        Does nothing for a proportional font. The advances are not modified: the
+        .bdf file stays the single source of truth for the font's metrics.
+        """
+        if not self.monospace:
+            return
+
+        for name, glyph in self.glyphs.items():
+            advance = glyph["advance"]
+
+            if advance == 0 and unicodedata.category(glyph["character"]) in (
+                "Mn",
+                "Me",
+            ):
+                continue
+
+            if advance != self.monospace:
+                logger.warning(
+                    "glyph '%s' (U+%04X) has advance %d, expected %d for a monospace font",
+                    name,
+                    ord(glyph["character"]),
+                    advance,
+                    self.monospace,
+                )
 
     def _match_codepoint(self, codepoint: int, codepoint_range: str) -> bool:
         for token in codepoint_range.split(","):

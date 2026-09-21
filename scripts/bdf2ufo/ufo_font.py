@@ -202,9 +202,19 @@ class UFOFont:
 
         font_info.openTypeOS2WidthClass = width_class
         font_info.openTypeOS2WeightClass = weight_class
-        font_info.openTypeOS2Selection = [7]
+        # Bit 7 is USE_TYPO_METRICS. Bit 8 is WWS: the name table strings
+        # describe a weight/width/slope family on their own, so name IDs 21 and
+        # 22 are not needed. split_family_style_names() keeps the subfamily name
+        # to a weight optionally followed by "Italic", moving every other style
+        # component into the family name, and the WWS names are never set, so
+        # the bit always applies. Bits 0 (italic), 5 (bold) and 6 (regular) are
+        # derived from styleMapStyleName and must not be listed here.
+        font_info.openTypeOS2Selection = [7, 8]
         font_info.openTypeOS2VendorID = "B2UF"
-        font_info.openTypeOS2Panose = [2, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        # Panose: Latin Text, with bProportion set to 9 (Monospaced) for a
+        # monospace font.
+        panose_proportion = 9 if self.bdf_font.monospace else 0
+        font_info.openTypeOS2Panose = [2, 0, 0, panose_proportion, 0, 0, 0, 0, 0, 0]
         font_info.openTypeOS2FamilyClass = [0, 0]
         font_info.openTypeOS2TypoAscender = font_info.openTypeHheaAscender
         font_info.openTypeOS2TypoDescender = font_info.openTypeHheaDescender
@@ -248,6 +258,8 @@ class UFOFont:
         font_info.openTypeOS2StrikeoutPosition = int(
             self.bdf_font.strikeout_position * self.units_per_element.y
         )
+
+        font_info.postscriptIsFixedPitch = bool(self.bdf_font.monospace)
 
         font_info.postscriptUnderlineThickness = int(
             self.bdf_font.underline_thickness * self.units_per_element.y
@@ -455,8 +467,15 @@ class UFOFont:
             ufo_glyph.unicode = ord(glyph_character)
             ufo_glyph.width = int(glyph_advance * self.glyph_scale.x)
 
-            if glyph_name in self.components:
-                self._add_components(ufo_glyph, self.components[glyph_name])
+            # A composition whose components draw the same element twice would
+            # emit duplicate components at identical coordinates, so draw the
+            # glyph from its bitmap instead.
+            if glyph_name in self.components and not self._has_overlapping_elements(
+                glyph_name
+            ):
+                self._add_components(
+                    ufo_glyph, glyph_character, self.components[glyph_name]
+                )
             else:
                 self._add_bitmap(ufo_glyph, bdf_glyph)
 
@@ -474,6 +493,82 @@ class UFOFont:
         jitter_offset = Vec2.random(jitter / 1000) * self.units_per_element
 
         return offset + jitter_offset
+
+    def _get_element_positions(self, glyph_name: str) -> list[tuple[int, int]]:
+        """Return the position of every element a glyph draws, in pixel units.
+
+        A position repeats when the glyph draws an element there more than once.
+        Composed glyphs are resolved recursively down to their bitmaps.
+
+        The result is expressed in .bdf pixel space, which is shared by every
+        master, so it cannot vary across the design space.
+
+        Args:
+            glyph_name: The name of the glyph.
+
+        Returns:
+            A list of (x, y) element positions, with repeats.
+        """
+        if glyph_name in self.components:
+            return [
+                (x + int(component_offset.x), y + int(component_offset.y))
+                for component_name, component_offset in self.components[glyph_name]
+                for x, y in self._get_element_positions(component_name)
+            ]
+
+        bdf_glyph = self.bdf_font.glyphs[glyph_name]
+        bitmap = bdf_glyph["bitmap"]
+        offset = bdf_glyph["offset"]
+
+        return [
+            (x + int(offset.x), y + int(offset.y))
+            for y in range(bitmap.shape[0])
+            for x in range(bitmap.shape[1])
+            if bitmap[y][x]
+        ]
+
+    def _has_overlapping_elements(self, glyph_name: str) -> bool:
+        """Report whether a composed glyph draws two elements at the same place.
+
+        Args:
+            glyph_name: The name of the glyph.
+
+        Returns:
+            True if any element position is drawn more than once.
+        """
+        positions = self._get_element_positions(glyph_name)
+        if len(positions) == len(set(positions)):
+            return False
+
+        logger.info(
+            "Glyph '%s' composes overlapping elements, storing precomposed glyph.",
+            glyph_name,
+        )
+
+        return True
+
+    def _get_mark_shift(self, character: str) -> float:
+        """Return the horizontal nudge, in font units, of a glyph's ink and anchors.
+
+        Marks are drawn in the .bdf aligned to the cell left of the origin, so
+        attaching one to a base of the same width yields a GPOS offset of
+        exactly (0, 0). That is the correct position, but it is indistinguishable
+        from a font with no mark attachment at all, which Fontspector/Shaperglot
+        report as an orphaned mark. Nudging every mark one unit left makes the
+        offset non-zero without moving the mark by a visible amount.
+
+        The nudge applies to a mark's outline and to its anchors alike, so the
+        two cancel and the rendered position never changes. A glyph that embeds
+        a mark as a component has no anchor to cancel against, so it must undo
+        the component's nudge and apply its own instead.
+
+        Args:
+            character: The Unicode character of the glyph.
+
+        Returns:
+            The horizontal nudge, in font units.
+        """
+        return -1 if character in MARKS else 0
 
     def _add_bitmap(self, ufo_glyph, bdf_glyph):
         strike_num = self.strike_num
@@ -500,8 +595,7 @@ class UFOFont:
                         offset = self._apply_jitter(offset)
 
                         # Fix Fontspector/Shaperglot heuristics
-                        if bdf_glyph_character in MARKS:
-                            offset.x -= 1
+                        offset.x += self._get_mark_shift(bdf_glyph_character)
 
                         if self.use_element_glyph:
                             ufo_component = ufoLib2.objects.Component("_")
@@ -518,7 +612,7 @@ class UFOFont:
                         else:
                             self._add_element_glyph(ufo_glyph, offset)
 
-    def _add_components(self, ufo_glyph, glyph_components):
+    def _add_components(self, ufo_glyph, glyph_character, glyph_components):
         for component_name, component_offset in glyph_components:
             component_character = self.bdf_font.glyphs[component_name]["character"]
 
@@ -528,19 +622,20 @@ class UFOFont:
             # Italic offset
             offset = self._apply_italic(offset)
 
-            # Fix Fontspector/Shaperglot heuristics
-            if component_character in MARKS:
-                offset.x -= 1
+            # Fix Fontspector/Shaperglot heuristics. The component glyph already
+            # carries its own nudge, so undo it and apply the composed glyph's.
+            offset.x += self._get_mark_shift(glyph_character) - self._get_mark_shift(
+                component_character
+            )
 
-            if offset != (0, 0):
-                ufo_component.transformation = [
-                    1,
-                    0,
-                    0,
-                    1,
-                    math.floor(offset.x),
-                    math.floor(offset.y),
-                ]
+            ufo_component.transformation = [
+                1,
+                0,
+                0,
+                1,
+                math.floor(offset.x),
+                math.floor(offset.y),
+            ]
 
             ufo_glyph.components.append(ufo_component)
 
@@ -557,8 +652,7 @@ class UFOFont:
                 ufo_offset = self._apply_italic(ufo_offset)
 
                 # Fix Fontspector/Shaperglot heuristics
-                if glyph_character in MARKS:
-                    ufo_offset.x -= 1
+                ufo_offset.x += self._get_mark_shift(glyph_character)
 
                 ufo_anchor = ufoLib2.objects.Anchor(
                     math.floor(ufo_offset.x),
