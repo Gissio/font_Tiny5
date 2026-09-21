@@ -34,7 +34,7 @@ Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitma
 
 ![Departures board, Tiny5 and Tiny5 Duo](documentation/tiny5-sample3.jpg)
 
-![Variation axes, Tiny5 Duo](documentation/tiny5duo-sample4.jpg)
+![Variation axes, Tiny5 Duo](documentation/tiny5-sample4.jpg)
 
 ![Amber CRT, Tiny5](documentation/tiny5-sample5.jpg)
 
