@@ -114,6 +114,9 @@ class UFOFont:
         # Set glyphs
         self._set_glyphs()
 
+        # Flatten components
+        self._flatten_components()
+
         # Set anchors
         self._set_anchors()
 
@@ -608,7 +611,7 @@ class UFOFont:
                                 math.floor(offset.y),
                             ]
 
-                            ufo_glyph.components.append(ufo_component)
+                            self._append_component(ufo_glyph, ufo_component)
                         else:
                             self._add_element_glyph(ufo_glyph, offset)
 
@@ -637,7 +640,87 @@ class UFOFont:
                 math.floor(offset.y),
             ]
 
-            ufo_glyph.components.append(ufo_component)
+            self._append_component(ufo_glyph, ufo_component)
+
+    def _append_component(self, ufo_glyph, ufo_component):
+        """Append a component whose offset TrueType must not round to the grid.
+
+        ufo2ft sets ROUND_XY_TO_GRID on every component by default. Hinting
+        rasterizers (Windows GDI and DirectWrite) then round each element's
+        offset to whole pixels while the element keeps its fractional size,
+        which leaves empty pixel rows and columns inside filled areas whenever
+        an element spans between 2 and 3 pixels (or 4 and 5, and so on).
+
+        The identifier is the component's index, so the UFO output stays
+        deterministic.
+
+        Args:
+            ufo_glyph: The glyph to append the component to.
+            ufo_component: The component to append.
+        """
+        ufo_component.identifier = f"component{len(ufo_glyph.components)}"
+        ufo_glyph.components.append(ufo_component)
+
+        ufo_glyph.objectLib(ufo_component)["public.truetype.roundOffsetToGrid"] = False
+
+    def _get_flat_components(self, glyph_name, dx, dy):
+        """Resolve a component down to glyphs that are not pure composites.
+
+        Args:
+            glyph_name: The name of the component's base glyph.
+            dx: The component's horizontal offset, in font units.
+            dy: The component's vertical offset, in font units.
+
+        Returns:
+            A list of (base glyph name, dx, dy) tuples.
+        """
+        base_glyph = self.ufo_font[glyph_name]
+        if not base_glyph.components or base_glyph.contours:
+            return [(glyph_name, dx, dy)]
+
+        return [
+            flat_component
+            for component in base_glyph.components
+            for flat_component in self._get_flat_components(
+                component.baseGlyph,
+                dx + component.transformation.dx,
+                dy + component.transformation.dy,
+            )
+        ]
+
+    def _flatten_components(self):
+        """Replace nested components with their referents.
+
+        The build's FlattenComponentsFilter would do this anyway, but the
+        components it creates lose their identifiers and with them the
+        roundOffsetToGrid setting from _append_component. Flat sources leave
+        the filter nothing to do in variable font builds.
+        """
+        for ufo_glyph in self.ufo_font:
+            if not any(
+                self.ufo_font[component.baseGlyph].components
+                for component in ufo_glyph.components
+            ):
+                continue
+
+            flat_components = [
+                flat_component
+                for component in ufo_glyph.components
+                for flat_component in self._get_flat_components(
+                    component.baseGlyph,
+                    component.transformation.dx,
+                    component.transformation.dy,
+                )
+            ]
+
+            ufo_glyph.clearComponents()
+            ufo_glyph.lib.pop("public.objectLibs", None)
+
+            for base_glyph_name, dx, dy in flat_components:
+                ufo_component = ufoLib2.objects.Component(base_glyph_name)
+                ufo_component.transformation = [1, 0, 0, 1, dx, dy]
+
+                self._append_component(ufo_glyph, ufo_component)
 
     def _set_anchors(self):
         for glyph_name, glyph_anchors in self.anchors.items():

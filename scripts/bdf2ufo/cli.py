@@ -16,7 +16,7 @@ from .designspace import DesignSpace
 
 # Definitions
 
-BDF2UFO_VERSION = "1.5.2"
+BDF2UFO_VERSION = "1.5.3"
 
 
 def auto_int(x: str) -> int:

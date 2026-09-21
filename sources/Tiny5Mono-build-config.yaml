@@ -1098,10 +1098,10 @@ default_axis_values:
   "JITT": 0
 
 # Define variable axes and their ranges.
-# variable_axes:
-#   "wght":
-#     min: 100
-#     max: 700
+variable_axes:
+  "wght":
+    min: 100
+    max: 700
 #   "wdth":
 #     min: 50
 #     max: 200
@@ -1119,13 +1119,13 @@ default_axis_values:
 #     max: 100
 
 # Define static font instances and their axis values.
-# variable_instances:
-#   "Regular":
-#     "wght": 400
-#   "Medium":
-#     "wght": 500
-#   "Bold":
-#     "wght": 700
+variable_instances:
+  "Regular":
+    "wght": 400
+  "Medium":
+    "wght": 500
+  "Bold":
+    "wght": 700
 #   "Italic":
 #     "wght": 400
 #     "ital": 1
