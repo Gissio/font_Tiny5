@@ -14,6 +14,11 @@
 # Every specimen is built once per family: Tiny5 as tiny5-*.jpg, and Tiny5
 # Duo as tiny5duo-*.jpg. Duo sets wider than Tiny5, so where a line would
 # overflow its display, the Duo specimen carries its own, shorter copy.
+#
+# Alongside the specimens, the screen is rendered twice more for the itch.io
+# project the two families share: tiny5-itch.jpg, its cover image, and
+# tiny5-itch-banner.jpg, the banner across the head of its page. Both are
+# built for Tiny5 alone.
 
 import math
 import random
@@ -255,13 +260,15 @@ def shade(img, field):
     return ImageChops.multiply(img, field.convert("RGB"))
 
 
-def save_image(img, name, duo):
-    """Save a specimen under the family's prefix: tiny5-, or tiny5duo-,
-    along with a -google variant resampled to GOOGLE_SIZE."""
+def save_image(img, name, duo, google=True):
+    """Save a specimen under the family's prefix: tiny5-, or tiny5duo-, along
+    with a -google variant resampled to GOOGLE_SIZE where one is called for."""
     stem = ("tiny5duo-" if duo else "tiny5-") + name
     img.save(OUT_PATH / (stem + ".jpg"), optimize=True, quality=JPG_QUALITY)
-    google = img.resize(GOOGLE_SIZE, Image.LANCZOS)
-    google.save(OUT_PATH / (stem + "-google.jpg"), optimize=True, quality=JPG_QUALITY)
+    if google:
+        resampled = img.resize(GOOGLE_SIZE, Image.LANCZOS)
+        resampled.save(OUT_PATH / (stem + "-google.jpg"),
+                       optimize=True, quality=JPG_QUALITY)
 
 
 # --- Reflective LCD: the hero -----------------------------------------------
@@ -271,6 +278,28 @@ NOKIA_GRID = (84, 48)
 NOKIA_CELL = 22
 NOKIA_BG = (177, 186, 158)
 NOKIA_FG = (30, 39, 29)
+
+# itch.io presents a project by a 630x500 cover image, far squarer than the
+# 16:9 specimen canvas. The hero screen is composed onto it a second time on
+# a narrower module of the same 48 rows: the layout is untouched, the screen
+# simply loses the columns the cover has no room for, and in exchange its
+# cells run half again as large.
+#
+# At 10 image pixels per cell the cover holds 62 of them and the title still
+# clears the indicator columns, by a single one: a column fewer than fits,
+# so that the surround frames the glass on every side rather than only above
+# and below it
+ITCH_SIZE = (630, 500)
+ITCH_GRID = (62, 48)
+ITCH_CELL = 10
+
+# The banner runs the width of an itch.io page, and stands in for its title
+# heading, so it carries the name in place of one. It is the hero screen once
+# more, drawn out to a strip: the same 48 rows and the same layout, softkey
+# and all, on the widest module the banner holds whole cells of
+BANNER_SIZE = (960, 300)
+BANNER_GRID = (158, 48)
+BANNER_CELL = 6
 
 
 def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
@@ -306,10 +335,11 @@ def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     img = ImageChops.add(img, sheen(full).convert("RGB"))
 
     if canvas_size is not None and canvas_size != full:
-        # A hairline marks where the glass meets the surround
+        # A hairline marks where the glass meets the surround, its weight
+        # kept in proportion to the cells behind it
         ImageDraw.Draw(img).rectangle(xy=[(0, 0), (full[0] - 1, full[1] - 1)],
                                       outline=tuple(c * 2 // 5 for c in bg_color),
-                                      width=3)
+                                      width=max(1, round(cell / 7)))
         surround = tuple(c * 5 // 9 for c in bg_color)
         canvas = Image.new("RGB", canvas_size, surround)
         canvas.paste(img, ((canvas_size[0] - full[0]) // 2,
@@ -319,12 +349,13 @@ def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     return img
 
 
-def build_hero(duo):
-    """The hero is the home screen of an 84x48-pixel phone: signal and
-    battery indicators, title and subtitle, and the softkey label."""
-    d = Display(NOKIA_GRID)
-    width, height = NOKIA_GRID
-    center = width // 2
+def draw_phone_chrome(d):
+    """Draw the screen furniture of a 48-pixel-tall phone: the signal and
+    battery columns down the edges, and the keyguard lock and the clock along
+    the top. All of it is placed from the top and the side edges, so the
+    screen takes whatever width it is given.
+    """
+    width = d.size[0]
 
     # Nokia-style indicators: signal column down the left edge, battery
     # column down the right edge, each capped by its icon
@@ -345,6 +376,17 @@ def build_hero(duo):
     d.draw.rectangle(xy=[(9, 5), (9, 6)], fill=0)           # keyhole
     d.text((width - 6, 7), 1, "7:55", anchor="rs")
 
+
+def compose_hero(duo, grid=NOKIA_GRID):
+    """Compose the home screen of that phone: the furniture, the title with
+    its subtitle, and the softkey label, all centered on the screen's
+    width."""
+    d = Display(grid)
+    width, height = grid
+    center = width // 2
+
+    draw_phone_chrome(d)
+
     # Title with its subtitle, and the softkey label. Only the title changes
     # family: at three cells per font pixel, Duo's would run into the
     # indicator columns, so Duo takes it on two lines instead, a size down
@@ -357,8 +399,34 @@ def build_hero(duo):
         d.text((center, 36), 1, "A 5-pixel font", anchor="ms")
     d.text((center, height - 1), 1, "Menu", anchor="ms", duo=True)
 
-    img = render_reflective(d, NOKIA_CELL, NOKIA_BG, NOKIA_FG, CANVAS)
+    return d
+
+
+def build_hero(duo):
+    """The hero is that screen, filling the specimen canvas."""
+    img = render_reflective(compose_hero(duo), NOKIA_CELL,
+                            NOKIA_BG, NOKIA_FG, CANVAS)
     save_image(img, "presentation", duo)
+
+
+def build_itch():
+    """The itch.io cover is the hero screen again, narrowed to the cover's
+    frame.
+
+    The two families share one itch.io project, so there is one cover, and it
+    is set in Tiny5 — as in the hero, only the softkey label sets in Duo.
+    """
+    img = render_reflective(compose_hero(False, ITCH_GRID), ITCH_CELL,
+                            NOKIA_BG, NOKIA_FG, ITCH_SIZE)
+    save_image(img, "itch", False, google=False)
+
+
+def build_banner():
+    """The itch.io page banner is that screen drawn out to a strip, across the
+    head of the page."""
+    img = render_reflective(compose_hero(False, BANNER_GRID), BANNER_CELL,
+                            NOKIA_BG, NOKIA_FG, BANNER_SIZE)
+    save_image(img, "itch-banner", False, google=False)
 
 
 # --- Vacuum fluorescent display: the character ROM --------------------------
@@ -1453,6 +1521,8 @@ def build_printout(duo):
 if __name__ == "__main__":
     build_departures()                          # 3: departures board, flip discs
     build_terminal()                            # 5: login session on an amber CRT
+    build_itch()                                # the itch.io cover image
+    build_banner()                              # and its page banner
     for duo in (False, True):
         build_hero(duo)
         build_charset(duo)                      # 1: character ROM on a VFD
