@@ -9,6 +9,8 @@ License: MIT
 
 import argparse
 import logging
+import sys
+
 import yaml
 
 from .bdf_font import BDFFont
@@ -16,7 +18,7 @@ from .designspace import DesignSpace
 
 # Definitions
 
-BDF2UFO_VERSION = "1.5.3"
+BDF2UFO_VERSION = "1.6"
 
 
 def auto_int(x: str) -> int:
@@ -53,8 +55,12 @@ def _setup_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main():
-    """Convert a .bdf pixel font to a .ufo variable vector font."""
+def main() -> int:
+    """Convert a .bdf pixel font to a .ufo variable vector font.
+
+    Returns:
+        The exit status: 0 on success, 1 on failure.
+    """
     parser = _setup_argument_parser()
     args = parser.parse_args()
 
@@ -70,7 +76,7 @@ def main():
                 config = yaml.safe_load(f) or {}
         except (IOError, yaml.YAMLError) as e:
             logger.error("Failed to load configuration file: %s", e)
-            return
+            return 1
 
     # Load BDF font
     logger.info("Loading BDF font")
@@ -80,7 +86,7 @@ def main():
         bdf_font.load(args.input, config)
     except (IOError, ValueError, OSError) as e:
         logger.error("Failed to load BDF font: %s", e)
-        return
+        return 1
 
     # Setup and build designspace
     logger.info("Building designspace")
@@ -92,10 +98,12 @@ def main():
         designspace.build(args.output)
     except ValueError as e:
         logger.error("Failed to build designspace: %s", e)
-        return
+        return 1
 
     logger.info("Done")
 
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -10,7 +10,9 @@ License: MIT
 import random
 from typing import Iterable
 
-from .data import STATIC_STYLES
+from fontTools.varLib.models import piecewiseLinearMap
+
+from .data import STATIC_STYLES, WIDTH_CLASS_FROM_WDTH
 
 
 def combine_strings(a: str, b: str) -> str:
@@ -113,6 +115,34 @@ def get_style_map_names(family_name: str, style_name: str) -> tuple[str, str]:
             style_map_style_name = "bold italic"
 
     return " ".join(family_components), style_map_style_name
+
+
+def get_weight_class(wght: float) -> int:
+    """
+    Get the OS/2 weight class of a user space wght axis value.
+
+    Args:
+        wght: The user space wght axis value.
+
+    Returns:
+        The OS/2 weight class.
+    """
+    return int(min(1000, max(1, round(wght))))
+
+
+def get_width_class(wdth: float) -> int:
+    """
+    Get the OS/2 width class of a user space wdth axis value.
+
+    Args:
+        wdth: The user space wdth axis value.
+
+    Returns:
+        The OS/2 width class.
+    """
+    width_class = piecewiseLinearMap(wdth, WIDTH_CLASS_FROM_WDTH)
+
+    return int(min(9, max(1, round(width_class))))
 
 
 class Vec2:

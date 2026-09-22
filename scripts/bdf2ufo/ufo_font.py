@@ -13,16 +13,18 @@ from pathlib import Path
 
 import ufoLib2
 
-from fontTools.varLib.models import piecewiseLinearMap
-
 from .data import (
-    WIDTH_CLASS_FROM_WDTH,
     SCRIPTS,
     MARKS,
     CCMP_SOFTDOT_DECOMPOSITION,
     CCMP_SOFTDOT_COMPOSITION,
 )
-from .utils import Vec2, get_style_map_names
+from .utils import (
+    Vec2,
+    get_style_map_names,
+    get_weight_class,
+    get_width_class,
+)
 from .bdf_font import BDFFont
 
 
@@ -47,7 +49,8 @@ class UFOFont:
         components (dict): A dictionary containing the components of glyphs.
         anchors (dict): A dictionary containing the anchors of glyphs.
 
-        location (dict): A dictionary containing the location of the font in the design space.
+        location (dict): The design space location of the font, in design coordinates.
+        user_location (dict): The design space location of the font, in user coordinates.
         style_name (str): The style name of the font.
     """
 
@@ -66,19 +69,28 @@ class UFOFont:
         self.kerning = {}
 
         self.location = {}
+        self.user_location = {}
         self.style_name = ""
 
         self.glyph_scale = Vec2(1)
 
     def setup(
-        self, bdf_font: BDFFont, ufo_config: dict, location: dict, style_name: str
+        self,
+        bdf_font: BDFFont,
+        ufo_config: dict,
+        location: dict,
+        user_location: dict,
+        style_name: str,
     ) -> None:
         """Set up the UFO font structure from a BDF font.
 
         Args:
             bdf_font: The BDF font object to convert.
             ufo_config: A dictionary containing UFO configuration settings.
-            location: A dictionary containing the location of the font in the design space.
+            location: The design space location of the font, in design coordinates.
+                The glyph geometry is built from these values.
+            user_location: The design space location of the font, in user
+                coordinates. The OS/2 weight and width classes are set from these values.
             style_name: The style name of the font at this design space location.
         """
 
@@ -97,6 +109,7 @@ class UFOFont:
         self.kerning = ufo_config["kerning"]
 
         self.location = location
+        self.user_location = user_location
         self.style_name = style_name
 
         self.glyph_scale = self.units_per_element * Vec2(self.location["wdth"] / 100, 1)
@@ -140,10 +153,9 @@ class UFOFont:
         descender = line_descender - int((self.units_per_em - line_height) / 2)
         ascender = self.units_per_em + descender
 
-        # Width and weight class, from the design space location
-        width_class = piecewiseLinearMap(self.location["wdth"], WIDTH_CLASS_FROM_WDTH)
-        width_class = int(min(9, max(1, round(width_class))))
-        weight_class = int(min(1000, max(1, round(self.location["wght"]))))
+        # Width and weight class, from the user space location
+        width_class = get_width_class(self.user_location["wdth"])
+        weight_class = get_weight_class(self.user_location["wght"])
 
         # Italic angle. UFO italic angles are counter-clockwise, so a forward
         # leaning italic has a negative angle.

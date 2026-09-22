@@ -902,7 +902,7 @@ PROOF_TAG_GAP = 30              # ink gap from an axis name down to its tag
 # Each variation axis demonstrated by its own name, set with that axis
 # pushed to its extreme
 AXIS_ROWS = [
-    ("weight", "wght 700", {"axes": [700, 100, 0, 0, 0]}),
+    ("weight", "wght 900", {"axes": [900, 100, 0, 0, 0]}),
     ("width", "wdth 75", {"axes": [300, 75, 0, 0, 0]}),
     ("italic", "ital 1", {"axes": [300, 100, 0, 0, 0], "italic": True}),
     ("roundness", "ROND 100", {"axes": [300, 100, 100, 0, 0]}),
