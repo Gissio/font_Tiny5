@@ -16,8 +16,8 @@ Both fonts feature six variable axes — **Weight, Width, Italic, Roundness, Ble
 The family excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It's especially well-suited for:
 
 - Pixel art and lo-fi games, with Tiny5 Duo for titles, headings and HUDs
-- Terminal-style interfaces and embedded systems, with Tiny5 Duo for emphasis
-- Micro-typography in UI/UX design, with Tiny5 Duo for labels and buttons
+- Terminal-style interfaces and embedded systems
+- Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
 The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,771 glyphs**.
