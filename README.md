@@ -28,8 +28,6 @@ Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitma
 
 ![Tiny5 character ROM](documentation/tiny5-sample1.jpg)
 
-![Tiny5 Duo character ROM](documentation/tiny5duo-sample1.jpg)
-
 ![Size ramp, Tiny5](documentation/tiny5-sample2.jpg)
 
 ![Departures board, Tiny5 and Tiny5 Duo](documentation/tiny5-sample3.jpg)
