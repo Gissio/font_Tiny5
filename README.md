@@ -38,6 +38,12 @@ Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitma
 
 ![9-pin printer self test, Tiny5](documentation/tiny5-sample6.jpg)
 
+## Projects using Tiny5
+
+- [DRAW](https://github.com/grymmjack/DRAW) - Pixel art editor
+- [Besprited](https://github.com/veritaware/Besprited) – A pixel sprite editor
+- [Momentum firmware](https://github.com/Next-Flip/Momentum-Firmware) - Custom firmware for Flipper
+
 ## About
 
 Stefan Schmidt is an electrical engineer with graduate studies in signal processing, multimodal artistic languages and sociology. Fascinated by the interplay between the virtual and the real, his work probes the boundaries between perception and technology.
