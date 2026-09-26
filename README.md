@@ -40,9 +40,11 @@ Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitma
 
 ## Projects using Tiny5
 
-- [DRAW](https://github.com/grymmjack/DRAW) - Pixel art editor
-- [Besprited](https://github.com/veritaware/Besprited) – A pixel sprite editor
 - [Momentum firmware](https://github.com/Next-Flip/Momentum-Firmware) - Custom firmware for Flipper
+- [Besprited](https://github.com/veritaware/Besprited) – A pixel sprite editor
+- [DRAW](https://github.com/grymmjack/DRAW) - Pixel art editor
+- [FoxHole Guard](https://github.com/foxhole-team/foxhole-guard) - Privacy-focused Android networking app with VPN, Tor, I2P, firewall, DNS filtering, traffic routing, and FoxHole Sentinel
+- [DwarfAI-Miners](https://github.com/JeronimoRepetto/DwarfAI-Miners) - Local desktop panel that turns your AI coding sessions into an isometric dwarf mining colony - watch, message, and manage your agents in real time
 
 ## About
 
