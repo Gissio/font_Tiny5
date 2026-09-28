@@ -20,7 +20,7 @@ The family excels at evoking retro-futurism, constrained-tech nostalgia, and cle
 - Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,771 glyphs**.
+The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,942 glyphs**.
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 

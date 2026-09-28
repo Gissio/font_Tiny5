@@ -1171,7 +1171,7 @@ TERMINAL_LINES = [
     "$ fc-query --brief Tiny5",
     "    family: \"Tiny5\"",
     "    version: " + VERSION,
-    "    glyphs: 1771",
+    "    glyphs: 1942",
     "    languages: 974",
     "    axes: weight width italic round bleed jitter",
     "    pixel-perfect render: multiples of 6 pt (8 px)",
