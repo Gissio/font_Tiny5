@@ -1,6 +1,5 @@
 sources:
   - Tiny5.designspace
   - Tiny5Duo.designspace
-  - Tiny5Mono.designspace
 autohintTTF: false
 flattenComponents: false
