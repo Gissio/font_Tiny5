@@ -27,7 +27,7 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 
-# --- The font ---------------------------------------------------------------
+# --- The font ----------------------------------------------------------------
 
 ROOT_PATH = Path(__file__).resolve().parent.parent
 OUT_PATH = Path(__file__).resolve().parent
@@ -72,10 +72,10 @@ def family_name(duo):
 
 def get_baseline(line_height, cap_height):
     """Return the baseline offset that centers capital letters within a line."""
-    return (line_height - cap_height  + 1) // 2 + cap_height
+    return (line_height - cap_height + 1) // 2 + cap_height
 
 
-# --- The cell grid ----------------------------------------------------------
+# --- The cell grid -----------------------------------------------------------
 
 # Text at 2+ cells per font pixel rasterizes cleanly at cell resolution, but
 # at 1 cell per font pixel the tiny ppem garbles the glyphs. Native-size text
@@ -169,7 +169,7 @@ class Display:
             self.text((x, baseline), scale, char, duo=duo)
 
 
-# --- Image helpers ----------------------------------------------------------
+# --- Image helpers -----------------------------------------------------------
 
 CANVAS = (1920, 1080)
 
@@ -271,7 +271,7 @@ def save_image(img, name, duo, google=True):
                        optimize=True, quality=JPG_QUALITY)
 
 
-# --- Reflective LCD: the hero -----------------------------------------------
+# --- Reflective LCD: the hero ------------------------------------------------
 
 # The classic 84x48 phone LCD, in its green backlit scheme
 NOKIA_GRID = (84, 48)
@@ -429,7 +429,7 @@ def build_banner():
     save_image(img, "itch-banner", False, google=False)
 
 
-# --- Vacuum fluorescent display: the character ROM --------------------------
+# --- Vacuum fluorescent display: the character ROM ---------------------------
 
 # The glow of a HiFi deck's front panel: ZnO:Zn phosphor emitting bluish
 # green at ~505 nm behind tinted glass, its anode segments seen through the
@@ -500,7 +500,7 @@ def build_charset(duo):
     margin = 3
     pitch = 9
 
-    d.text((margin, 7), 1, f"{family_name(duo).upper()}")
+    d.text((margin, 7), 1, family_name(duo).upper())
     d.text((width - margin, 7), 1, f"ROM {VERSION}", anchor="rs")
 
     # The six charset rows on a uniform 9-cell baseline rhythm, the block
@@ -515,7 +515,7 @@ def build_charset(duo):
                "sample1", duo)
 
 
-# --- Active-matrix TFT: the size ramp ---------------------------------------
+# --- Active-matrix TFT: the size ramp ----------------------------------------
 
 # A backlit color panel showing a display test in the one ink the firmware
 # has: dark text on the white of the backlight, the chrome a step lighter
@@ -663,7 +663,7 @@ def build_ramp(duo):
     save_image(render_tft(layers, TFT_CELL, TFT_BG), "sample2", duo)
 
 
-# --- Flip-disc board: the departures ----------------------------------------
+# --- Flip-disc board: the departures -----------------------------------------
 
 # An electromechanical departures board. Every pixel is a small disc, matte
 # black on one face and day-glo yellow on the other, hung on a horizontal
@@ -821,7 +821,7 @@ def draw_discs(size, layout, bite, shaded=True):
                      fill=max(0, min(255, round(255 * level))) if shaded else 255)
     angle = math.radians(FLIP_BITE_ANGLE)
     ux, uy = math.sin(angle), -math.cos(angle)
-    for x, y, rx, ry, level in layout:
+    for x, y, rx, ry, _ in layout:
         hx, hy = x + ux * rx, y + uy * ry
         draw.ellipse(xy=[hx - bite, hy - bite, hx + bite, hy + bite], fill=0)
 
@@ -932,7 +932,7 @@ def build_departures():
         d.text((x, FLIP_BASELINE), 1, name, duo=True)
     for line, fields in enumerate(DEPARTURES, start=1):
         baseline = FLIP_BASELINE + line * FLIP_LINE_PITCH
-        for (name, x), field in zip(DEPARTURE_COLUMNS, fields):
+        for (_, x), field in zip(DEPARTURE_COLUMNS, fields):
             d.text((x, baseline), 1, field)
 
     img = render_flipdisc(d, FLIP_CELL, rng)
@@ -940,20 +940,20 @@ def build_departures():
         save_image(img, "sample3", duo)
 
 
-# --- Paper -----------------------------------------------------------------
+# --- Paper -------------------------------------------------------------------
 
 # Both printers run the same stock
 PAPER_COLOR = (250, 249, 246)
 PAPER_GRAIN = 9                 # depth of the paper grain, of 255
 
 
-# --- Inkjet: the variation axes proof ---------------------------------------
+# --- Inkjet: the variation axes proof ----------------------------------------
 
-INKJET_DOT = 4                  # Printer dot pitch, in image pixels
-INKJET_INK = (36, 40, 52)       # Dye-based black: slightly weak and bluish
-INKJET_SWATH = 50               # Nozzles per print head pass
-INKJET_GAIN = (0.56, 0.70)      # Droplet radius range, in dots (dot gain > 0.5)
-INKJET_SATELLITES = 0.03        # Chance of a stray satellite drop per edge dot
+INKJET_DOT = 4                  # printer dot pitch, in image pixels
+INKJET_INK = (36, 40, 52)       # dye-based black: slightly weak and bluish
+INKJET_SWATH = 50               # nozzles per print head pass
+INKJET_GAIN = (0.56, 0.70)      # droplet radius range, in dots (dot gain > 0.5)
+INKJET_SATELLITES = 0.03        # chance of a stray satellite drop per edge dot
 
 # The proof card: a running head over three rows of two blocks, each block
 # an axis name with its technical tag beneath. The card is trimmed to a wide
@@ -1084,8 +1084,9 @@ def build_axes(duo):
         that a column edge, and the running head, line up on what shows."""
         box = ink_box(scale, string, **variant)
         x = xy[0] - (box[2] if anchor[0] == "r" else box[0])
-        draw.text(xy=(x, xy[1]), text=string, fill=255,
-                  font=get_font(scale, **{"duo": duo, **variant}), anchor="l" + anchor[1])
+        font = get_font(scale, **{"duo": duo, **variant})
+        draw.text(xy=(x, xy[1]), text=string, fill=255, font=font,
+                  anchor="l" + anchor[1])
 
     def ink(scale, strings):
         """Return how far the tallest of the strings inks above the baseline,
@@ -1109,7 +1110,8 @@ def build_axes(duo):
     blocks = []
     for row in rows:
         above, below = ink(word_scale, [(word, v) for word, _, v in row])
-        tag_above, tag_below = ink(PROOF_TAG_SCALE, [(tag, {"duo": False}) for _, tag, _ in row])
+        tag_above, tag_below = ink(PROOF_TAG_SCALE,
+                                   [(tag, {"duo": False}) for _, tag, _ in row])
         blocks.append((above, below + PROOF_TAG_GAP + tag_above, tag_below))
     filled = head_above + head_below + sum(sum(block) for block in blocks)
     gap = (CANVAS[1] - 2 * PROOF_MARGIN_Y - filled) // len(rows)
@@ -1130,7 +1132,7 @@ def build_axes(duo):
     save_image(render_inkjet(mask, rng), "sample4", duo)
 
 
-# --- Cathode ray tube: the terminal session ---------------------------------
+# --- Cathode ray tube: the terminal session ----------------------------------
 
 # An amber terminal on a 192x108 raster, with one scanline per font pixel,
 # as a terminal drawing a 5x7 character cell does, so the raster is zoomed
@@ -1359,7 +1361,7 @@ def build_terminal():
         save_image(img, "sample5", duo)
 
 
-# --- 9-pin dot matrix: the printer self test --------------------------------
+# --- 9-pin dot matrix: the printer self test ---------------------------------
 
 # A dot-matrix printout on continuous form paper. A 9-pin printer covers
 # 9 pixel rows per line, and prints double-spaced: one text line every two
@@ -1367,20 +1369,21 @@ def build_terminal():
 # text lands on every other bar.
 MATRIX_GRID = (240, 135)
 MATRIX_CELL = 8
-PIN_ROWS = 9
-LINE_PITCH = 2 * PIN_ROWS
-BAR_COLOR = (216, 236, 228)
-INK_COLOR = (38, 35, 42)
-INK_SPREAD = (1.0, 0.7)         # Ink soaking into the paper, smeared by the head travel
-INK_SKEW = 0.15                 # Paper feed misalignment, in degrees
-INK_OFFSET = 2                  # Print head misalignment between passes, in pixels
-INK_PATCH_SIZE = 24             # Size of the patches the ribbon inks unevenly, in cells
-INK_PATCH_LEVEL = 165           # Ink level of the faintest patch, of 255
-WEAK_PINS = 2                   # Print head pins that strike faintly
+MATRIX_PIN_ROWS = 9
+MATRIX_LINE_PITCH = 2 * MATRIX_PIN_ROWS
+MATRIX_BAR = (216, 236, 228)
+MATRIX_INK = (38, 35, 42)
+MATRIX_INK_SPREAD = (1.0, 0.7)  # ink soaking into the paper, smeared by the head travel
+MATRIX_SKEW = 0.15              # paper feed misalignment, in degrees
+MATRIX_PASS_OFFSET = 2          # print head misalignment between passes, in pixels
+MATRIX_PATCH_SIZE = 24          # size of the patches the ribbon inks unevenly, in cells
+MATRIX_PATCH_LEVEL = 165        # ink level of the faintest patch, of 255
+MATRIX_WEAK_PINS = 2            # print head pins that strike faintly
 
-CONTENT_TOP = 4                 # top of the printed area, in cells
-CONTENT_LEFT = LINE_PITCH       # the paper's pre-cut, one line height in
-TEXT_INDENT = 9                 # text starts this far right of the pre-cut, in cells
+MATRIX_TOP = 4                  # top of the printed area, in cells
+MATRIX_LEFT = MATRIX_LINE_PITCH  # the paper's pre-cut, one line height in
+MATRIX_INDENT = 9               # text starts this far right of the pre-cut, in cells
+MATRIX_MARGIN = 6               # and stops this far short of the right edge
 
 # As on a real 9-pin self test, the printable character set streams line
 # after line in a continuous wrap; an international section follows.
@@ -1418,22 +1421,22 @@ def draw_paper(size, cell, bar_top, rng):
 
     # Green bars, each exactly 2 print lines (18 pixel rows) tall, so each
     # bar carries two single-spaced lines; the pattern continues down the
-    # whole form-
-    for top in range(bar_top * cell, size[1], 2 * LINE_PITCH * cell):
-        draw.rectangle(xy=[(CONTENT_LEFT * cell, top),
-                           (size[0], top + LINE_PITCH * cell - 1)],
-                       fill=BAR_COLOR)
+    # whole form
+    for top in range(bar_top * cell, size[1], 2 * MATRIX_LINE_PITCH * cell):
+        draw.rectangle(xy=[(MATRIX_LEFT * cell, top),
+                           (size[0], top + MATRIX_LINE_PITCH * cell - 1)],
+                       fill=MATRIX_BAR)
 
     # Paper cut, creased and perforated
-    x = CONTENT_LEFT * cell
+    x = MATRIX_LEFT * cell
     draw.rectangle(xy=[(x - 2, 0), (x + 1, size[1])], fill=(230, 230, 227))
     for y in range(0, size[1], 4 * cell):
         draw.rectangle(xy=[(x - 2, y), (x + 1, y + 2 * cell)], fill=(202, 202, 199))
 
     # Sprocket holes, punched through to the dark platen
     hole_radius = 2 * cell
-    for y in range((bar_top + PIN_ROWS) * cell, size[1], LINE_PITCH * cell):
-        xy = (CONTENT_LEFT * cell // 2, y)
+    for y in range((bar_top + MATRIX_PIN_ROWS) * cell, size[1], MATRIX_LINE_PITCH * cell):
+        xy = (MATRIX_LEFT * cell // 2, y)
         draw.circle(xy=xy, radius=hole_radius + 2, fill=(208, 208, 205))
         draw.circle(xy=xy, radius=hole_radius, fill=(28, 26, 30))
 
@@ -1453,11 +1456,11 @@ def build_printout(duo):
     d = Display(MATRIX_GRID)
     size = d.image_size(MATRIX_CELL)
 
-    first_baseline = CONTENT_TOP + get_baseline(PIN_ROWS, CAP_PIXELS) + 1
+    first_baseline = MATRIX_TOP + get_baseline(MATRIX_PIN_ROWS, CAP_PIXELS) + 1
     glyph_top = first_baseline - CAP_PIXELS
 
-    text_left = CONTENT_LEFT + TEXT_INDENT
-    max_width = MATRIX_GRID[0] - text_left - 6
+    text_left = MATRIX_LEFT + MATRIX_INDENT
+    max_width = MATRIX_GRID[0] - text_left - MATRIX_MARGIN
 
     # The character set streams continuously: each line picks up where the
     # last one left off, wrapping around the set
@@ -1475,27 +1478,27 @@ def build_printout(duo):
     lines += [""] + (INTL_LINES_DUO if duo else INTL_LINES)
 
     for i, line in enumerate(lines):
-        d.text((text_left, first_baseline + i * PIN_ROWS), 1, line, duo=duo)
+        d.text((text_left, first_baseline + i * MATRIX_PIN_ROWS), 1, line, duo=duo)
     cells = d.cells().load()
 
     # The ribbon inks unevenly in patches
-    blotch_size = (max(MATRIX_GRID[0] // INK_PATCH_SIZE, 1),
-                   max(MATRIX_GRID[1] // INK_PATCH_SIZE, 1))
+    blotch_size = (max(MATRIX_GRID[0] // MATRIX_PATCH_SIZE, 1),
+                   max(MATRIX_GRID[1] // MATRIX_PATCH_SIZE, 1))
     blotch = noise_image(blotch_size, rng).resize(MATRIX_GRID, Image.BICUBIC)
-    blotch = blotch.point(lambda level: INK_PATCH_LEVEL
-                          + level * (255 - INK_PATCH_LEVEL) // 255).load()
+    blotch = blotch.point(lambda level: MATRIX_PATCH_LEVEL
+                          + level * (255 - MATRIX_PATCH_LEVEL) // 255).load()
 
     # Worn print head pins strike faintly, the same rows on every line
     weak_pins = {pin: rng.randrange(150, 230)
-                 for pin in rng.sample(range(CAP_PIXELS + 1), WEAK_PINS)}
+                 for pin in rng.sample(range(CAP_PIXELS + 1), MATRIX_WEAK_PINS)}
 
     # Strike every dot, each slightly off in place, size and ink
     ink = Image.new("L", size, 0)
     ink_draw = ImageDraw.Draw(ink)
     for cy in range(MATRIX_GRID[1]):
-        pin = (cy - glyph_top) % PIN_ROWS
-        line_index = (cy - glyph_top) // PIN_ROWS
-        pass_offset = INK_OFFSET * (line_index % 2)
+        pin = (cy - glyph_top) % MATRIX_PIN_ROWS
+        line_index = (cy - glyph_top) // MATRIX_PIN_ROWS
+        pass_offset = MATRIX_PASS_OFFSET * (line_index % 2)
         for cx in range(MATRIX_GRID[0]):
             if not cells[cx, cy]:
                 continue
@@ -1509,11 +1512,11 @@ def build_printout(duo):
                              fill=level)
 
     # Ink soaks into the paper, and the paper feeds in slightly askew
-    ink = ink.filter(ImageFilter.GaussianBlur(INK_SPREAD))
-    ink = ink.rotate(INK_SKEW, resample=Image.BILINEAR)
+    ink = ink.filter(ImageFilter.GaussianBlur(MATRIX_INK_SPREAD))
+    ink = ink.rotate(MATRIX_SKEW, resample=Image.BILINEAR)
 
     img = draw_paper(size, MATRIX_CELL, glyph_top - 2, rng)
-    img.paste(Image.new("RGB", size, INK_COLOR), (0, 0), ink)
+    img.paste(Image.new("RGB", size, MATRIX_INK), (0, 0), ink)
 
     save_image(img, "sample6", duo)
 
