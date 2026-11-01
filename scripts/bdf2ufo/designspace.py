@@ -33,6 +33,8 @@ from .utils import (
 from .bdf_font import BDFFont
 from .decomposition import build_decomposition
 from .anchors import build_anchors
+from .ccmp import build_ccmp
+from .small_caps import build_small_caps
 from .ufo_font import UFOFont
 
 # Constants
@@ -98,6 +100,12 @@ class DesignSpace:
         # Anchors
         anchors = build_anchors(bdf_font, components, config.get("custom_anchors", {}))
 
+        # Glyph substitutions
+        ccmp = build_ccmp(bdf_font)
+
+        # Small caps, composed after the anchors are built
+        small_caps = build_small_caps(bdf_font, components, anchors, ccmp)
+
         # UFO font generation parameters
         self.ufo_config["glyph_offset"] = Vec2(config.get("glyph_offset", [0, 0]))
         self.ufo_config["strike_num"] = (
@@ -122,6 +130,8 @@ class DesignSpace:
         )
         self.ufo_config["components"] = components
         self.ufo_config["anchors"] = anchors
+        self.ufo_config["ccmp"] = ccmp
+        self.ufo_config["small_caps"] = small_caps
         self.ufo_config["kerning"] = config.get("kerning", [])
 
         # Default axis values
@@ -137,10 +147,7 @@ class DesignSpace:
             self.default_axis_values[axis_tag] = float(axis_value)
 
         for axis_tag, axis_info in AXES_INFO.items():
-            if axis_tag not in self.default_axis_values:
-                self.default_axis_values[axis_tag] = axis_info.get(
-                    "default", AXES_INFO[axis_tag]["default"]
-                )
+            self.default_axis_values.setdefault(axis_tag, axis_info["default"])
 
         # Variable axes
         self.variable_axes = {}

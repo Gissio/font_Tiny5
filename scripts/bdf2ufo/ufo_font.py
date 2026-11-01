@@ -13,12 +13,8 @@ from pathlib import Path
 
 import ufoLib2
 
-from .data import (
-    SCRIPTS,
-    MARKS,
-    CCMP_SOFTDOT_DECOMPOSITION,
-    CCMP_SOFTDOT_COMPOSITION,
-)
+from .data import SCRIPTS, MARKS
+from .decomposition import get_element_positions
 from .utils import (
     Vec2,
     get_style_map_names,
@@ -66,6 +62,8 @@ class UFOFont:
         self.italic_angle = 0.0
         self.components = {}
         self.anchors = {}
+        self.ccmp = {}
+        self.small_caps = {}
         self.kerning = {}
 
         self.location = {}
@@ -106,6 +104,8 @@ class UFOFont:
         self.italic_angle = ufo_config["italic_angle"]
         self.components = ufo_config["components"]
         self.anchors = ufo_config["anchors"]
+        self.ccmp = ufo_config["ccmp"]
+        self.small_caps = ufo_config["small_caps"]
         self.kerning = ufo_config["kerning"]
 
         self.location = location
@@ -286,7 +286,7 @@ class UFOFont:
     def _set_features(self) -> None:
         lines = []
 
-        # Properties
+        # Scripts of the font
         script_tags = []
         script_langtags = []
         for character, (script_tag, script_langtag) in SCRIPTS.items():
@@ -299,7 +299,7 @@ class UFOFont:
             "dlng": script_langtags,
             "slng": script_langtags,
         }
-           
+
         # Define classes
         all_bases = []
         all_marks = []
@@ -332,30 +332,8 @@ class UFOFont:
         lines.append("")
 
         # Define ccmp feature
-        i_decomposition_rules = {}
-        for source_name, target_name in CCMP_SOFTDOT_DECOMPOSITION.items():
-            if source_name in self.bdf_font.names and all(
-                target_character in self.bdf_font.names
-                for target_character in target_name
-            ):
-                source_name = self.bdf_font.names[source_name]
-                target_names = [
-                    self.bdf_font.names[target_character]
-                    for target_character in target_name
-                ]
-
-                i_decomposition_rules[source_name] = target_names
-
-        softdot_rules = {}
-        for source_name, target_character in CCMP_SOFTDOT_COMPOSITION.items():
-            if (
-                source_name in self.bdf_font.names
-                and target_character in self.bdf_font.names
-            ):
-                source_name = self.bdf_font.names[source_name]
-                target_name = self.bdf_font.names[target_character]
-
-                softdot_rules[source_name] = target_name
+        i_decomposition_rules = self.ccmp["decomposition"]
+        softdot_rules = self.ccmp["softdot"]
 
         lines.append("feature ccmp {")
 
@@ -375,6 +353,39 @@ class UFOFont:
 
         lines.append("} ccmp;")
         lines.append("")
+
+        # Define smcp and c2sc features, with one lookup per script. Latin
+        # also applies to the default script.
+        for feature_tag in ("smcp", "c2sc"):
+            script_substitutions = {
+                script_tag: substitutions
+                for script_tag, substitutions in self.small_caps.get(
+                    feature_tag, {}
+                ).items()
+                if script_tag in script_tags and len(substitutions) > 0
+            }
+            if len(script_substitutions) == 0:
+                continue
+
+            lines.append(f"feature {feature_tag} {{")
+            for script_tag, substitutions in script_substitutions.items():
+                lookup_name = f"{feature_tag}_{script_tag}"
+
+                if script_tag == "latn":
+                    lines.append("    script DFLT;")
+                else:
+                    lines.append(f"    script {script_tag};")
+
+                lines.append(f"    lookup {lookup_name} {{")
+                for source_name, target_name in substitutions.items():
+                    lines.append(f"        sub {source_name} by {target_name};")
+                lines.append(f"    }} {lookup_name};")
+
+                if script_tag == "latn":
+                    lines.append(f"    script {script_tag};")
+                    lines.append(f"    lookup {lookup_name};")
+            lines.append(f"}} {feature_tag};")
+            lines.append("")
 
         # Define GDEF table
         lines.append("table GDEF {")
@@ -479,7 +490,8 @@ class UFOFont:
             glyph_advance = bdf_glyph["advance"]
 
             ufo_glyph = self.ufo_font.newGlyph(glyph_name)
-            ufo_glyph.unicode = ord(glyph_character)
+            if glyph_character is not None:
+                ufo_glyph.unicode = ord(glyph_character)
             ufo_glyph.width = int(glyph_advance * self.glyph_scale.x)
 
             # A composition whose components draw the same element twice would
@@ -509,41 +521,11 @@ class UFOFont:
 
         return offset + jitter_offset
 
-    def _get_element_positions(self, glyph_name: str) -> list[tuple[int, int]]:
-        """Return the position of every element a glyph draws, in pixel units.
-
-        A position repeats when the glyph draws an element there more than once.
-        Composed glyphs are resolved recursively down to their bitmaps.
-
-        The result is expressed in .bdf pixel space, which is shared by every
-        master, so it cannot vary across the design space.
-
-        Args:
-            glyph_name: The name of the glyph.
-
-        Returns:
-            A list of (x, y) element positions, with repeats.
-        """
-        if glyph_name in self.components:
-            return [
-                (x + int(component_offset.x), y + int(component_offset.y))
-                for component_name, component_offset in self.components[glyph_name]
-                for x, y in self._get_element_positions(component_name)
-            ]
-
-        bdf_glyph = self.bdf_font.glyphs[glyph_name]
-        bitmap = bdf_glyph["bitmap"]
-        offset = bdf_glyph["offset"]
-
-        return [
-            (x + int(offset.x), y + int(offset.y))
-            for y in range(bitmap.shape[0])
-            for x in range(bitmap.shape[1])
-            if bitmap[y][x]
-        ]
-
     def _has_overlapping_elements(self, glyph_name: str) -> bool:
         """Report whether a composed glyph draws two elements at the same place.
+
+        The positions are expressed in .bdf pixel space, which is shared by
+        every master, so the result cannot vary across the design space.
 
         Args:
             glyph_name: The name of the glyph.
@@ -551,7 +533,7 @@ class UFOFont:
         Returns:
             True if any element position is drawn more than once.
         """
-        positions = self._get_element_positions(glyph_name)
+        positions = get_element_positions(self.bdf_font, self.components, glyph_name)
         if len(positions) == len(set(positions)):
             return False
 

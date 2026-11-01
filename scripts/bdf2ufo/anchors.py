@@ -30,7 +30,8 @@ def build_anchors(bdf_font: BDFFont, components: dict, custom_anchors: dict) -> 
     """
     anchors = build_custom_anchors(bdf_font, custom_anchors)
 
-    for priority in range(3):  # Adjust the range based on your priority levels
+    # Marks of a lower priority set their anchors first
+    for priority in sorted({priority for _name, priority in MARKS.values()}):
         build_anchors_with_priority(bdf_font, components, anchors, priority)
 
     return anchors
@@ -41,17 +42,26 @@ def build_custom_anchors(bdf_font: BDFFont, custom_anchors: dict) -> dict:
 
     Args:
         bdf_font: The BDF font object.
-        custom_anchors: Dictionary of custom anchors.
+        custom_anchors: Dictionary of custom anchors, keyed by character or by
+            glyph name (for unencoded glyphs such as "x.sc").
 
     Returns:
         Dictionary of processed custom anchors.
+
+    Raises:
+        ValueError: If a glyph with custom anchors is not in the font.
     """
     anchors = {}
     if custom_anchors is None:
         return anchors
 
-    for glyph_character, glyph_anchor in custom_anchors.items():
-        glyph_name = bdf_font.names[glyph_character]
+    for glyph_key, glyph_anchor in custom_anchors.items():
+        if glyph_key in bdf_font.names:
+            glyph_name = bdf_font.names[glyph_key]
+        elif glyph_key in bdf_font.glyphs:
+            glyph_name = glyph_key
+        else:
+            raise ValueError(f"Custom anchors for missing glyph '{glyph_key}'")
 
         anchors[glyph_name] = {}
         for anchor_name, anchor_offset in glyph_anchor.items():
@@ -62,69 +72,53 @@ def build_custom_anchors(bdf_font: BDFFont, custom_anchors: dict) -> dict:
 
 def build_anchors_with_priority(
     bdf_font: BDFFont, components: dict, anchors: dict, priority: int
-) -> dict:
-    """Build anchors with specific priority for BDF font components.
+) -> None:
+    """Build the anchors of the marks of one priority from composed glyphs.
+
+    Every glyph composed from a base and a mark places a base anchor on the
+    base and a mark anchor on the mark, where the mark sits in the composed
+    glyph. An anchor that is set already is kept, and the other one is placed
+    relative to it.
 
     Args:
         bdf_font: The BDF font object.
         components: Dictionary of glyph components.
-        anchors: Dictionary to store anchor positions.
-        requested_priority: The priority level to filter anchors by.
-
-    Returns:
-        Dictionary of anchors for the UFO font.
+        anchors: Dictionary of glyph anchors, updated in place.
+        priority: The priority of the marks to build anchors for.
     """
     for composed_glyph_name, composed_glyph_components in components.items():
-        # Only process composed glyphs with exactly two components (base and mark).
+        # Composed glyphs with a mark and a base only
         if len(composed_glyph_components) != 2:
             continue
 
-        # Extract mark and base component information.
-        mark_component = composed_glyph_components[0]
-        mark_glyph_name = mark_component[0]
-        mark_component_offset = mark_component[1]
+        (mark_glyph_name, mark_component_offset), (
+            base_glyph_name,
+            base_component_offset,
+        ) = composed_glyph_components
 
-        base_component = composed_glyph_components[1]
-        base_glyph_name = base_component[0]
-        base_component_offset = base_component[1]
-
-        # Retrieve glyph information for the base and mark components.
-        base_glyph = bdf_font.glyphs[base_glyph_name]
-        base_glyph_character = base_glyph["character"]
-        _base_glyph_size = Vec2(
-            base_glyph["bitmap"].shape[1], base_glyph["bitmap"].shape[0]
-        )
-        _base_glyph_offset = base_glyph["offset"]
-
+        base_glyph_character = bdf_font.glyphs[base_glyph_name]["character"]
         mark_glyph = bdf_font.glyphs[mark_glyph_name]
         mark_glyph_character = mark_glyph["character"]
-        mark_glyph_size = Vec2(
-            mark_glyph["bitmap"].shape[1], mark_glyph["bitmap"].shape[0]
-        )
-        mark_glyph_offset = mark_glyph["offset"]
 
-        # Check is base glyph is in the list of exceptions for anchor building.
         if base_glyph_character in BASE_ANCHORS_EXCEPTIONS:
             continue
 
-        # Check if base glyph is not a mark and mark glyph is a mark.
         if base_glyph_character in MARKS or mark_glyph_character not in MARKS:
             continue
 
-        # Check if anchor alignment matches requested alignment.
         anchor_name, anchor_priority = MARKS[mark_glyph_character]
         if anchor_priority != priority:
             continue
 
-        base_anchor_name = f"{anchor_name}"
         mark_anchor_name = f"_{anchor_name}"
 
-        if base_glyph_name not in anchors:
-            anchors[base_glyph_name] = {}
-        if mark_glyph_name not in anchors:
-            anchors[mark_glyph_name] = {}
+        base_anchors = anchors.setdefault(base_glyph_name, {})
+        mark_anchors = anchors.setdefault(mark_glyph_name, {})
 
-        # Calculate anchor offsets
+        # The anchor position within the mark bitmap
+        mark_glyph_size = Vec2(
+            mark_glyph["bitmap"].shape[1], mark_glyph["bitmap"].shape[0]
+        )
         if anchor_name == "top":
             anchor_offset = Vec2(int(mark_glyph_size.x / 2), 0)
         elif anchor_name == "bottom":
@@ -136,60 +130,36 @@ def build_anchors_with_priority(
         else:
             anchor_offset = Vec2(0, 0)
 
-        mark_anchor_offset = mark_glyph_offset + anchor_offset
+        mark_anchor_offset = mark_glyph["offset"] + anchor_offset
         base_anchor_offset = (
             mark_anchor_offset + mark_component_offset - base_component_offset
         )
 
-        # Calculate base and mark anchors
-        if (
-            base_anchor_name not in anchors[base_glyph_name]
-            and mark_anchor_name not in anchors[mark_glyph_name]
-        ):
-            anchors[base_glyph_name][base_anchor_name] = base_anchor_offset
-            anchors[mark_glyph_name][mark_anchor_name] = mark_anchor_offset
+        has_mark_anchor = mark_anchor_name in mark_anchors
 
-            logger.info(
-                "Added base anchor '%s' to glyph '%s' from composed glyph '%s'.",
-                base_anchor_name,
-                base_glyph_name,
-                composed_glyph_name,
+        if anchor_name not in base_anchors:
+            if has_mark_anchor:
+                base_anchor_offset += mark_anchors[mark_anchor_name] - mark_anchor_offset
+
+            base_anchors[anchor_name] = base_anchor_offset
+            _log_added_anchor("base", anchor_name, base_glyph_name, composed_glyph_name)
+
+        if not has_mark_anchor:
+            mark_anchors[mark_anchor_name] = mark_anchor_offset + (
+                base_anchors[anchor_name] - base_anchor_offset
             )
-            logger.info(
-                "Added mark anchor '%s' to glyph '%s' from composed glyph '%s'.",
-                mark_anchor_name,
-                mark_glyph_name,
-                composed_glyph_name,
+            _log_added_anchor(
+                "mark", mark_anchor_name, mark_glyph_name, composed_glyph_name
             )
 
-        elif (
-            base_anchor_name not in anchors[base_glyph_name]
-            and mark_anchor_name in anchors[mark_glyph_name]
-        ):
-            mark_anchor_offset_set = anchors[mark_glyph_name][mark_anchor_name]
 
-            anchors[base_glyph_name][base_anchor_name] = base_anchor_offset + (
-                mark_anchor_offset_set - mark_anchor_offset
-            )
-            logger.info(
-                "Added base anchor '%s' to glyph '%s' from composed glyph '%s'.",
-                base_anchor_name,
-                base_glyph_name,
-                composed_glyph_name,
-            )
-
-        elif (
-            base_anchor_name in anchors[base_glyph_name]
-            and mark_anchor_name not in anchors[mark_glyph_name]
-        ):
-            base_anchor_offset_set = anchors[base_glyph_name][base_anchor_name]
-
-            anchors[mark_glyph_name][mark_anchor_name] = mark_anchor_offset + (
-                base_anchor_offset_set - base_anchor_offset
-            )
-            logger.info(
-                "Added mark anchor '%s' to glyph '%s' from composed glyph '%s'.",
-                mark_anchor_name,
-                mark_glyph_name,
-                composed_glyph_name,
-            )
+def _log_added_anchor(
+    kind: str, anchor_name: str, glyph_name: str, composed_glyph_name: str
+) -> None:
+    logger.info(
+        "Added %s anchor '%s' to glyph '%s' from composed glyph '%s'.",
+        kind,
+        anchor_name,
+        glyph_name,
+        composed_glyph_name,
+    )

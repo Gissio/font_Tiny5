@@ -92,9 +92,9 @@ CUSTOM_DECOMPOSITIONS = {
     "\u00ed": "0131 0301",  # Dotless i with acute
     "\u00ee": "0131 0302",  # Dotless i with circumflex
     "\u00ef": "0131 0308",  # Dotless i with diaeresis
-    "\u010f": "0064 02bc",  # d with apostrophe for Czech, Slovak
+    "\u010f": "0064 0313",  # d with apostrophe for Czech, Slovak
     "\u0122": "0047 0326",  # G with comma below for Latvian
-    "\u0123": "0067 02bb",  # g with comma above for Latvian
+    "\u0123": "0067 0312",  # g with comma above for Latvian
     "\u0129": "0131 0303",  # Dotless i with tilde
     "\u012b": "0131 0304",  # Dotless i with macron
     "\u012d": "0131 0306",  # Dotless i with breve
@@ -103,18 +103,29 @@ CUSTOM_DECOMPOSITIONS = {
     "\u0137": "006B 0326",  # k with comma below for Latvian
     "\u013b": "004C 0326",  # L with comma below for Latvian
     "\u013c": "006C 0326",  # l with comma below for Latvian
-    "\u013d": "004C 02bc",  # L with apostrophe for Slovak
-    "\u013e": "006C 02bc",  # l with apostrophe for Slovak
+    "\u013d": "004C 0313",  # L with apostrophe for Slovak
+    "\u013e": "006C 0313",  # l with apostrophe for Slovak
     "\u0145": "004E 0326",  # N with comma below for Latvian
     "\u0146": "006E 0326",  # n with comma below for Latvian
     "\u0156": "0052 0326",  # R with comma below for Latvian
     "\u0157": "0072 0326",  # r with comma below for Latvian
-    "\u0165": "0074 02bc",  # t with apostrophe for Czech, Slovak
+    "\u0165": "0074 0313",  # t with apostrophe for Czech, Slovak
     "\u017f": "",  # Long s
     "\u01d0": "0131 030c",  # Dotless i with caron
     "\u01f0": "0237 030c",  # Dotless j with caron
     "\u0209": "0131 030f",  # Dotless i with double grave
     "\u020b": "0131 0311",  # Dotless i with inverted grave
+    "\u03d0": "",           # Greek beta symbol
+    "\u03d1": "",           # Greek theta symbol
+    "\u03d2": "",           # Greek upsilon with hook symbol
+    "\u03d5": "",           # Greek phi symbol
+    "\u03d6": "",           # Greek pi symbol
+    "\u03f0": "",           # Greek kappa symbol
+    "\u03f1": "",           # Greek rho symbol
+    "\u03f2": "",           # Greek lunate sigma symbol
+    "\u03f4": "",           # Greek capital theta symbol
+    "\u03f5": "",           # Greek lunate epsilon symbol
+    "\u03f9": "",           # Greek capital lunate sigma symbol
     "\u0457": "0131 0308",  # Dotless i with diaeresis for Ukrainian
     "\u1ec9": "0131 0309",  # Dotless i with hook above
     "\u1f02": "03b1 1fcd",  # Small alpha with psili and varia
@@ -213,7 +224,7 @@ MARKS = {
     "\u0330": ("bottom", 2),  # Tilde below
     "\u0331": ("bottom", 0),  # Macron below
     "\u0332": ("top", 0),  # Low line
-    "\u0334": ("center", 0),  # Short stroke overlay
+    "\u0334": ("center", 0),  # Tilde overlay
     "\u0335": ("center", 0),  # Short stroke overlay
     "\u0337": ("center", 0),  # Short solidus overlay
     "\u0338": ("center", 0),  # Long solidus overlay
@@ -245,69 +256,69 @@ BASE_ANCHORS_EXCEPTIONS = [
     "\u1f03",  # Greek small alpha with dasia and varia
     "\u1f04",  # Greek small alpha with psili and oxia
     "\u1f05",  # Greek small alpha with dasia and oxia
-    "\u1f08",  # Greek small alpha with psili
-    "\u1f09",  # Greek small alpha with dasia
-    "\u1f0a",  # Greek small alpha with psili and varia
-    "\u1f0b",  # Greek small alpha with dasia and varia
-    "\u1f0c",  # Greek small alpha with psili and oxia
-    "\u1f0d",  # Greek small alpha with dasia and oxia
+    "\u1f08",  # Greek capital alpha with psili
+    "\u1f09",  # Greek capital alpha with dasia
+    "\u1f0a",  # Greek capital alpha with psili and varia
+    "\u1f0b",  # Greek capital alpha with dasia and varia
+    "\u1f0c",  # Greek capital alpha with psili and oxia
+    "\u1f0d",  # Greek capital alpha with dasia and oxia
     "\u1f12",  # Greek small epsilon with psili and varia
     "\u1f13",  # Greek small epsilon with dasia and varia
     "\u1f14",  # Greek small epsilon with psili and oxia
     "\u1f15",  # Greek small epsilon with dasia and oxia
-    "\u1f18",  # Greek small epsilon with psili
-    "\u1f19",  # Greek small epsilon with dasia
-    "\u1f1a",  # Greek small epsilon with psili and varia
-    "\u1f1b",  # Greek small epsilon with dasia and varia
-    "\u1f1c",  # Greek small epsilon with psili and oxia
-    "\u1f1d",  # Greek small epsilon with dasia and oxia
+    "\u1f18",  # Greek capital epsilon with psili
+    "\u1f19",  # Greek capital epsilon with dasia
+    "\u1f1a",  # Greek capital epsilon with psili and varia
+    "\u1f1b",  # Greek capital epsilon with dasia and varia
+    "\u1f1c",  # Greek capital epsilon with psili and oxia
+    "\u1f1d",  # Greek capital epsilon with dasia and oxia
     "\u1f22",  # Greek small eta with psili and varia
     "\u1f23",  # Greek small eta with dasia and varia
     "\u1f24",  # Greek small eta with psili and oxia
     "\u1f25",  # Greek small eta with dasia and oxia
-    "\u1f28",  # Greek small eta with psili
-    "\u1f29",  # Greek small eta with dasia
-    "\u1f2a",  # Greek small eta with psili and varia
-    "\u1f2b",  # Greek small eta with dasia and varia
-    "\u1f2c",  # Greek small eta with psili and oxia
-    "\u1f2d",  # Greek small eta with dasia and oxia
+    "\u1f28",  # Greek capital eta with psili
+    "\u1f29",  # Greek capital eta with dasia
+    "\u1f2a",  # Greek capital eta with psili and varia
+    "\u1f2b",  # Greek capital eta with dasia and varia
+    "\u1f2c",  # Greek capital eta with psili and oxia
+    "\u1f2d",  # Greek capital eta with dasia and oxia
     "\u1f32",  # Greek small iota with psili and varia
     "\u1f33",  # Greek small iota with dasia and varia
     "\u1f34",  # Greek small iota with psili and oxia
     "\u1f35",  # Greek small iota with dasia and oxia
-    "\u1f38",  # Greek small iota with psili
-    "\u1f39",  # Greek small iota with dasia
-    "\u1f3a",  # Greek small iota with psili and varia
-    "\u1f3b",  # Greek small iota with dasia and varia
-    "\u1f3c",  # Greek small iota with psili and oxia
-    "\u1f3d",  # Greek small iota with dasia and oxia
+    "\u1f38",  # Greek capital iota with psili
+    "\u1f39",  # Greek capital iota with dasia
+    "\u1f3a",  # Greek capital iota with psili and varia
+    "\u1f3b",  # Greek capital iota with dasia and varia
+    "\u1f3c",  # Greek capital iota with psili and oxia
+    "\u1f3d",  # Greek capital iota with dasia and oxia
     "\u1f42",  # Greek small omicron with psili and varia
     "\u1f43",  # Greek small omicron with dasia and varia
     "\u1f44",  # Greek small omicron with psili and oxia
     "\u1f45",  # Greek small omicron with dasia and oxia
-    "\u1f48",  # Greek small omicron with psili
-    "\u1f49",  # Greek small omicron with dasia
-    "\u1f4a",  # Greek small omicron with psili and varia
-    "\u1f4b",  # Greek small omicron with dasia and varia
-    "\u1f4c",  # Greek small omicron with psili and oxia
-    "\u1f4d",  # Greek small omicron with dasia and oxia
+    "\u1f48",  # Greek capital omicron with psili
+    "\u1f49",  # Greek capital omicron with dasia
+    "\u1f4a",  # Greek capital omicron with psili and varia
+    "\u1f4b",  # Greek capital omicron with dasia and varia
+    "\u1f4c",  # Greek capital omicron with psili and oxia
+    "\u1f4d",  # Greek capital omicron with dasia and oxia
     "\u1f52",  # Greek small upsilon with psili and varia
     "\u1f53",  # Greek small upsilon with dasia and varia
     "\u1f54",  # Greek small upsilon with psili and oxia
     "\u1f55",  # Greek small upsilon with dasia and oxia
-    "\u1f59",  # Greek small upsilon with dasia
-    "\u1f5b",  # Greek small upsilon with dasia and varia
-    "\u1f5d",  # Greek small upsilon with dasia and oxia
+    "\u1f59",  # Greek capital upsilon with dasia
+    "\u1f5b",  # Greek capital upsilon with dasia and varia
+    "\u1f5d",  # Greek capital upsilon with dasia and oxia
     "\u1f62",  # Greek small omega with psili and varia
     "\u1f63",  # Greek small omega with dasia and varia
     "\u1f64",  # Greek small omega with psili and oxia
     "\u1f65",  # Greek small omega with dasia and oxia
-    "\u1f68",  # Greek small omega with psili
-    "\u1f69",  # Greek small omega with dasia
-    "\u1f6a",  # Greek small omega with dasia and varia
-    "\u1f6b",  # Greek small omega with dasia and varia
-    "\u1f6c",  # Greek small omega with dasia and oxia
-    "\u1f6d",  # Greek small omega with dasia and oxia
+    "\u1f68",  # Greek capital omega with psili
+    "\u1f69",  # Greek capital omega with dasia
+    "\u1f6a",  # Greek capital omega with psili and varia
+    "\u1f6b",  # Greek capital omega with dasia and varia
+    "\u1f6c",  # Greek capital omega with psili and oxia
+    "\u1f6d",  # Greek capital omega with dasia and oxia
 ]
 
 CCMP_SOFTDOT_DECOMPOSITION = {
@@ -321,6 +332,51 @@ CCMP_SOFTDOT_COMPOSITION = {
     "i": "\u0131",
     "j": "\u0237",
     "\u0268": "\u1d7b",
+}
+
+# Maps the first word of a Unicode character name to the OpenType script tag
+# of the smcp and c2sc lookups built for that script, and to its basic
+# lowercase alphabet. The lookups of a script are only built when every letter
+# of its alphabet in the font has a small cap, so that small caps text never
+# mixes in lowercase.
+SMALL_CAPS_SCRIPTS = {
+    "LATIN": ("latn", "abcdefghijklmnopqrstuvwxyz"),
+    "CYRILLIC": (
+        "cyrl",
+        "".join(chr(code_point) for code_point in range(0x0430, 0x0450)),
+    ),
+}
+
+# Lowercase letters that are drawn as small capitals: most Cyrillic lowercase
+# letters, and the Latin ones that are smaller forms of their capitals. They
+# serve as their own small caps, with their accented forms, unless the font has
+# a ".sc" glyph for them.
+SMALL_CAPS_LOWERCASE = (
+    "\u0432\u0433\u0434\u0436\u0437\u0438\u043a\u043b"  # в г д ж з и к л
+    "\u043c\u043d\u043e\u043f\u0441\u0442\u0445\u0446"  # м н о п с т х ц
+    "\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e"  # ч ш щ ъ ы ь э ю
+    "\u044f\u0454\u0455\u0459\u045a\u045f\u046b\u0473"  # я є ѕ љ њ џ ѫ ѳ
+    "\u0475\u048b\u0491\u0493\u0495\u0497\u0499\u049b"  # ѵ ҋ ґ ғ ҕ җ ҙ қ
+    "\u049d\u04a1\u04a3\u04a5\u04a7\u04a9\u04ab\u04ad"  # ҝ ҡ ң ҥ ҧ ҩ ҫ ҭ
+    "\u04b3\u04b5\u04b7\u04b9\u04bd\u04bf\u04c4\u04c6"  # ҳ ҵ ҷ ҹ ҽ ҿ ӄ ӆ
+    "\u04c8\u04ca\u04cc\u04ce\u04d9\u04e9\u04f7\u04fb"  # ӈ ӊ ӌ ӎ ә ө ӷ ӻ
+    "\u04fd\u04ff\u0511\u0513\u051d\u0525\u0529\u052f"  # ӽ ӿ ԑ ԓ ԝ ԥ ԩ ԯ
+    "\u00f8\u0149\u014b\u0188\u019e\u01b6\u023c\u0242"  # ø ŉ ŋ ƈ ƞ ƶ ȼ ɂ
+    "\u024b\u0251\u0254\u0259\u0263\u026f\u0275\u028a"  # ɋ ɑ ɔ ə ɣ ɯ ɵ ʊ
+    "\u028b\u028c\u2184\u2c73\ua793\ua7a9\ua7cd\uab53"  # ʋ ʌ ↄ ⱳ ꞓ ꞩ ꟍ ꭓ
+)
+# Lowercase letters without a small capital of their own, which take the small
+# capital of another letter.
+SMALL_CAPS_ALIASES = {
+    "\u0131": "i",  # Dotless i
+    "\u017f": "s",  # Long s
+    "\u0237": "j",  # Dotless j
+    "\u0138": "k",  # Kra, drawn like small capital k
+    "\u0111": "\u00f0",  # D with stroke, drawn like eth
+    "\u0256": "\u00f0",  # D with tail, drawn like eth
+    "\u048d": "\u0463",  # Cyrillic semisoft sign, drawn like yat
+    "\u04cf": "\u0456",  # Cyrillic palochka, drawn like dotless i
+    "\u04e1": "\u0437",  # Cyrillic Abkhasian dze, drawn like ze
 }
 
 AXES_INFO = {

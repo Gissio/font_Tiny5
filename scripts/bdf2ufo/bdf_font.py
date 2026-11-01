@@ -14,10 +14,15 @@ from typing import Any, Union
 
 import bdflib.reader
 import unicodedata2 as unicodedata
-from fontTools.agl import UV2AGL
 import numpy as np
 
-from .utils import Vec2, combine_strings, filter_name
+from .utils import (
+    Vec2,
+    combine_strings,
+    filter_name,
+    format_unicode_character,
+    get_glyph_name,
+)
 from .data import SLOPE_FROM_SLANT, WIDTH_CLASSES, WEIGHT_CLASSES
 
 # Constants
@@ -113,217 +118,216 @@ class BDFFont:
         Args:
             path: Path to the BDF font file.
             config: Configuration object containing parameters for loading the font.
-
-        Raises:
-            Exception: If an error occurs during BDF file reading or processing.
-                       The exception is logged and re-raised.
+                Its values override the metadata and metrics of the BDF font.
         """
 
         # Parse BDF font
         with open(path, "rb") as handle:
             bdf = bdflib.reader.read_bdf(handle)
 
-            bdf_name = bdf.name  # pylint: disable=no-member
-            bdf_comments = bdf.comments  # pylint: disable=no-member
-            bdf_glyphs = bdf.glyphs  # pylint: disable=no-member
-            bdf_pt_size = bdf.ptSize  # pylint: disable=no-member
+        bdf_name = bdf.name  # pylint: disable=no-member
+        bdf_comments = bdf.comments  # pylint: disable=no-member
+        bdf_glyphs = bdf.glyphs  # pylint: disable=no-member
+        bdf_pt_size = bdf.ptSize  # pylint: disable=no-member
 
-            boundingbox_min = Vec2(sys.maxsize, sys.maxsize)
-            boundingbox_max = Vec2(-sys.maxsize, -sys.maxsize)
+        boundingbox_min = Vec2(sys.maxsize, sys.maxsize)
+        boundingbox_max = Vec2(-sys.maxsize, -sys.maxsize)
 
-            cap_height = bdf_pt_size
-            x_height = bdf_pt_size
+        cap_height = bdf_pt_size
+        x_height = bdf_pt_size
 
-            # Set font glyphs
-            for glyph in bdf_glyphs:
-                codepoint = glyph.codepoint
+        # Set font glyphs
+        for glyph in bdf_glyphs:
+            codepoint = glyph.codepoint
+
+            # Unencoded glyphs (ENCODING -1) keep their BDF name, such as
+            # "x.sc", and have no character
+            if codepoint < 0:
+                character = None
+                name = glyph.name.decode("utf-8")
+            else:
                 character = chr(codepoint)
+                name = get_glyph_name(codepoint) or glyph.name.decode("utf-8")
 
-                if codepoint in UV2AGL:
-                    name = UV2AGL[codepoint]
-                else:
-                    if codepoint > 0x20 and codepoint < 0x10000:
-                        name = f"uni{codepoint:04X}"
-                    elif codepoint >= 0x10000:
-                        name = f"u{codepoint:06X}"
-                    else:
-                        name = glyph.name.decode("utf-8")
+            if (
+                character is not None
+                and "notdef_character" in config
+                and character == config["notdef_character"]
+            ):
+                name = ".notdef"
 
+            else:
                 if (
-                    "notdef_character" in config
-                    and character == config["notdef_character"]
-                ):
-                    name = ".notdef"
-
-                else:
-                    if "codepoint_range" in config and not self._match_codepoint(
+                    character is not None
+                    and "codepoint_range" in config
+                    and not self._match_codepoint(
                         codepoint, config["codepoint_range"]
-                    ):
-                        continue
-
-                    # Sanitize glyph name
-                    if not name[0].isalnum():
-                        name = "_" + name
-
-                    name = "".join(
-                        [c if (c.isalnum() or c == ".") else "_" for c in name]
                     )
+                ):
+                    continue
 
-                    while name in self.glyphs:
-                        name += "_"
+                # Sanitize glyph name
+                if not name[0].isalnum():
+                    name = "_" + name
 
-                # Build bitmap
-                bitmap = np.zeros((glyph.bbH, glyph.bbW), np.uint8)
-                for y in range(glyph.bbH):
-                    value = glyph.data[y]
-                    for x in range(glyph.bbW):
-                        bitmap[y][x] = (value >> (glyph.bbW - x - 1)) & 1
-
-                # Crop bitmap
-                if bitmap.any():
-                    bitmap_coords = np.argwhere(bitmap)
-                    y_min, x_min = bitmap_coords.min(axis=0)
-                    y_max, x_max = bitmap_coords.max(axis=0)
-                    y_max += 1
-                    x_max += 1
-
-                else:
-                    y_min, x_min = 0, 0
-                    y_max, x_max = 1, 1
-
-                bitmap = bitmap[y_min:y_max, x_min:x_max]
-
-                # Update font bounding box
-                glyph_boundingbox_min = Vec2(
-                    glyph.bbX + int(x_min),
-                    glyph.bbY + int(y_min),
-                )
-                glyph_boundingbox_max = Vec2(
-                    glyph_boundingbox_min.x + bitmap.shape[1],
-                    glyph_boundingbox_min.y + bitmap.shape[0],
+                name = "".join(
+                    [c if (c.isalnum() or c == ".") else "_" for c in name]
                 )
 
-                boundingbox_min.x = min(boundingbox_min.x, glyph_boundingbox_min.x)
-                boundingbox_min.y = min(boundingbox_min.y, glyph_boundingbox_min.y)
-                boundingbox_max.x = max(boundingbox_max.x, glyph_boundingbox_max.x)
-                boundingbox_max.y = max(boundingbox_max.y, glyph_boundingbox_max.y)
+                while name in self.glyphs:
+                    name += "_"
 
-                advance = glyph.advance
+            # Build bitmap
+            bitmap = np.zeros((glyph.bbH, glyph.bbW), np.uint8)
+            for y in range(glyph.bbH):
+                value = glyph.data[y]
+                for x in range(glyph.bbW):
+                    bitmap[y][x] = (value >> (glyph.bbW - x - 1)) & 1
 
-                # Build glyph
-                glyph = {
-                    "character": character,
-                    "bitmap": bitmap,
-                    "offset": glyph_boundingbox_min,
-                    "advance": advance,
-                }
+            # Crop bitmap
+            if bitmap.any():
+                bitmap_coords = np.argwhere(bitmap)
+                y_min, x_min = bitmap_coords.min(axis=0)
+                y_max, x_max = bitmap_coords.max(axis=0)
+                y_max += 1
+                x_max += 1
 
-                # Update cap_height and x_height based on specific glyphs
-                if character == "A":
-                    cap_height = bitmap.shape[0]
-                elif character == "x":
-                    x_height = bitmap.shape[0]
+            else:
+                y_min, x_min = 0, 0
+                y_max, x_max = 1, 1
 
-                self.glyphs[name] = glyph
+            bitmap = bitmap[y_min:y_max, x_min:x_max]
+
+            # Update font bounding box
+            glyph_boundingbox_min = Vec2(
+                glyph.bbX + int(x_min),
+                glyph.bbY + int(y_min),
+            )
+            glyph_boundingbox_max = Vec2(
+                glyph_boundingbox_min.x + bitmap.shape[1],
+                glyph_boundingbox_min.y + bitmap.shape[0],
+            )
+
+            boundingbox_min.x = min(boundingbox_min.x, glyph_boundingbox_min.x)
+            boundingbox_min.y = min(boundingbox_min.y, glyph_boundingbox_min.y)
+            boundingbox_max.x = max(boundingbox_max.x, glyph_boundingbox_max.x)
+            boundingbox_max.y = max(boundingbox_max.y, glyph_boundingbox_max.y)
+
+            advance = glyph.advance
+
+            # Build glyph
+            glyph = {
+                "character": character,
+                "bitmap": bitmap,
+                "offset": glyph_boundingbox_min,
+                "advance": advance,
+            }
+
+            # Update cap_height and x_height based on specific glyphs
+            if character == "A":
+                cap_height = bitmap.shape[0]
+            elif character == "x":
+                x_height = bitmap.shape[0]
+
+            self.glyphs[name] = glyph
+            if character is not None:
                 self.names[character] = name
 
-            # Font variables
-            style_name = ""
-            setwidth_name = filter_name(
-                self._get_bdf_property(bdf, "SETWIDTH_NAME", "")
-            )
-            style_component = ""
-            for name in WIDTH_CLASSES:
-                if name.lower() == setwidth_name:
-                    style_component = name
-                    break
-            style_name = combine_strings(style_name, style_component)
-            weight_name = filter_name(self._get_bdf_property(bdf, "WEIGHT_NAME", ""))
-            style_component = "Regular"
-            for name in WEIGHT_CLASSES:
-                if name.lower() == weight_name:
-                    style_component = name
-                    break
-            style_name = combine_strings(style_name, style_component)
-            slant = filter_name(self._get_bdf_property(bdf, "SLANT", ""))
-            if slant in SLOPE_FROM_SLANT:
-                style_name = combine_strings(style_name, SLOPE_FROM_SLANT[slant])
+        # Style name, from the width, weight and slant of the BDF font
+        setwidth_name = filter_name(self._get_bdf_property(bdf, "SETWIDTH_NAME", ""))
+        width_class_name = next(
+            (name for name in WIDTH_CLASSES if name.lower() == setwidth_name), ""
+        )
+        weight_name = filter_name(self._get_bdf_property(bdf, "WEIGHT_NAME", ""))
+        weight_class_name = next(
+            (name for name in WEIGHT_CLASSES if name.lower() == weight_name),
+            "Regular",
+        )
+        style_name = combine_strings(
+            combine_strings("", width_class_name), weight_class_name
+        )
+        slant = filter_name(self._get_bdf_property(bdf, "SLANT", ""))
+        if slant in SLOPE_FROM_SLANT:
+            style_name = combine_strings(style_name, SLOPE_FROM_SLANT[slant])
 
-            family_name = self._get_bdf_property(
-                bdf, "FAMILY_NAME", bdf_name.decode("utf-8")
-            )
-            font_version = self._get_bdf_property(bdf, "FONT_VERSION", "")
-            font_copyright = "\n".join([s.decode("utf-8") for s in bdf_comments])
-            font_copyright = self._get_bdf_property(bdf, "COPYRIGHT", font_copyright)
-            manufacturer = self._get_bdf_property(bdf, "FOUNDRY", "")
+        family_name = self._get_bdf_property(
+            bdf, "FAMILY_NAME", bdf_name.decode("utf-8")
+        )
+        font_version = self._get_bdf_property(bdf, "FONT_VERSION", "")
+        font_copyright = "\n".join([s.decode("utf-8") for s in bdf_comments])
+        font_copyright = self._get_bdf_property(bdf, "COPYRIGHT", font_copyright)
+        manufacturer = self._get_bdf_property(bdf, "FOUNDRY", "")
 
-            ascent = self._get_bdf_property(bdf, "FONT_ASCENT", bdf_pt_size)
-            descent = -self._get_bdf_property(bdf, "FONT_DESCENT", 0)
-            cap_height = self._get_bdf_property(bdf, "CAP_HEIGHT", cap_height)
-            x_height = self._get_bdf_property(bdf, "X_HEIGHT", x_height)
+        ascent = self._get_bdf_property(bdf, "FONT_ASCENT", bdf_pt_size)
+        descent = -self._get_bdf_property(bdf, "FONT_DESCENT", 0)
+        cap_height = self._get_bdf_property(bdf, "CAP_HEIGHT", cap_height)
+        x_height = self._get_bdf_property(bdf, "X_HEIGHT", x_height)
 
-            underline_position = self._get_bdf_property(bdf, "UNDERLINE_POSITION", 0)
-            underline_thickness = self._get_bdf_property(bdf, "UNDERLINE_THICKNESS", 0)
+        underline_position = self._get_bdf_property(bdf, "UNDERLINE_POSITION", 0)
+        underline_thickness = self._get_bdf_property(bdf, "UNDERLINE_THICKNESS", 0)
 
-            strikeout_ascent = self._get_bdf_property(
-                bdf, "STRIKEOUT_ASCENT", cap_height / 2
-            )
-            strikeout_descent = self._get_bdf_property(
-                bdf, "STRIKEOUT_DESCENT", -cap_height / 2 + 1
-            )
-            strikeout_position = strikeout_ascent
-            strikeout_thickness = strikeout_ascent + strikeout_descent
+        strikeout_ascent = self._get_bdf_property(
+            bdf, "STRIKEOUT_ASCENT", cap_height / 2
+        )
+        strikeout_descent = self._get_bdf_property(
+            bdf, "STRIKEOUT_DESCENT", -cap_height / 2 + 1
+        )
+        strikeout_position = strikeout_ascent
+        strikeout_thickness = strikeout_ascent + strikeout_descent
 
-            superscript_scale = Vec2(DEFAULT_SUPERSCRIPT_SIZE)
-            superscript_offset = Vec2(
-                DEFAULT_SUPERSCRIPT_OFFSET_Y_CAP_HEIGHT_RATIO * self.cap_height
-            )
+        superscript_scale = Vec2(DEFAULT_SUPERSCRIPT_SIZE)
+        superscript_offset = Vec2(
+            0, DEFAULT_SUPERSCRIPT_OFFSET_Y_CAP_HEIGHT_RATIO * cap_height
+        )
 
-            subscript_scale = Vec2(DEFAULT_SUBSCRIPT_SIZE)
-            subscript_offset = Vec2(
-                DEFAULT_SUBSCRIPT_OFFSET_Y_CAP_HEIGHT_RATIO * self.cap_height
-            )
+        subscript_scale = Vec2(DEFAULT_SUBSCRIPT_SIZE)
+        subscript_offset = Vec2(
+            0, DEFAULT_SUBSCRIPT_OFFSET_Y_CAP_HEIGHT_RATIO * cap_height
+        )
 
-            # Font properties
-            self._set_property(config, "style_name", style_name)
-            self._set_property(config, "family_name", family_name)
-            self._set_property(config, "font_version", font_version)
-            self._set_property(config, "font_copyright", font_copyright)
-            self._set_property(config, "designer", "")
-            self._set_property(config, "designer_url", "")
-            self._set_property(config, "manufacturer", manufacturer)
-            self._set_property(config, "manufacturer_url", "")
-            self._set_property(config, "license", "")
-            self._set_property(config, "license_url", "")
+        # Font properties
+        self._set_property(config, "style_name", style_name)
+        self._set_property(config, "family_name", family_name)
+        self._set_property(config, "font_version", font_version)
+        self._set_property(config, "font_copyright", font_copyright)
+        self._set_property(config, "designer", "")
+        self._set_property(config, "designer_url", "")
+        self._set_property(config, "manufacturer", manufacturer)
+        self._set_property(config, "manufacturer_url", "")
+        self._set_property(config, "license", "")
+        self._set_property(config, "license_url", "")
 
-            self.boundingbox_min = boundingbox_min
-            self.boundingbox_max = boundingbox_max
+        self.boundingbox_min = boundingbox_min
+        self.boundingbox_max = boundingbox_max
 
-            self._set_property(config, "ascent", ascent)
-            self._set_property(config, "descent", descent)
-            self._set_property(config, "cap_height", cap_height)
-            self._set_property(config, "x_height", x_height)
+        self._set_property(config, "ascent", ascent)
+        self._set_property(config, "descent", descent)
+        self._set_property(config, "cap_height", cap_height)
+        self._set_property(config, "x_height", x_height)
 
-            self._set_property(config, "monospace", 0)
-            self._verify_monospace()
+        self._set_property(config, "monospace", 0)
+        self._verify_monospace()
 
-            self._set_property(config, "underline_position", underline_position)
-            self._set_property(config, "underline_thickness", underline_thickness)
-            self._set_property(config, "strikeout_position", strikeout_position)
-            self._set_property(config, "strikeout_thickness", strikeout_thickness)
+        self._set_property(config, "underline_position", underline_position)
+        self._set_property(config, "underline_thickness", underline_thickness)
+        self._set_property(config, "strikeout_position", strikeout_position)
+        self._set_property(config, "strikeout_thickness", strikeout_thickness)
 
-            self._set_property(config, "superscript_scale", superscript_scale)
-            self._set_property(config, "superscript_offset", superscript_offset)
+        self._set_property(config, "superscript_scale", superscript_scale)
+        self._set_property(config, "superscript_offset", superscript_offset)
 
-            self._set_property(config, "subscript_scale", subscript_scale)
-            self._set_property(config, "subscript_offset", subscript_offset)
+        self._set_property(config, "subscript_scale", subscript_scale)
+        self._set_property(config, "subscript_offset", subscript_offset)
 
     def _verify_monospace(self) -> None:
         """Warn about glyphs whose advance differs from the monospace advance.
 
         Combining marks (nonspacing and enclosing) are exempt: they are expected
         to have a zero advance so they stack on the preceding base glyph without
-        consuming a cell.
+        consuming a cell. So are format characters (zero-width and bidi
+        controls, the byte order mark) with a zero advance, as they are
+        invisible. A format character that is shown, like the soft hyphen, may
+        still take the monospace advance.
 
         Does nothing for a proportional font. The advances are not modified: the
         .bdf file stays the single source of truth for the font's metrics.
@@ -333,18 +337,20 @@ class BDFFont:
 
         for name, glyph in self.glyphs.items():
             advance = glyph["advance"]
+            character = glyph["character"]
 
-            if advance == 0 and unicodedata.category(glyph["character"]) in (
-                "Mn",
-                "Me",
+            if (
+                advance == 0
+                and character is not None
+                and unicodedata.category(character) in ("Mn", "Me", "Cf")
             ):
                 continue
 
             if advance != self.monospace:
                 logger.warning(
-                    "glyph '%s' (U+%04X) has advance %d, expected %d for a monospace font",
+                    "glyph '%s' (%s) has advance %d, expected %d for a monospace font",
                     name,
-                    ord(glyph["character"]),
+                    "unencoded" if character is None else format_unicode_character(character),
                     advance,
                     self.monospace,
                 )

@@ -10,6 +10,7 @@ License: MIT
 import random
 from typing import Iterable
 
+from fontTools.agl import UV2AGL
 from fontTools.varLib.models import piecewiseLinearMap
 
 from .data import STATIC_STYLES, WIDTH_CLASS_FROM_WDTH
@@ -207,7 +208,27 @@ def format_unicode_character(character):
     Returns:
         A string representation of the Unicode character in the format "U+XXXX".
     """
-    return "U+" + f"{ord(character):04x}"
+    return f"U+{ord(character):04X}"
+
+
+def get_glyph_name(codepoint: int) -> str:
+    """
+    Return the production glyph name of a Unicode codepoint.
+
+    Args:
+        codepoint: A Unicode codepoint.
+
+    Returns:
+        The AGL name, or "uniXXXX"/"uXXXXXX", or "" for an unnamed control character.
+    """
+    if codepoint in UV2AGL:
+        return UV2AGL[codepoint]
+    elif codepoint > 0x20 and codepoint < 0x10000:
+        return f"uni{codepoint:04X}"
+    elif codepoint >= 0x10000:
+        return f"u{codepoint:06X}"
+    else:
+        return ""
 
 
 def format_unicode_characters(components):

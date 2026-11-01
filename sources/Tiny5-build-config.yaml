@@ -74,7 +74,7 @@ custom_anchors:
     "top": [-3, 8]
   "\u030a": # Ring above
     "_top": [-3, 5]
-    "top": [-3, 9]
+    "top": [-3, 8]
   "\u030b": # Double acute
     "_top": [-3, 5]
     "top": [-3, 8]
@@ -136,7 +136,7 @@ custom_anchors:
     "bottom": [-3, -3]
   "\u0325": # Ring below
     "_bottom": [-3, -1]
-    "bottom": [-3, -5]
+    "bottom": [-3, -4]
   "\u0326": # Comma below
     "_bottom": [-3, -1]
     "bottom": [-3, -4]
@@ -204,8 +204,8 @@ custom_anchors:
 
   # Horn mark anchors
   "\u031b": # Horn
-    "_horn": [-1, 4]
-    "horn": [-1, 4]
+    "_horn": [-1, 3]
+    "horn": [-1, 3]
 
   # Dotted circle anchors
   "\u25cc": # Dotted circle
@@ -213,20 +213,22 @@ custom_anchors:
     "bottom": [2, -1]
     "right": [5, 0]
     "ogonek": [2, 0]
-    "horn": [4, 4]
+    "horn": [4, 3]
 
   # Base anchors: Basic latin
   "F": # Capital f
-    "bottom": [1, -1]
+    "bottom": [2, -1]
   "J": # Capital j
-    "bottom": [1, -1]
+    "bottom": [2, -1]
   "L": # Capital l
-    "top": [1, 6]
+    "top": [2, 6]
   "P": # Capital p
     "bottom": [1, -1]
   "Q": # Capital q
     "top": [2, 6]
     "bottom": [2, -2]
+  "R": # Capital r
+    "bottom": [1, -1]
   "X": # Capital x
     "bottom": [2, -1]
   "Y": # Capital y
@@ -267,7 +269,7 @@ custom_anchors:
     "bottom": [2, -1]
     "ogonek": [2, 0]
   "Å": # Capital a with ring above
-    "top": [2, 10]
+    "top": [2, 9]
     "bottom": [2, -1]
   "Æ": # Capital ae
     "top": [3, 6]
@@ -316,8 +318,8 @@ custom_anchors:
     "bottom": [2, -1]
     "ogonek": [1, 0]
   "Ø": # Capital o with stroke
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [2, 7]
+    "bottom": [2, -2]
   "Ù": # Capital u with grave
     "top": [2, 9]
     "bottom": [2, -1]
@@ -348,7 +350,7 @@ custom_anchors:
     "bottom": [1, -1]
     "ogonek": [1, 0]
   "å": # Small a with ring above
-    "top": [1, 9]
+    "top": [1, 8]
     "bottom": [1, -1]
   "æ": # Small ae
     "top": [2, 5]
@@ -396,8 +398,8 @@ custom_anchors:
     "bottom": [1, -1]
     "ogonek": [0, 0]
   "ø": # Small o with stroke
-    "top": [1, 5]
-    "bottom": [1, -1]
+    "top": [1, 6]
+    "bottom": [1, -2]
   "ù": # Small u with grave
     "top": [1, 8]
     "bottom": [1, -1]
@@ -438,10 +440,10 @@ custom_anchors:
     "top": [1, 8]
     "bottom": [1, -1]
   "Đ": # Capital d with stroke
-    "top": [1, 6]
-    "bottom": [1, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "đ": # Small d with stroke
-    "top": [1, 6]
+    "top": [1, 7]
     "bottom": [1, -1]
   "Ē": # Capital e with macron
     "top": [2, 8]
@@ -548,15 +550,15 @@ custom_anchors:
 
   # Base anchors: Latin Extended-B
   "Ɔ": # Capital open o
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
     "ogonek": [1, 0]
   "Ǝ": # Capital reversed e
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ə": # Capital schwa
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
     "ogonek": [1, 0]
   "Ɛ": # Capital open e
     "top": [2, 6]
@@ -565,10 +567,14 @@ custom_anchors:
   "Ɩ": # Capital iota
     "top": [0, 6]
     "bottom": [0, -1]
+  "ᵻ": # Small capital i with stroke
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
   "Ɨ": # Capital i with stroke
-    "top": [0, 6]
-    "bottom": [0, -1]
-    "ogonek": [-1, 0]
+    "top": [1, 6]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
   "ƛ": # Small lambda with stroke
     "top": [1, 6]
     "bottom": [1, -1]
@@ -576,8 +582,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ɲ": # Capital n with left hook
-    "top": [2, 6]
-    "bottom": [2, -2]
+    "top": [3, 6]
+    "bottom": [3, -2]
   "Ɵ": # Capital o with middle tilde
     "top": [2, 6]
     "bottom": [2, -1]
@@ -702,20 +708,21 @@ custom_anchors:
     "top": [1, 5]
     "bottom": [1, -2]
   "ɨ": # Small i with stroke
-    "bottom": [0, -1]
-    "ogonek": [-1, 0]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
   "ɩ": # Small iota
     "top": [0, 5]
     "bottom": [0, -1]
   "ɪ": # Small capital i
     "top": [0, 5]
     "bottom": [0, -1]
+    "ogonek": [-1, 0]
   "ɯ": # Small turned m
     "top": [2, 5]
     "bottom": [2, -1]
   "ɲ": # Small n with left hook
-    "top": [1, 5]
-    "bottom": [1, -2]
+    "top": [2, 5]
+    "bottom": [2, -2]
   "ɵ": # Small barred o
     "top": [1, 5]
     "bottom": [1, -1]
@@ -723,8 +730,8 @@ custom_anchors:
     "top": [1, 5]
     "bottom": [1, -1]
   "ʊ": # Small upsilon
-    "top": [1, 5]
-    "bottom": [1, -1]
+    "top": [2, 5]
+    "bottom": [2, -1]
   "ʋ": # Small v with hook
     "top": [2, 5]
     "bottom": [2, -1]
@@ -755,8 +762,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Ρ": # Greek capital rho
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Υ": # Greek capital upsilon
     "top": [2, 6]
     "bottom": [2, -1]
@@ -823,14 +830,14 @@ custom_anchors:
     "top": [3, 6]
     "bottom": [3, -1]
   "З": # Cyrillic capital ze
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "И": # Cyrillic capital i
     "top": [2, 6]
     "bottom": [2, -1]
   "К": # Cyrillic capital ka
-    "top": [1, 6]
-    "bottom": [1, -1]
+    "top": [2, 6]
+    "bottom": [2, -1]
   "О": # Cyrillic capital o
     "top": [2, 6]
     "bottom": [2, -1]
@@ -844,8 +851,8 @@ custom_anchors:
     "top": [2, 6]
     "bottom": [2, -1]
   "Э": # Cyrillic capital e
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "Ю": # Cyrillic capital yu
     "top": [3, 6]
     "bottom": [3, -1]
@@ -910,8 +917,8 @@ custom_anchors:
     "top": [0, 7]
     "bottom": [0, -1]
   "Ә": # Cyrillic capital schwa
-    "top": [2, 6]
-    "bottom": [2, -1]
+    "top": [1, 6]
+    "bottom": [1, -1]
   "ә": # Cyrillic small schwa
     "top": [1, 5]
     "bottom": [1, -1]
@@ -936,12 +943,6 @@ custom_anchors:
     "top": [1, 5]
     "bottom": [1, -1]
 
-  # Base anchors: Phonetic Extensions
-  "ᵻ": # Small capital i with stroke
-    "top": [0, 5]
-    "bottom": [0, -1]
-    "ogonek": [-1, 0]
-
   # Base anchors: Latin Extended Additional
   "Ḛ": # Capital e with tilde below
     "top": [2, 6]
@@ -955,8 +956,8 @@ custom_anchors:
   "ḭ": # Small i with tilde below
     "bottom": [0, -4]
   "Ḷ": # Capital l with dot below
-    "top": [0, 6]
-    "bottom": [1, -3]
+    "top": [2, 6]
+    "bottom": [2, -3]
   "ḷ": # Small l with dot below
     "top": [0, 6]
     "bottom": [0, -3]
@@ -1083,6 +1084,186 @@ custom_anchors:
   "Ƛ": # Capital lambda with stroke
     "top": [2, 6]
     "bottom": [2, -1]
+
+  # Base anchors: Latin small caps
+  "ᴀ": # Small capital a
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+  "ʙ": # Small capital b
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴄ": # Small capital c
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴅ": # Small capital d
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴇ": # Small capital e
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+  "ꜰ": # Small capital f
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ɢ": # Small capital g
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ʜ": # Small capital h
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴊ": # Small capital j
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴋ": # Small capital k
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ʟ": # Small capital l
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴍ": # Small capital m
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ɴ": # Small capital n
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ᴏ": # Small capital o
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+    "horn": [3, 3]
+  "ᴘ": # Small capital p
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ꞯ": # Small capital q
+    "top": [1, 5]
+    "bottom": [1, -2]
+  "ʀ": # Small capital r
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ꜱ": # Small capital s
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴛ": # Small capital t
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴜ": # Small capital u
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
+    "horn": [3, 3]
+  "ᴠ": # Small capital v
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴡ": # Small capital w
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "x.sc": # Small capital x
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ʏ": # Small capital y
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [0, 0]
+  "ᴢ": # Small capital z
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴁ": # Small capital ae
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ᴆ": # Small capital eth
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ᴌ": # Small capital l with stroke
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ɶ": # Small capital oe
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ⱻ": # Small capital turned e
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᴕ": # Small capital ou
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ʛ": # Small capital g with hook
+    "top": [1, 6]
+    "bottom": [1, -1]
+  "𝼄": # Small capital l with belt
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "ᴣ": # Small capital ezh
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "ᵾ": # Small capital u with stroke
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uhorn.sc": # Small capital u with horn
+    "top": [1, 5]
+    "bottom": [1, -1]
+
+  # Base anchors: Cyrillic small caps
+  "uni019B.sc": # Small capital lambda with stroke
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0250.sc": # Small capital turned a
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0264.sc": # Small capital rams horn
+    "top": [1, 5]
+    "bottom": [1, -2]
+  "uni0265.sc": # Small capital turned h
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0269.sc": # Small capital iota
+    "top": [0, 5]
+    "bottom": [0, -1]
+  "uni025B.sc": # Small capital open e
+    "top": [1, 5]
+    "bottom": [1, -1]
+    "ogonek": [1, 0]
+  "uni0272.sc": # Small capital n with left hook
+    "top": [3, 5]
+    "bottom": [3, -2]
+  "uni0430.sc": # Small capital a
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0431.sc": # Small capital be
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0435.sc": # Small capital ie
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0440.sc": # Small capital er
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0443.sc": # Small capital u
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uni0444.sc": # Small capital ef
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "uni0452.sc": # Small capital dje
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "uni0456.sc": # Small capital byelorussian-ukrainian i
+    "top": [0, 5]
+    "bottom": [0, -1]
+  "uni0458.sc": # Small capital je
+    "top": [2, 5]
+    "bottom": [1, -1]
+  "uni045B.sc": # Small capital tshe
+    "top": [2, 6]
+    "bottom": [2, -1]
+  "uni0501.sc": # Small capital komi de
+    "top": [1, 5]
+    "bottom": [1, -1]
+  "uniA7B7.sc": # Small capital omega
+    "top": [2, 5]
+    "bottom": [2, -1]
+  "uniA7B9.sc": # Small capital u with stroke
+    "top": [1, 6]
+    "bottom": [1, -2]
 
 # Define kerning groups and their values in pixels.
 kerning:
@@ -1261,7 +1442,7 @@ axis_maps:
   "wght":
     100: 100
     400: 400
-    700: 580
+    700: 550
     900: 700
 
 # Define static font instances and their axis values.

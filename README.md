@@ -2,6 +2,8 @@
 
 # Tiny5
 
+**[Browse all glyphs and try the variable axes →](https://gissio.github.io/font_Tiny5)**
+
 **Tiny5** is a family of compact 5-pixel variable fonts that capture the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, they distill letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
 The family has two members, sharing the same letterforms, variable axes and character set:
@@ -20,7 +22,7 @@ The family excels at evoking retro-futurism, constrained-tech nostalgia, and cle
 - Micro-typography in UI/UX design
 - Branding with a distinct 8/16-bit or vintage electronics vibe
 
-The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages** and **1,942 glyphs**.
+The family provides broad language support, covering **Latin, Greek, Cyrillic and Armenian scripts** across **974 languages**. Tiny5 goes well beyond them with IPA, mathematical operators, arrows, geometric shapes, dingbats, Braille, block elements and the sextants and much of **Symbols for Legacy Computing**, for a total of **4,094 glyphs**. It also has **small caps** for Latin and Cyrillic.
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
@@ -45,6 +47,7 @@ Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitma
 - [DRAW](https://github.com/grymmjack/DRAW) - Pixel art editor
 - [FoxHole Guard](https://github.com/foxhole-team/foxhole-guard) - Privacy-focused Android networking app with VPN, Tor, I2P, firewall, DNS filtering, traffic routing, and FoxHole Sentinel
 - [DwarfAI-Miners](https://github.com/JeronimoRepetto/DwarfAI-Miners) - Local desktop panel that turns your AI coding sessions into an isometric dwarf mining colony - watch, message, and manage your agents in real time
+- [Estlcam](https://www.estlcam.de/) - CAM and CNC software ([Video](https://www.youtube.com/shorts/BVJWLOh2CVk))
 
 ## About
 
@@ -69,6 +72,24 @@ If you want to build fonts manually on your own computer:
 - Thanks to [Fontesk](https://fontesk.com) and [1001 Fonts](https://1001fonts.com) for their friendly support.
 
 ## Changelog
+
+### 3.000
+
+- Character set more than doubled, from 1,942 to 4,094 glyphs, now following [Tiny5 Mono](https://github.com/Gissio/font_Tiny5Mono): Greek and Coptic letters, Phonetic Extensions small capitals, spaces and general punctuation, Roman numerals and fractions, arrows, mathematical operators, technical symbols, control pictures, OCR, enclosed alphanumerics, block elements, geometric shapes, dingbats, miscellaneous symbols and arrows, sextants and Symbols for Legacy Computing.
+- Added small caps for Latin and Cyrillic, with accented small caps built from the capitals (`smcp` and `c2sc`).
+- Covers more than half of the Google Fonts Symbols character set.
+- Added Braille patterns, soft hyphen, IPA small capitals, modifier letters, IPA stress and length marks, and combining turned comma, stroke overlays and tone marks.
+- Taller parentheses, brackets, braces, vertical line, broken bar and section sign; lowered low line and spacing ogonek; raised tilde and spacing accents.
+- Wider latin uppercase j.
+- Redesigned: digit three, at sign, yen, copyright and registered signs, vulgar fractions, latin uppercase c, q, v, eth, d with stroke, h with stroke, o with stroke and eng, latin lowercase eth, d with stroke, g with stroke, h with stroke, o with stroke, t with stroke, z with stroke, l with bar, l with middle tilde, gamma, r with fishhook, upsilon and bilabial click.
+- Greek smooth and rough breathings are now told apart, and capital letters carry their breathings and accents in front of the letter.
+- The horn of latin uppercase and lowercase o with horn, and of their tone forms, now sits on the top row of the letter.
+- Raised the stems of cyrillic ђ, ћ, Ѣ, ѣ, Ҍ, ҍ, Ҟ and ҟ.
+- Rings above and below now touch the letter.
+- Bars now cross the stems of barred letters, and hooks no longer merge with the letter or stick out to the left.
+- Breves and inverted breves no longer look like carons and circumflexes.
+- Comma accents and curly quotes are now shaped like commas.
+- Fixed modifier letter vertical line.
 
 ### 2.007
 

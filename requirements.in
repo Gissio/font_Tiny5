@@ -5,6 +5,7 @@ bumpfontversion
 diffenator2
 Pillow
 bdflib
+kbitfont
 numpy
 ufoLib2
 unicodedata2

@@ -3,11 +3,20 @@ FAMILY=$(shell python3 scripts/read-config.py --family )
 DRAWBOT_SCRIPTS=$(shell ls documentation/*.py)
 DRAWBOT_OUTPUT=$(shell ls documentation/*.py | sed 's/\.py/.png/g')
 
-sources/Tiny5.designspace: venv
+sources/Tiny5.bdf: venv sources/Tiny5.kbitx
+	. venv/bin/activate; python3 scripts/kbitx2bdf.py "sources/Tiny5.kbitx" "sources/Tiny5.bdf"
+
+sources/Tiny5Duo.bdf: venv sources/Tiny5Duo.kbitx
+	. venv/bin/activate; python3 scripts/kbitx2bdf.py "sources/Tiny5Duo.kbitx" "sources/Tiny5Duo.bdf"
+
+sources/Tiny5.designspace: venv sources/Tiny5.bdf sources/Tiny5-build-config.yaml
 	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5-build-config.yaml" "sources/Tiny5.bdf" "sources"
 
-sources/Tiny5Duo.designspace: venv
+sources/Tiny5Duo.designspace: venv sources/Tiny5Duo.bdf sources/Tiny5Duo-build-config.yaml
 	. venv/bin/activate; python3 -m scripts.bdf2ufo.cli -v -c "sources/Tiny5Duo-build-config.yaml" "sources/Tiny5Duo.bdf" "sources"
+
+index.html: venv build.stamp scripts/update-index.py
+	. venv/bin/activate; python3 scripts/update-index.py index.html --family "Tiny5" "fonts/variable/Tiny5[BLED,JITT,ROND,wdth,wght].ttf" "fonts/variable/Tiny5-Italic[BLED,JITT,ROND,wdth,wght].ttf" --family "Tiny5 Duo" "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wdth,wght].ttf" "fonts/variable/Tiny5Duo-Italic[BLED,JITT,ROND,wdth,wght].ttf"
 
 help:
 	@echo "###"
@@ -20,7 +29,7 @@ help:
 	@echo "  make images: Creates PNG specimen images in the documentation/ directory"
 	@echo
 
-build: build.stamp
+build: build.stamp index.html
 
 venv: venv/touchfile
 
@@ -32,7 +41,7 @@ build.stamp: venv sources/config.yaml sources/Tiny5.designspace sources/Tiny5Duo
 	(for config in sources/config*.yaml; do . venv/bin/activate; gftools builder $$config; done)  && touch build.stamp
 	mkdir -p fonts/bdf && cp sources/*.bdf fonts/bdf/
 
-venv/touchfile: requirements.txt
+venv/touchfile: requirements.txt requirements.in
 	test -d venv || python3 -m venv venv
 	. venv/bin/activate; pip install -Ur requirements.txt
 	touch venv/touchfile

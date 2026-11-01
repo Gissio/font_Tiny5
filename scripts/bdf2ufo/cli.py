@@ -18,17 +18,11 @@ from .designspace import DesignSpace
 
 # Definitions
 
-BDF2UFO_VERSION = "1.6"
-
-
-def auto_int(x: str) -> int:
-    """Convert a string to an integer, auto-detecting the base (hex, octal, decimal)."""
-    return int(x, 0)
-
+BDF2UFO_VERSION = "1.7"
 
 # Main entry point
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +37,9 @@ def _setup_argument_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-V", "--version", action="version", version=f"bdf2ufo {BDF2UFO_VERSION}"
     )
-    parser.add_argument("-v", "--verbose", action="store_true", help="verbose mode")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="log the progress of the conversion"
+    )
 
     # Configuration options
     parser.add_argument("-c", "--config", help="path to a YAML configuration file")
@@ -65,7 +61,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.verbose:
-        logger.setLevel(logging.DEBUG)
+        logging.getLogger().setLevel(logging.INFO)
 
     # Load configuration
     logger.info("Loading configuration")
