@@ -6,14 +6,15 @@
 
 **Tiny5** is a family of compact 5-pixel variable fonts that capture the essence of 1980s–90s digital minimalism. Inspired by the graphing calculators and pocket gadgets of the era, they distill letterforms to their absolute essentials—proving that even at just five pixels tall, clarity, charm, and personality can thrive together.
 
-The family has two members, sharing the same letterforms, variable axes and character set:
+The family has three members, sharing the same letterforms, variable axes and language support:
 
 - [**Tiny5**](https://fonts.google.com/specimen/Tiny5) draws every stroke one pixel wide—the text face of the family, at home in body copy and dense readouts.
 - [**Tiny5 Duo**](https://fonts.google.com/specimen/Tiny5+Duo) doubles the vertical stems, giving the same letterforms a sturdier, more emphatic presence—ideal for headlines, labels and anywhere a little extra weight helps the text hold its own.
+- [**Tiny5 Mono**](https://github.com/Gissio/font_Tiny5Mono) sets the same letterforms in a fixed cell for code editors, terminals and text-mode interfaces—its box-drawing and block characters fill the whole cell.
 
-Used together, they give you a light and a heavy voice that stay true to the pixel-perfect aesthetic.
+Used together, they give you a light, a heavy and a monospaced voice that stay true to the pixel-perfect aesthetic.
 
-Both fonts feature six variable axes — **Weight, Width, Italic, Roundness, Bleed and Jitter** — giving you precise control over their look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers.
+All three fonts feature six variable axes — **Weight, Width, Italic, Roundness, Bleed and Jitter** — giving you precise control over their look: from crisp geometric shapes and sharp LCD edges to the soft glow of CRT monitors and the subtle ink spread of dot-matrix printers.
 
 The family excels at evoking retro-futurism, constrained-tech nostalgia, and clean minimalism. It's especially well-suited for:
 
@@ -26,7 +27,7 @@ The family provides broad language support, covering **Latin, Greek, Cyrillic an
 
 For pixel-perfect results, set the font size to **increments of 6 pt (8 px)**.
 
-Both fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
+All three fonts are also available in [BDF](https://en.wikipedia.org/wiki/Glyph_Bitmap_Distribution_Format) format for seamless integration with the [mcu-renderer](https://github.com/Gissio/mcu-renderer), [u8g2](https://github.com/olikraus/u8g2) and [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) libraries.
 
 ![Tiny5 character ROM](documentation/tiny5-sample1.jpg)
 

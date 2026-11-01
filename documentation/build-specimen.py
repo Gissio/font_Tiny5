@@ -39,7 +39,7 @@ TINY5_DUO_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5Duo-Italic[BLED,JITT,RO
 
 # Font version, as the devices display it; keep in sync with the font's
 # version (name ID 5)
-VERSION = "V2.007"
+VERSION = "V3.000"
 
 # Tiny5 draws one font pixel per 8 font units, and is 5 font pixels tall
 FONT_PIXEL_SIZE = 8
@@ -1173,7 +1173,7 @@ TERMINAL_LINES = [
     "$ fc-query --brief Tiny5",
     "    family: \"Tiny5\"",
     "    version: " + VERSION,
-    "    glyphs: 1942",
+    "    glyphs: 4094",
     "    languages: 974",
     "    axes: weight width italic round bleed jitter",
     "    pixel-perfect render: multiples of 6 pt (8 px)",
