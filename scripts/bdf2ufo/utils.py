@@ -8,8 +8,9 @@ License: MIT
 """
 
 import random
-from typing import Iterable
+from typing import Iterable, Optional
 
+import unicodedata2 as unicodedata
 from fontTools.agl import UV2AGL
 from fontTools.varLib.models import piecewiseLinearMap
 
@@ -242,3 +243,18 @@ def format_unicode_characters(components):
         A string representation of the list of Unicode characters, where each character is represented in the format "U+XXXX" and separated by commas.
     """
     return ", ".join([format_unicode_character(character) for character in components])
+
+
+def is_mark(character: Optional[str]) -> bool:
+    """Report whether a character is a nonspacing or enclosing mark.
+
+    These are the characters of the GDEF mark glyph class, with or without
+    attachment anchors.
+
+    Args:
+        character: The Unicode character of a glyph, or None.
+
+    Returns:
+        True if the character has the general category Mn or Me.
+    """
+    return character is not None and unicodedata.category(character) in ("Mn", "Me")

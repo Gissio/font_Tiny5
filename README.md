@@ -74,6 +74,12 @@ If you want to build fonts manually on your own computer:
 
 ## Changelog
 
+### 3.001
+
+- Added CRT, LCD and Matrix bold, italic and bold+italic static fonts.
+- Removed U+00AD glyph.
+- Decreased bold weight.
+
 ### 3.000
 
 - Character set more than doubled, from 1,942 to 4,094 glyphs, now following [Tiny5 Mono](https://github.com/Gissio/font_Tiny5Mono): Greek and Coptic letters, Phonetic Extensions small capitals, spaces and general punctuation, Roman numerals and fractions, arrows, mathematical operators, technical symbols, control pictures, OCR, enclosed alphanumerics, block elements, geometric shapes, dingbats, miscellaneous symbols and arrows, sextants and Symbols for Legacy Computing.

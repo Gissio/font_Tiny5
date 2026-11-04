@@ -13,9 +13,15 @@ from pathlib import Path
 
 import ufoLib2
 
-from .data import SCRIPTS, MARKS
+from .data import (
+    SCRIPTS,
+    MARKS,
+    MAX_JITTER_OFFSET,
+    SMALL_CAPS_DOTTED_I_LANGUAGES,
+)
 from .decomposition import get_element_positions
 from .utils import (
+    is_mark,
     Vec2,
     get_style_map_names,
     get_weight_class,
@@ -60,6 +66,7 @@ class UFOFont:
         self.units_per_element = Vec2(1)
         self.curves = "cubic"  # "quadratic" or "cubic"
         self.italic_angle = 0.0
+        self.jitter_enabled = False
         self.components = {}
         self.anchors = {}
         self.ccmp = {}
@@ -102,6 +109,7 @@ class UFOFont:
         self.units_per_element = ufo_config["units_per_element"]
         self.use_element_glyph = ufo_config["use_element_glyph"]
         self.italic_angle = ufo_config["italic_angle"]
+        self.jitter_enabled = ufo_config["jitter_enabled"]
         self.components = ufo_config["components"]
         self.anchors = ufo_config["anchors"]
         self.ccmp = ufo_config["ccmp"]
@@ -234,12 +242,18 @@ class UFOFont:
         font_info.openTypeOS2TypoAscender = font_info.openTypeHheaAscender
         font_info.openTypeOS2TypoDescender = font_info.openTypeHheaDescender
         font_info.openTypeOS2TypoLineGap = font_info.openTypeHheaLineGap
-        font_info.openTypeOS2WinAscent = max(
-            self.bdf_font.boundingbox_max.y * self.units_per_element.y, 0
+        # The JITT axis moves elements by less than MAX_JITTER_OFFSET elements
+        # in any direction, at any location of the design space. The glyph
+        # offsets are also rounded down to whole font units, which moves an
+        # element at most one unit further down.
+        jitter = (
+            MAX_JITTER_OFFSET * self.units_per_element.y if self.jitter_enabled else 0
         )
-        font_info.openTypeOS2WinDescent = max(
-            -self.bdf_font.boundingbox_min.y * self.units_per_element.y, 0
-        )
+        rounding = 1 if self.jitter_enabled else 0
+        top = self.bdf_font.boundingbox_max.y * self.units_per_element.y
+        bottom = -self.bdf_font.boundingbox_min.y * self.units_per_element.y
+        font_info.openTypeOS2WinAscent = math.ceil(max(top + jitter, 0))
+        font_info.openTypeOS2WinDescent = math.ceil(max(bottom + jitter + rounding, 0))
         font_info.openTypeOS2Type = []
 
         font_info.openTypeOS2SubscriptXSize = int(
@@ -307,7 +321,7 @@ class UFOFont:
         for glyph_name, glyph_anchors in self.anchors.items():
             glyph_character = self.bdf_font.glyphs[glyph_name]["character"]
 
-            if glyph_character not in MARKS:
+            if not is_mark(glyph_character):
                 all_bases.append(glyph_name)
             else:
                 for anchor_name, _anchor_offset in glyph_anchors.items():
@@ -317,7 +331,7 @@ class UFOFont:
         for glyph_name, glyph in self.bdf_font.glyphs.items():
             glyph_character = glyph["character"]
 
-            if glyph_character in MARKS:
+            if is_mark(glyph_character):
                 all_marks.append(glyph_name)
 
         lines.append(f"@all_bases = [{' '.join(all_bases)}];")
@@ -329,6 +343,14 @@ class UFOFont:
         lines.append("languagesystem DFLT dflt;")
         for script_tag in script_tags:
             lines.append(f"languagesystem {script_tag} dflt;")
+
+        # The languages with a dotted small cap i get a language system of their
+        # own, which every feature joins. Otherwise only smcp would list it, and
+        # text in these languages would lose ccmp and c2sc.
+        dotted_i = self.small_caps.get("dotted_i", {}) if "latn" in script_tags else {}
+        dotted_i_languages = SMALL_CAPS_DOTTED_I_LANGUAGES if dotted_i else ()
+        for language_tag in dotted_i_languages:
+            lines.append(f"languagesystem latn {language_tag};")
         lines.append("")
 
         # Define ccmp feature
@@ -367,6 +389,18 @@ class UFOFont:
             if len(script_substitutions) == 0:
                 continue
 
+            # The dotted small cap of "i" in the languages that dot their
+            # capital I. Its lookup comes before the Latin one, so that it
+            # substitutes "i" first.
+            smcp_dotted_i = dotted_i if feature_tag == "smcp" else {}
+
+            if smcp_dotted_i:
+                lines.append("lookup smcp_dotted_i {")
+                for source_name, target_name in smcp_dotted_i.items():
+                    lines.append(f"    sub {source_name} by {target_name};")
+                lines.append("} smcp_dotted_i;")
+                lines.append("")
+
             lines.append(f"feature {feature_tag} {{")
             for script_tag, substitutions in script_substitutions.items():
                 lookup_name = f"{feature_tag}_{script_tag}"
@@ -384,6 +418,13 @@ class UFOFont:
                 if script_tag == "latn":
                     lines.append(f"    script {script_tag};")
                     lines.append(f"    lookup {lookup_name};")
+
+                    # A feature that names a script only applies in the language
+                    # systems it lists, so these list them as well
+                    for language_tag in dotted_i_languages:
+                        lines.append(f"    language {language_tag};")
+                        if smcp_dotted_i:
+                            lines.append("    lookup smcp_dotted_i;")
             lines.append(f"}} {feature_tag};")
             lines.append("")
 
@@ -396,7 +437,13 @@ class UFOFont:
         # Set features
         self.ufo_font.features.text = "\n".join(lines)
 
-    def _add_element_glyph(self, ufo_glyph, offset: Vec2) -> None:
+    def _get_element_sizes(self) -> tuple:
+        """Return the sizes of an element at this location, in font units.
+
+        Returns:
+            The half size of the element, its corner radius, and the half size
+            of its right side, which the bleed extends.
+        """
         # Axes
         width = self.location["wdth"] / 100
         weight = self.location["wght"] / 400
@@ -413,6 +460,54 @@ class UFOFont:
 
         # Bleed
         outer_right = half_size + Vec2(element_size.x * bleed, 0)
+
+        return half_size, corner_radius, outer_right
+
+    def get_overlapping_glyph_names(self) -> set:
+        """Return the glyphs whose elements overlap at this location.
+
+        Two elements overlap if their boxes share an area, so elements that
+        only touch do not. Rounded corners are ignored, which can count two
+        diagonal neighbours whose rounded corners just miss each other. Only
+        glyphs drawn from element components are checked.
+
+        Returns:
+            A set of glyph names.
+        """
+        half_size, _corner_radius, outer_right = self._get_element_sizes()
+        reach = Vec2(half_size.x + outer_right.x, 2 * half_size.y)
+
+        overlapping_glyph_names = set()
+        for ufo_glyph in self.ufo_font:
+            offsets = sorted(
+                (component.transformation.dx, component.transformation.dy)
+                for component in ufo_glyph.components
+                if component.baseGlyph == "_"
+            )
+            if any(
+                x2 - x1 < reach.x and abs(y2 - y1) < reach.y
+                for index, (x1, y1) in enumerate(offsets)
+                for x2, y2 in offsets[index + 1 :]
+            ):
+                overlapping_glyph_names.add(ufo_glyph.name)
+
+        return overlapping_glyph_names
+
+    def set_overlap_flags(self, glyph_names: set) -> None:
+        """Mark glyphs as having overlapping contours.
+
+        ufo2ft turns the mark into the overlap bit of the glyf table, which tells
+        rasterizers that fill the contours with the non-zero rule, such as
+        Apple's, to expect overlaps.
+
+        Args:
+            glyph_names: The names of the glyphs.
+        """
+        for glyph_name in glyph_names:
+            self.ufo_font[glyph_name].lib["public.truetype.overlap"] = True
+
+    def _add_element_glyph(self, ufo_glyph, offset: Vec2) -> None:
+        half_size, corner_radius, outer_right = self._get_element_sizes()
         outer = half_size
         inner_right = outer_right - corner_radius
         inner = outer - corner_radius
@@ -517,7 +612,9 @@ class UFOFont:
     def _apply_jitter(self, offset):
         jitter = self.location["JITT"]
 
-        jitter_offset = Vec2.random(jitter / 1000) * self.units_per_element
+        jitter_offset = (
+            Vec2.random(jitter / 1000, MAX_JITTER_OFFSET) * self.units_per_element
+        )
 
         return offset + jitter_offset
 

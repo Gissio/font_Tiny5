@@ -166,6 +166,18 @@ class DesignSpace:
                 axis_tag, self.default_axis_values[axis_tag], "Default axis value"
             )
 
+        # The JITT axis is enabled if a master can have a non-zero jitter: either
+        # the axis is variable with a non-zero extreme, or its default is not zero
+        jitter_range = self.variable_axes.get("JITT", {})
+        self.ufo_config["jitter_enabled"] = any(
+            value != 0
+            for value in (
+                self.default_axis_values["JITT"],
+                jitter_range.get("min", 0),
+                jitter_range.get("max", 0),
+            )
+        )
+
         # Axis maps
         self.axis_maps = {}
 
@@ -398,6 +410,11 @@ class DesignSpace:
         return " ".join(style_components) or self.bdf_font.style_name or "Regular"
 
     def _write_masters(self, output_path: Path) -> None:
+        # The glyf table takes its overlap bits from the default master, so the
+        # default master is saved last, flagged with the overlaps of all masters
+        overlapping_glyph_names = set()
+        default_ufo_font = None
+
         for master in self._get_masters():
             master_name = master["name"]
             master_location = master["location"]
@@ -422,7 +439,16 @@ class DesignSpace:
                 master_style_name,
             )
 
-            ufo_font.save(output_path / ufo_file_name)
+            overlapping_glyph_names |= ufo_font.get_overlapping_glyph_names()
+
+            if default_ufo_font is None:
+                default_ufo_font = ufo_font
+                default_ufo_path = output_path / ufo_file_name
+            else:
+                ufo_font.save(output_path / ufo_file_name)
+
+        default_ufo_font.set_overlap_flags(overlapping_glyph_names)
+        default_ufo_font.save(default_ufo_path)
 
     def _write_designspace(self, output_path: Path) -> None:
         designspace_filename = (

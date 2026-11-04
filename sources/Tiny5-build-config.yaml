@@ -28,6 +28,7 @@ subscript_offset: [0, -1]
 
 # Glyph offset in pixel units, applied to all glyphs.
 # This can be used to adjust the position of all glyphs.
+# Sub-pixel offsets are allowed.
 glyph_offset: [0, 0]
 
 # Units per em and units per element.
@@ -43,6 +44,8 @@ italic_angle: 12
 
 # Override anchors for specific glyphs.
 # The position is given in pixel units, relative to the glyph's origin (bottom-left corner).
+# Glyphs are keyed by character, or by glyph name for unencoded glyphs such as "x.sc".
+# Base anchors on small caps ("top", "bottom", ...) let bdf2ufo build accented small caps.
 custom_anchors:
   # Top mark anchors
   "\u0300": # Grave
@@ -1442,7 +1445,7 @@ axis_maps:
   "wght":
     100: 100
     400: 400
-    700: 550
+    700: 500
     900: 700
 
 # Define static font instances and their axis values.
@@ -1459,11 +1462,47 @@ variable_instances:
     "ital": 1
   "LCD":
     "wght": 350
+  "LCD Bold":
+    "wght": 650
+  "LCD Italic":
+    "wght": 650
+    "ital": 1
+  "LCD Bold Italic":
+    "wght": 650
+    "ital": 1
   "CRT":
     "wght": 300
     "ROND": 100
     "BLED": 100
+  "CRT Bold":
+    "wght": 600
+    "ROND": 100
+    "BLED": 100
+  "CRT Italic":
+    "wght": 600
+    "ital": 1
+    "ROND": 100
+    "BLED": 100
+  "CRT Bold Italic":
+    "wght": 600
+    "ital": 1
+    "ROND": 100
+    "BLED": 100
   "Matrix":
     "wght": 350
+    "ROND": 100
+    "JITT": 50
+  "Matrix Bold":
+    "wght": 650
+    "ROND": 100
+    "JITT": 50
+  "Matrix Italic":
+    "wght": 650
+    "ital": 1
+    "ROND": 100
+    "JITT": 50
+  "Matrix Bold Italic":
+    "wght": 650
+    "ital": 1
     "ROND": 100
     "JITT": 50

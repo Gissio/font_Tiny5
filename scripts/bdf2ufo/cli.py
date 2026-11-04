@@ -18,7 +18,7 @@ from .designspace import DesignSpace
 
 # Definitions
 
-BDF2UFO_VERSION = "1.7"
+BDF2UFO_VERSION = "1.8"
 
 # Main entry point
 

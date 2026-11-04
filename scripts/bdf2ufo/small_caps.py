@@ -90,7 +90,8 @@ def build_small_caps(
         Dictionary mapping "smcp" and "c2sc" to the substitutions of each
         feature, as a dictionary mapping an OpenType script tag to the
         substitutions of that script, from source glyph name to small cap
-        glyph name.
+        glyph name, and "dotted_i" to the dotted small cap of "i" for the
+        languages in SMALL_CAPS_DOTTED_I_LANGUAGES (see _get_dotted_i()).
     """
     builder = _SmallCapsBuilder(bdf_font, components, anchors)
 
@@ -108,9 +109,12 @@ def build_small_caps(
         category = unicodedata.category(character)
 
         # Lowercase letters with an uppercase form, so that IPA letters keep
-        # their shape
+        # their shape, and the ones drawn as small capitals or aliased, which
+        # include letters without an uppercase form, such as the click U+0298
         if category == "Ll" and (
-            _get_uppercase(character) != character or character in SMALL_CAPS_ALIASES
+            _get_uppercase(character) != character
+            or character in SMALL_CAPS_ALIASES
+            or character in SMALL_CAPS_LOWERCASE
         ):
             feature, lowercase, capital = smcp, character, _get_uppercase(character)
         elif category == "Lu":
@@ -166,7 +170,39 @@ def build_small_caps(
         )
     logger.info("Small caps: %d new glyphs", builder.built_count)
 
-    return {"smcp": smcp, "c2sc": c2sc}
+    return {
+        "smcp": smcp,
+        "c2sc": c2sc,
+        "dotted_i": _get_dotted_i(bdf_font, smcp, c2sc),
+    }
+
+
+def _get_dotted_i(bdf_font: BDFFont, smcp: dict, c2sc: dict) -> dict:
+    """Return the small cap of "i" in the languages that dot their capital I.
+
+    In Turkish, "i" is capitalized as the dotted U+0130, so its small cap is the
+    small cap of U+0130 instead of the dotless small capital I.
+
+    Args:
+        bdf_font: The BDF font object.
+        smcp: The smcp substitutions, from build_small_caps().
+        c2sc: The c2sc substitutions, from build_small_caps().
+
+    Returns:
+        A dictionary with the glyph name of "i" and the glyph name of its
+        dotted small cap, or an empty dictionary if the font lacks one.
+    """
+    latn_smcp = smcp.get("latn", {})
+    i_name = bdf_font.names.get("i")
+    dotted_small_cap_name = c2sc.get("latn", {}).get(bdf_font.names.get("\u0130"))
+
+    if i_name in latn_smcp and dotted_small_cap_name not in (
+        None,
+        latn_smcp[i_name],
+    ):
+        return {i_name: dotted_small_cap_name}
+
+    return {}
 
 
 class _SmallCapsBuilder:

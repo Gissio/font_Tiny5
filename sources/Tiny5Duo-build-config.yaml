@@ -1442,7 +1442,7 @@ axis_maps:
   "wght":
     100: 100
     400: 400
-    700: 550
+    700: 500
     900: 700
 
 # Define static font instances and their axis values.
@@ -1459,11 +1459,47 @@ variable_instances:
     "ital": 1
   "LCD":
     "wght": 350
+  "LCD Bold":
+    "wght": 650
+  "LCD Italic":
+    "wght": 650
+    "ital": 1
+  "LCD Bold Italic":
+    "wght": 650
+    "ital": 1
   "CRT":
     "wght": 300
     "ROND": 100
     "BLED": 100
+  "CRT Bold":
+    "wght": 600
+    "ROND": 100
+    "BLED": 100
+  "CRT Italic":
+    "wght": 600
+    "ital": 1
+    "ROND": 100
+    "BLED": 100
+  "CRT Bold Italic":
+    "wght": 600
+    "ital": 1
+    "ROND": 100
+    "BLED": 100
   "Matrix":
     "wght": 350
+    "ROND": 100
+    "JITT": 50
+  "Matrix Bold":
+    "wght": 650
+    "ROND": 100
+    "JITT": 50
+  "Matrix Italic":
+    "wght": 650
+    "ital": 1
+    "ROND": 100
+    "JITT": 50
+  "Matrix Bold Italic":
+    "wght": 650
+    "ital": 1
     "ROND": 100
     "JITT": 50

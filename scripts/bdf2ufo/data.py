@@ -348,9 +348,9 @@ SMALL_CAPS_SCRIPTS = {
 }
 
 # Lowercase letters that are drawn as small capitals: most Cyrillic lowercase
-# letters, and the Latin ones that are smaller forms of their capitals. They
-# serve as their own small caps, with their accented forms, unless the font has
-# a ".sc" glyph for them.
+# letters, and the Latin ones that are smaller forms of their capitals, as well
+# as the bilabial click, which has no capital. They serve as their own small
+# caps, with their accented forms, unless the font has a ".sc" glyph for them.
 SMALL_CAPS_LOWERCASE = (
     "\u0432\u0433\u0434\u0436\u0437\u0438\u043a\u043b"  # в г д ж з и к л
     "\u043c\u043d\u043e\u043f\u0441\u0442\u0445\u0446"  # м н о п с т х ц
@@ -363,8 +363,14 @@ SMALL_CAPS_LOWERCASE = (
     "\u04fd\u04ff\u0511\u0513\u051d\u0525\u0529\u052f"  # ӽ ӿ ԑ ԓ ԝ ԥ ԩ ԯ
     "\u00f8\u0149\u014b\u0188\u019e\u01b6\u023c\u0242"  # ø ŉ ŋ ƈ ƞ ƶ ȼ ɂ
     "\u024b\u0251\u0254\u0259\u0263\u026f\u0275\u028a"  # ɋ ɑ ɔ ə ɣ ɯ ɵ ʊ
+    "\u0298"  # ʘ
     "\u028b\u028c\u2184\u2c73\ua793\ua7a9\ua7cd\uab53"  # ʋ ʌ ↄ ⱳ ꞓ ꞩ ꟍ ꭓ
 )
+# OpenType language tags of the Latin languages whose lowercase i has a dotted
+# capital (İ), so that its small cap is dotted too: Turkish, Azerbaijani,
+# Crimean Tatar, Gagauz and Tatar.
+SMALL_CAPS_DOTTED_I_LANGUAGES = ("TRK", "AZE", "CRT", "GAG", "TAT")
+
 # Lowercase letters without a small capital of their own, which take the small
 # capital of another letter.
 SMALL_CAPS_ALIASES = {
@@ -387,3 +393,8 @@ AXES_INFO = {
     "BLED": {"name": "Bleed", "min": 0, "max": 100, "default": 0},
     "JITT": {"name": "Jitter", "min": 0, "max": 100, "default": 0},
 }
+
+# The largest distance, in elements, that the JITT axis moves an element from
+# its pixel. The jitter of an element is resampled until it lies within this
+# distance, so it bounds the outlines of the font at any JITT value.
+MAX_JITTER_OFFSET = 1.0
