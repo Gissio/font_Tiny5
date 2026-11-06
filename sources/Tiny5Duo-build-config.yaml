@@ -1462,7 +1462,7 @@ variable_instances:
   "LCD Bold":
     "wght": 650
   "LCD Italic":
-    "wght": 650
+    "wght": 350
     "ital": 1
   "LCD Bold Italic":
     "wght": 650
@@ -1476,7 +1476,7 @@ variable_instances:
     "ROND": 100
     "BLED": 100
   "CRT Italic":
-    "wght": 600
+    "wght": 300
     "ital": 1
     "ROND": 100
     "BLED": 100
@@ -1494,7 +1494,7 @@ variable_instances:
     "ROND": 100
     "JITT": 50
   "Matrix Italic":
-    "wght": 650
+    "wght": 350
     "ital": 1
     "ROND": 100
     "JITT": 50
