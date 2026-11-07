@@ -183,10 +183,8 @@ class DesignSpace:
 
         axis_maps = config.get("axis_maps", {})
         for axis_tag, axis_map in axis_maps.items():
-            if axis_tag not in self.variable_axes:
-                raise ValueError(
-                    f"Axis map references undefined variable axis '{axis_tag}'"
-                )
+            if axis_tag not in AXES_INFO:
+                raise ValueError(f"Axis map references invalid axis '{axis_tag}'")
 
             self.axis_maps[axis_tag] = self._parse_axis_map(axis_tag, axis_map)
 
@@ -228,10 +226,13 @@ class DesignSpace:
             )
 
     def _parse_axis_map(self, axis_tag: str, axis_map: dict) -> list:
-        """Parse and validate the axis map of a variable axis.
+        """Parse and validate the axis map of an axis.
+
+        The axis map of a variable axis must span the range of the axis. The
+        axis map of an axis that is not variable maps its default value only.
 
         Args:
-            axis_tag: The tag of the variable axis.
+            axis_tag: The tag of the axis.
             axis_map: The axis map, a dictionary from user to design values.
 
         Returns:
@@ -244,10 +245,12 @@ class DesignSpace:
 
         mapping = sorted((float(user), float(design)) for user, design in axis_map.items())
 
-        # The map must span the axis range, so that every user value has a
-        # design value
-        axis_range = self.variable_axes[axis_tag]
-        if mapping[0][0] != axis_range["min"] or mapping[-1][0] != axis_range["max"]:
+        # The map of a variable axis must span the axis range, so that every user
+        # value has a design value
+        axis_range = self.variable_axes.get(axis_tag)
+        if axis_range is not None and (
+            mapping[0][0] != axis_range["min"] or mapping[-1][0] != axis_range["max"]
+        ):
             raise ValueError(
                 f"Axis map of '{axis_tag}' covers user values "
                 f"{mapping[0][0]:g}-{mapping[-1][0]:g}, but the variable axis range is "
