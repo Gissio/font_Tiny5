@@ -18,7 +18,7 @@ from .designspace import DesignSpace
 
 # Definitions
 
-BDF2UFO_VERSION = "1.8.1"
+BDF2UFO_VERSION = "1.9"
 
 # Main entry point
 
@@ -42,7 +42,14 @@ def _setup_argument_parser() -> argparse.ArgumentParser:
     )
 
     # Configuration options
-    parser.add_argument("-c", "--config", help="path to a YAML configuration file")
+    parser.add_argument(
+        "-c",
+        "--config",
+        action="append",
+        default=[],
+        help="path to a YAML configuration file; if given more than once, the "
+        "options of each file replace those of the files before it",
+    )
 
     # Positional arguments
     parser.add_argument("input", help="the .bdf file to be converted")
@@ -66,10 +73,10 @@ def main() -> int:
     # Load configuration
     logger.info("Loading configuration")
     config = {}
-    if args.config:
+    for config_path in args.config:
         try:
-            with open(args.config, "r", encoding="utf-8") as f:
-                config = yaml.safe_load(f) or {}
+            with open(config_path, "r", encoding="utf-8") as f:
+                config.update(yaml.safe_load(f) or {})
         except (IOError, yaml.YAMLError) as e:
             logger.error("Failed to load configuration file: %s", e)
             return 1

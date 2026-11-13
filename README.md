@@ -74,6 +74,12 @@ If you want to build fonts manually on your own computer:
 
 ## Changelog
 
+### 3.002
+
+- Tiny5 Duo: operators and related symbols (such as `* + - / \ | ±` and `≤ ≥ ≡`) now use Tiny5's one-pixel strokes.
+- Wider circled numbers 10–20, with a gap between the digits.
+- Redesigned crop marks, angle ornaments, negated relations and many symbols and dingbats.
+
 ### 3.001
 
 - Added CRT, LCD and Matrix bold, italic and bold+italic static fonts.

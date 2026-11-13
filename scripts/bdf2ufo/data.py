@@ -385,6 +385,18 @@ SMALL_CAPS_ALIASES = {
     "\u04e1": "\u0437",  # Cyrillic Abkhasian dze, drawn like ze
 }
 
+# The suffix of the names of unencoded small cap glyphs, such as "x.sc".
+SMALL_CAPS_SUFFIX = ".sc"
+
+# The suffix of the names of unencoded ligature glyphs. The name lists the
+# glyph names of the ligature's characters, joined by underscores, such as
+# "hyphen_greater.liga" for "->".
+LIGATURE_SUFFIX = ".liga"
+
+# The empty glyph that a monospace ligature puts in place of each of its
+# characters but the last.
+LIGATURE_SPACER_NAME = "LIG"
+
 AXES_INFO = {
     "wght": {"name": "Weight", "min": 100, "max": 700, "default": 400},
     "wdth": {"name": "Width", "min": 50, "max": 200, "default": 100},

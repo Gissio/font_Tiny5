@@ -15,10 +15,11 @@
 # Duo as tiny5duo-*.jpg. Duo sets wider than Tiny5, so where a line would
 # overflow its display, the Duo specimen carries its own, shorter copy.
 #
-# Alongside the specimens, the screen is rendered twice more for the itch.io
-# project the two families share: tiny5-itch.jpg, its cover image, and
-# tiny5-itch-banner.jpg, the banner across the head of its page. Both are
-# built for Tiny5 alone.
+# Alongside the specimens, the hero screen is rendered three times more for
+# the pages the two families share: tiny5-itch.jpg, the cover image of their
+# itch.io project, tiny5-itch-banner.jpg, the banner across the head of its
+# page, and tiny5-github.jpg, the social preview of their GitHub repository.
+# All three are built for Tiny5 alone.
 
 import math
 import random
@@ -301,6 +302,17 @@ BANNER_SIZE = (960, 300)
 BANNER_GRID = (158, 48)
 BANNER_CELL = 6
 
+# GitHub shows a repository by a 1280x640 social preview, and crops it on
+# both axes. The topics pages show it as a strip of about 2.65:1, keeping only
+# the middle 484 rows, and link cards often crop it to 1.91:1, taking some 30
+# image pixels off either side. The screen is therefore held well inside both
+# crops: at 9 image pixels per cell, the 48 rows leave 104 above and below
+# (26 within the strip), and 128 columns leave 64 at either side (33 within
+# the link card), so the surround frames the glass on every side in each
+GITHUB_SIZE = (1280, 640)
+GITHUB_GRID = (128, 48)
+GITHUB_CELL = 9
+
 
 def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     """Render as a reflective LCD: pixels floating over a pale ground.
@@ -427,6 +439,15 @@ def build_banner():
     img = render_reflective(compose_hero(False, BANNER_GRID), BANNER_CELL,
                             NOKIA_BG, NOKIA_FG, BANNER_SIZE)
     save_image(img, "itch-banner", False, google=False)
+
+
+def build_github():
+    """The GitHub social preview is the hero screen once more, on the
+    preview's frame. Like the itch.io cover, it stands for both families, so
+    it is set in Tiny5."""
+    img = render_reflective(compose_hero(False, GITHUB_GRID), GITHUB_CELL,
+                            NOKIA_BG, NOKIA_FG, GITHUB_SIZE)
+    save_image(img, "github", False, google=False)
 
 
 # --- Vacuum fluorescent display: the character ROM ---------------------------
@@ -1526,6 +1547,7 @@ if __name__ == "__main__":
     build_terminal()                            # 5: login session on an amber CRT
     build_itch()                                # the itch.io cover image
     build_banner()                              # and its page banner
+    build_github()                              # the GitHub social preview
     for duo in (False, True):
         build_hero(duo)
         build_charset(duo)                      # 1: character ROM on a VFD

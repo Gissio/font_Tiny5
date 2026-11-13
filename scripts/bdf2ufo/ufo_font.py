@@ -20,6 +20,7 @@ from .data import (
     SMALL_CAPS_DOTTED_I_LANGUAGES,
 )
 from .decomposition import get_element_positions
+from .ligatures import get_ligature_feature
 from .utils import (
     is_mark,
     Vec2,
@@ -71,6 +72,7 @@ class UFOFont:
         self.anchors = {}
         self.ccmp = {}
         self.small_caps = {}
+        self.ligatures = {}
         self.kerning = {}
 
         self.location = {}
@@ -114,6 +116,7 @@ class UFOFont:
         self.anchors = ufo_config["anchors"]
         self.ccmp = ufo_config["ccmp"]
         self.small_caps = ufo_config["small_caps"]
+        self.ligatures = ufo_config["ligatures"]
         self.kerning = ufo_config["kerning"]
 
         self.location = location
@@ -427,6 +430,9 @@ class UFOFont:
                             lines.append("    lookup smcp_dotted_i;")
             lines.append(f"}} {feature_tag};")
             lines.append("")
+
+        # Define calt feature with the ligatures
+        lines += get_ligature_feature(self.ligatures)
 
         # Define GDEF table
         lines.append("table GDEF {")

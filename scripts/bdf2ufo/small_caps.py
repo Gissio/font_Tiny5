@@ -20,12 +20,10 @@ from .data import (
     SMALL_CAPS_ALIASES,
     SMALL_CAPS_LOWERCASE,
     SMALL_CAPS_SCRIPTS,
+    SMALL_CAPS_SUFFIX,
 )
 from .decomposition import get_bitmap, get_element_positions, get_pieces
 from .utils import Vec2, format_unicode_character, get_glyph_name
-
-# Constants
-SMALL_CAPS_SUFFIX = ".sc"
 
 # Definitions
 logger = logging.getLogger(__name__)

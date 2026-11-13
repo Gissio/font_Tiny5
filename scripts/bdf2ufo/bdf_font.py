@@ -23,7 +23,13 @@ from .utils import (
     format_unicode_character,
     get_glyph_name,
 )
-from .data import SLOPE_FROM_SLANT, WIDTH_CLASSES, WEIGHT_CLASSES
+from .data import (
+    LIGATURE_SUFFIX,
+    SLOPE_FROM_SLANT,
+    SMALL_CAPS_SUFFIX,
+    WIDTH_CLASSES,
+    WEIGHT_CLASSES,
+)
 
 # Constants
 DEFAULT_SUPERSCRIPT_SIZE = 0.5
@@ -44,6 +50,9 @@ class BDFFont:
     Attributes:
         glyphs: Dictionary mapping glyph names to Glyph objects.
         names: Dictionary mapping Unicode characters to glyph names.
+        ligature_glyphs: Dictionary mapping the names of the ligature glyphs
+            (".liga") to Glyph objects, as drawn. Only loaded if the
+            "ligatures" configuration option is set.
 
         family_name: Font family name.
         style_name: Font style name (e.g., "Bold", "Italic").
@@ -80,6 +89,7 @@ class BDFFont:
     def __init__(self) -> None:
         self.glyphs = {}
         self.names = {}
+        self.ligature_glyphs = {}
 
         self.family_name = ""
         self.style_name = ""
@@ -137,14 +147,32 @@ class BDFFont:
         x_height = bdf_pt_size
 
         # Set font glyphs
+        ligatures_enabled = config.get("ligatures", False)
+
         for glyph in bdf_glyphs:
             codepoint = glyph.codepoint
+            is_ligature = False
 
-            # Unencoded glyphs (ENCODING -1) keep their BDF name, such as
-            # "x.sc", and have no character
+            # Unencoded glyphs (ENCODING -1) keep their BDF name and have no
+            # character. Only small caps ("x.sc") and, if enabled, ligatures
+            # ("hyphen_greater.liga") are used; other unencoded glyphs would
+            # be unreachable.
             if codepoint < 0:
                 character = None
                 name = glyph.name.decode("utf-8")
+
+                if name.endswith(LIGATURE_SUFFIX):
+                    if not ligatures_enabled:
+                        logger.info(
+                            "Skipping ligature glyph '%s', as ligatures are disabled",
+                            name,
+                        )
+                        continue
+
+                    is_ligature = True
+                elif not name.endswith(SMALL_CAPS_SUFFIX):
+                    logger.info("Skipping unencoded glyph '%s'", name)
+                    continue
             else:
                 character = chr(codepoint)
                 name = get_glyph_name(codepoint) or glyph.name.decode("utf-8")
@@ -174,7 +202,7 @@ class BDFFont:
                     [c if (c.isalnum() or c == ".") else "_" for c in name]
                 )
 
-                while name in self.glyphs:
+                while name in self.glyphs or name in self.ligature_glyphs:
                     name += "_"
 
             # Build bitmap
@@ -228,6 +256,12 @@ class BDFFont:
                 cap_height = bitmap.shape[0]
             elif character == "x":
                 x_height = bitmap.shape[0]
+
+            # Ligatures are kept apart until build_ligatures() adds them, after
+            # all other glyphs
+            if is_ligature:
+                self.ligature_glyphs[name] = glyph
+                continue
 
             self.glyphs[name] = glyph
             if character is not None:

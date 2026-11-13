@@ -34,6 +34,7 @@ from .bdf_font import BDFFont
 from .decomposition import build_decomposition
 from .anchors import build_anchors
 from .ccmp import build_ccmp
+from .ligatures import build_ligatures
 from .small_caps import build_small_caps
 from .ufo_font import UFOFont
 
@@ -106,6 +107,9 @@ class DesignSpace:
         # Small caps, composed after the anchors are built
         small_caps = build_small_caps(bdf_font, components, anchors, ccmp)
 
+        # Ligatures, added after all other glyphs
+        ligatures = build_ligatures(bdf_font)
+
         # UFO font generation parameters
         self.ufo_config["glyph_offset"] = Vec2(config.get("glyph_offset", [0, 0]))
         self.ufo_config["strike_num"] = (
@@ -132,6 +136,7 @@ class DesignSpace:
         self.ufo_config["anchors"] = anchors
         self.ufo_config["ccmp"] = ccmp
         self.ufo_config["small_caps"] = small_caps
+        self.ufo_config["ligatures"] = ligatures
         self.ufo_config["kerning"] = config.get("kerning", [])
 
         # Default axis values
