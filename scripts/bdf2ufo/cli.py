@@ -9,6 +9,7 @@ License: MIT
 
 import argparse
 import logging
+import os
 import sys
 
 import yaml
@@ -24,6 +25,15 @@ BDF2UFO_VERSION = "1.9"
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
+
+
+def _get_cpu_count() -> int:
+    """Return the number of CPUs this process may run on, which taskset or a
+    container can limit."""
+    if hasattr(os, "sched_getaffinity"):
+        return len(os.sched_getaffinity(0))
+
+    return os.cpu_count() or 1
 
 
 def _setup_argument_parser() -> argparse.ArgumentParser:
@@ -49,6 +59,15 @@ def _setup_argument_parser() -> argparse.ArgumentParser:
         default=[],
         help="path to a YAML configuration file; if given more than once, the "
         "options of each file replace those of the files before it",
+    )
+
+    parser.add_argument(
+        "-j",
+        "--jobs",
+        type=int,
+        default=_get_cpu_count(),
+        help="the number of processes that build the masters (default: the "
+        "number of CPUs this process may run on)",
     )
 
     # Positional arguments
@@ -98,7 +117,7 @@ def main() -> int:
 
         designspace.setup(bdf_font, config)
 
-        designspace.build(args.output)
+        designspace.build(args.output, args.jobs)
     except ValueError as e:
         logger.error("Failed to build designspace: %s", e)
         return 1

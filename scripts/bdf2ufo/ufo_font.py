@@ -11,6 +11,7 @@ import logging
 import math
 from pathlib import Path
 
+import numpy as np
 import ufoLib2
 
 from .data import (
@@ -19,7 +20,7 @@ from .data import (
     MAX_JITTER_OFFSET,
     SMALL_CAPS_DOTTED_I_LANGUAGES,
 )
-from .decomposition import get_element_positions
+from .alternates import get_alternate_features
 from .ligatures import get_ligature_feature
 from .utils import (
     is_mark,
@@ -65,14 +66,18 @@ class UFOFont:
         self.strike_num = 1
         self.units_per_em = 2048
         self.units_per_element = Vec2(1)
+        self.use_element_glyph = True
         self.curves = "cubic"  # "quadratic" or "cubic"
         self.italic_angle = 0.0
+        self.italic_slope = 0.0
         self.jitter_enabled = False
         self.components = {}
+        self.precomposed = set()
         self.anchors = {}
         self.ccmp = {}
         self.small_caps = {}
         self.ligatures = {}
+        self.alternates = {}
         self.kerning = {}
 
         self.location = {}
@@ -113,10 +118,12 @@ class UFOFont:
         self.italic_angle = ufo_config["italic_angle"]
         self.jitter_enabled = ufo_config["jitter_enabled"]
         self.components = ufo_config["components"]
+        self.precomposed = ufo_config["precomposed"]
         self.anchors = ufo_config["anchors"]
         self.ccmp = ufo_config["ccmp"]
         self.small_caps = ufo_config["small_caps"]
         self.ligatures = ufo_config["ligatures"]
+        self.alternates = ufo_config["alternates"]
         self.kerning = ufo_config["kerning"]
 
         self.location = location
@@ -124,6 +131,7 @@ class UFOFont:
         self.style_name = style_name
 
         self.glyph_scale = self.units_per_element * Vec2(self.location["wdth"] / 100, 1)
+        self.italic_slope = math.tan(math.radians(self.italic_angle * self.location["ital"]))
 
         # Set font info
         self._set_font_info()
@@ -434,6 +442,9 @@ class UFOFont:
         # Define calt feature with the ligatures
         lines += get_ligature_feature(self.ligatures)
 
+        # Define the features of the alternates, such as zero
+        lines += get_alternate_features(self.alternates)
+
         # Define GDEF table
         lines.append("table GDEF {")
         lines.append("    GlyphClassDef @all_bases, [], @all_marks, [];")
@@ -513,6 +524,20 @@ class UFOFont:
             self.ufo_font[glyph_name].lib["public.truetype.overlap"] = True
 
     def _add_element_glyph(self, ufo_glyph, offset: Vec2) -> None:
+        """Add the contour of an element: a rectangle with rounded corners,
+        whose right side the bleed extends.
+
+        Each corner runs from one side to the next: along its arc from the
+        point where the straight side ends, through the off-curve points (and
+        the mid-arc point of quadratic curves), to the point where the next
+        side starts. The corners on the vertical sides (top right, bottom left)
+        start on the vertical side, the others on the horizontal side, so their
+        points come in reverse order.
+
+        Args:
+            ufo_glyph: The glyph to add the contour to.
+            offset: The center of the element.
+        """
         half_size, corner_radius, outer_right = self._get_element_sizes()
         outer = half_size
         inner_right = outer_right - corner_radius
@@ -521,65 +546,54 @@ class UFOFont:
         if self.curves == "quadratic":
             tangent_factor = Vec2(math.tan(math.radians(90 / 4)))
             midarc_factor = Vec2(math.cos(math.radians(45)))
-            tangent_right = inner_right + corner_radius * tangent_factor
-            midarc_right = inner_right + corner_radius * midarc_factor
-            tangent = inner + corner_radius * tangent_factor
-            midarc = inner + corner_radius * midarc_factor
-            element_points = [
-                [Vec2(outer_right.x, inner_right.y), "line"],
-                [Vec2(outer_right.x, tangent_right.y), "offcurve"],
-                [Vec2(midarc_right.x, midarc_right.y), "qcurve"],
-                [Vec2(tangent_right.x, outer_right.y), "offcurve"],
-                [Vec2(inner_right.x, outer_right.y), "qcurve"],
-                [Vec2(-inner.x, outer_right.y), "line"],
-                [Vec2(-tangent.x, outer_right.y), "offcurve"],
-                [Vec2(-midarc.x, midarc_right.y), "qcurve"],
-                [Vec2(-outer.x, tangent_right.y), "offcurve"],
-                [Vec2(-outer.x, inner_right.y), "qcurve"],
-                [Vec2(-outer.x, -inner_right.y), "line"],
-                [Vec2(-outer.x, -tangent_right.y), "offcurve"],
-                [Vec2(-midarc.x, -midarc_right.y), "qcurve"],
-                [Vec2(-tangent.x, -outer_right.y), "offcurve"],
-                [Vec2(-inner.x, -outer_right.y), "qcurve"],
-                [Vec2(inner_right.x, -outer_right.y), "line"],
-                [Vec2(tangent_right.x, -outer_right.y), "offcurve"],
-                [Vec2(midarc_right.x, -midarc_right.y), "qcurve"],
-                [Vec2(outer_right.x, -tangent_right.y), "offcurve"],
-                [Vec2(outer_right.x, -inner_right.y), "qcurve"],
-            ]
+            types = ["line", "offcurve", "qcurve", "offcurve", "qcurve"]
         elif self.curves == "cubic":
             tangent_factor = Vec2((4 / 3) * math.tan(math.radians(90 / 4)))
-            tangent_right = inner_right + corner_radius * tangent_factor
-            tangent = inner + corner_radius * tangent_factor
-            element_points = [
-                [Vec2(outer_right.x, inner_right.y), "line"],
-                [Vec2(outer_right.x, tangent_right.y), "offcurve"],
-                [Vec2(tangent_right.x, outer_right.y), "offcurve"],
-                [Vec2(inner_right.x, outer_right.y), "curve"],
-                [Vec2(-inner.x, outer_right.y), "line"],
-                [Vec2(-tangent.x, outer_right.y), "offcurve"],
-                [Vec2(-outer.x, tangent_right.y), "offcurve"],
-                [Vec2(-outer.x, inner_right.y), "curve"],
-                [Vec2(-outer.x, -inner_right.y), "line"],
-                [Vec2(-outer.x, -tangent_right.y), "offcurve"],
-                [Vec2(-tangent.x, -outer_right.y), "offcurve"],
-                [Vec2(-inner.x, -outer_right.y), "curve"],
-                [Vec2(inner_right.x, -outer_right.y), "line"],
-                [Vec2(tangent_right.x, -outer_right.y), "offcurve"],
-                [Vec2(outer_right.x, -tangent_right.y), "offcurve"],
-                [Vec2(outer_right.x, -inner_right.y), "curve"],
-            ]
+            midarc_factor = None
+            types = ["line", "offcurve", "offcurve", "curve"]
         else:
-            element_points = []
+            return
 
-        ufo_points = []
-        for point_offset, point_type in element_points:
-            ufo_points.append(
-                ufoLib2.objects.Point(offset.x + point_offset.x, offset.y + point_offset.y, point_type)
+        def get_side(outer_side, inner_side):
+            # The outer, tangent, inner and mid-arc coordinates of a side
+            tangent_side = inner_side + corner_radius * tangent_factor
+            midarc_side = inner_side + corner_radius * midarc_factor if midarc_factor else None
+            return outer_side, tangent_side, inner_side, midarc_side
+
+        right = get_side(outer_right, inner_right)
+        left = get_side(outer, inner)
+
+        points = []
+        for x_side, x_sign, y_sign, reverse in (
+            (right, 1, 1, False),
+            (left, -1, 1, True),
+            (left, -1, -1, False),
+            (right, 1, -1, True),
+        ):
+            x_outer, x_tangent, x_inner, x_midarc = (
+                None if value is None else x_sign * value.x for value in x_side
             )
-        ufo_contour = ufoLib2.objects.Contour(ufo_points)
+            y_outer, y_tangent, y_inner, y_midarc = (
+                None if value is None else y_sign * value.y for value in right
+            )
 
-        ufo_glyph.appendContour(ufo_contour)
+            corner = [(x_outer, y_inner), (x_outer, y_tangent)]
+            if midarc_factor:
+                corner.append((x_midarc, y_midarc))
+            corner += [(x_tangent, y_outer), (x_inner, y_outer)]
+            if reverse:
+                corner.reverse()
+
+            points += zip(corner, types)
+
+        ufo_glyph.appendContour(
+            ufoLib2.objects.Contour(
+                [
+                    ufoLib2.objects.Point(offset.x + x, offset.y + y, point_type)
+                    for (x, y), point_type in points
+                ]
+            )
+        )
 
     def _set_element_glyph(self) -> None:
         element_glyph = self.ufo_font.newGlyph("_")
@@ -598,9 +612,7 @@ class UFOFont:
             # A composition whose components draw the same element twice would
             # emit duplicate components at identical coordinates, so draw the
             # glyph from its bitmap instead.
-            if glyph_name in self.components and not self._has_overlapping_elements(
-                glyph_name
-            ):
+            if glyph_name in self.components and glyph_name not in self.precomposed:
                 self._add_components(
                     ufo_glyph, glyph_character, self.components[glyph_name]
                 )
@@ -609,43 +621,8 @@ class UFOFont:
 
     def _apply_italic(self, offset):
         y = offset.y - 0.5 * self.glyph_scale.y
-        angle = self.italic_angle * self.location["ital"]
 
-        italic_offset = Vec2(y * math.tan(math.radians(angle)), 0)
-
-        return offset + italic_offset
-
-    def _apply_jitter(self, offset):
-        jitter = self.location["JITT"]
-
-        jitter_offset = (
-            Vec2.random(jitter / 1000, MAX_JITTER_OFFSET) * self.units_per_element
-        )
-
-        return offset + jitter_offset
-
-    def _has_overlapping_elements(self, glyph_name: str) -> bool:
-        """Report whether a composed glyph draws two elements at the same place.
-
-        The positions are expressed in .bdf pixel space, which is shared by
-        every master, so the result cannot vary across the design space.
-
-        Args:
-            glyph_name: The name of the glyph.
-
-        Returns:
-            True if any element position is drawn more than once.
-        """
-        positions = get_element_positions(self.bdf_font, self.components, glyph_name)
-        if len(positions) == len(set(positions)):
-            return False
-
-        logger.info(
-            "Glyph '%s' composes overlapping elements, storing precomposed glyph.",
-            glyph_name,
-        )
-
-        return True
+        return offset + Vec2(y * self.italic_slope, 0)
 
     def _get_mark_shift(self, character: str) -> float:
         """Return the horizontal nudge, in font units, of a glyph's ink and anchors.
@@ -671,56 +648,49 @@ class UFOFont:
         return -1 if character in MARKS else 0
 
     def _add_bitmap(self, ufo_glyph, bdf_glyph):
-        strike_num = self.strike_num
+        """Draw a glyph from its bitmap, one element per pixel and strike.
 
-        bdf_glyph_character = bdf_glyph["character"]
-        bdf_glyph_bitmap = bdf_glyph["bitmap"]
-        bdf_glyph_offset = self.glyph_offset + bdf_glyph["offset"]
+        The arithmetic runs on plain numbers, in the same order as the Vec2
+        operations of the other glyph parts, so the offsets are the same.
+        """
+        scale_x, scale_y = self.glyph_scale.x, self.glyph_scale.y
+        offset_x = self.glyph_offset.x + bdf_glyph["offset"].x
+        offset_y = self.glyph_offset.y + bdf_glyph["offset"].y
+        mark_shift = self._get_mark_shift(bdf_glyph["character"])
 
-        for y in range(bdf_glyph_bitmap.shape[0]):
-            for x in range(bdf_glyph_bitmap.shape[1]):
-                for strike_index in range(strike_num):
-                    if bdf_glyph_bitmap[y][x]:
-                        offset = (
-                            Vec2(x, y)
-                            + Vec2(0.5)
-                            + bdf_glyph_offset
-                            + Vec2(0, -0.5 * strike_index)
-                        ) * self.glyph_scale
+        # A master without jitter draws no random numbers: its jitter offsets
+        # would all be zero
+        jitter = self.location["JITT"] / 1000
 
-                        # Italic offset
-                        offset = self._apply_italic(offset)
+        for y, x in np.argwhere(bdf_glyph["bitmap"]).tolist():
+            for strike_index in range(self.strike_num):
+                element_x = ((x + 0.5) + offset_x + 0) * scale_x
+                element_y = ((y + 0.5) + offset_y + -0.5 * strike_index) * scale_y
 
-                        # Jitter offset
-                        offset = self._apply_jitter(offset)
+                # Italic offset
+                element_x += (element_y - 0.5 * scale_y) * self.italic_slope
 
-                        # Fix Fontspector/Shaperglot heuristics
-                        offset.x += self._get_mark_shift(bdf_glyph_character)
+                # Jitter offset
+                if jitter:
+                    jitter_offset = Vec2.random(jitter, MAX_JITTER_OFFSET)
+                    element_x += jitter_offset.x * self.units_per_element.x
+                    element_y += jitter_offset.y * self.units_per_element.y
 
-                        if self.use_element_glyph:
-                            ufo_component = ufoLib2.objects.Component("_")
-                            ufo_component.transformation = [
-                                1,
-                                0,
-                                0,
-                                1,
-                                math.floor(offset.x),
-                                math.floor(offset.y),
-                            ]
+                # Fix Fontspector/Shaperglot heuristics
+                element_x += mark_shift
 
-                            self._append_component(ufo_glyph, ufo_component)
-                        else:
-                            self._add_element_glyph(ufo_glyph, offset)
+                if self.use_element_glyph:
+                    self._append_component(
+                        ufo_glyph, self._get_component("_", Vec2(element_x, element_y))
+                    )
+                else:
+                    self._add_element_glyph(ufo_glyph, Vec2(element_x, element_y))
 
     def _add_components(self, ufo_glyph, glyph_character, glyph_components):
         for component_name, component_offset in glyph_components:
             component_character = self.bdf_font.glyphs[component_name]["character"]
 
-            ufo_component = ufoLib2.objects.Component(component_name)
-            offset = component_offset * self.glyph_scale
-
-            # Italic offset
-            offset = self._apply_italic(offset)
+            offset = self._apply_italic(component_offset * self.glyph_scale)
 
             # Fix Fontspector/Shaperglot heuristics. The component glyph already
             # carries its own nudge, so undo it and apply the composed glyph's.
@@ -728,16 +698,22 @@ class UFOFont:
                 component_character
             )
 
-            ufo_component.transformation = [
-                1,
-                0,
-                0,
-                1,
-                math.floor(offset.x),
-                math.floor(offset.y),
-            ]
+            self._append_component(ufo_glyph, self._get_component(component_name, offset))
 
-            self._append_component(ufo_glyph, ufo_component)
+    @staticmethod
+    def _get_component(glyph_name: str, offset) -> ufoLib2.objects.Component:
+        """Return a component of a glyph at an offset, rounded down to font units."""
+        ufo_component = ufoLib2.objects.Component(glyph_name)
+        ufo_component.transformation = [
+            1,
+            0,
+            0,
+            1,
+            math.floor(offset.x),
+            math.floor(offset.y),
+        ]
+
+        return ufo_component
 
     def _append_component(self, ufo_glyph, ufo_component):
         """Append a component whose offset TrueType must not round to the grid.
@@ -846,49 +822,25 @@ class UFOFont:
         if self.kerning is None:
             return
 
-        # Build kerning groups
-        left_groups = {}
-        right_groups = {}
+        # A kerning side of several characters is a group, numbered across
+        # both sides in order of appearance; a single character is its glyph
+        groups = {"public.kern1": {}, "public.kern2": {}}
+        group_count = 0
 
-        group_index = 1
+        def get_side(prefix, characters):
+            nonlocal group_count
+            if len(characters) == 1:
+                return self.bdf_font.names[characters[0]]
+            if characters not in groups[prefix]:
+                group_count += 1
+                group_name = f"{prefix}.group{group_count}"
+                self.ufo_font.groups[group_name] = [self.bdf_font.names[c] for c in characters]
+                groups[prefix][characters] = group_name
+
+            return groups[prefix][characters]
+
         for left_characters, right_characters, value in self.kerning:
-            # Left group
-            if len(left_characters) > 1:
-                if left_characters in left_groups:
-                    left_group_name = left_groups[left_characters]
-                else:
-                    left_group_name = f"public.kern1.group{group_index}"
-                    self.ufo_font.groups[left_group_name] = [
-                        self.bdf_font.names[c] for c in left_characters
-                    ]
-                    group_index += 1
-            elif len(left_characters) == 1:
-                left_group_name = self.bdf_font.names[left_characters[0]]
+            left = get_side("public.kern1", left_characters)
+            right = get_side("public.kern2", right_characters)
 
-            if len(left_characters) > 0:
-                left_groups[left_characters] = left_group_name
-
-            # Right group
-            if len(right_characters) > 1:
-                if right_characters in right_groups:
-                    right_group_name = right_groups[right_characters]
-                else:
-                    right_group_name = f"public.kern2.group{group_index}"
-                    self.ufo_font.groups[right_group_name] = [
-                        self.bdf_font.names[c] for c in right_characters
-                    ]
-                    group_index += 1
-            elif len(right_characters) == 1:
-                right_group_name = self.bdf_font.names[right_characters[0]]
-
-            if len(right_characters) > 0:
-                right_groups[right_characters] = right_group_name
-
-        # Add kerning
-        for left_characters, right_characters, value in self.kerning:
-            left_group_name = left_groups[left_characters]
-            right_group_name = right_groups[right_characters]
-
-            self.ufo_font.kerning[(left_group_name, right_group_name)] = (
-                value * self.units_per_element.x
-            )
+            self.ufo_font.kerning[(left, right)] = value * self.units_per_element.x

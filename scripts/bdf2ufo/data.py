@@ -393,9 +393,40 @@ SMALL_CAPS_SUFFIX = ".sc"
 # "hyphen_greater.liga" for "->".
 LIGATURE_SUFFIX = ".liga"
 
+# The ligatures tried before the others of their length, in order. As in
+# Fira Code, "<|" takes its "<" before "--" checks whether "--<|" is a run,
+# so "--" stays a ligature there, and "<<" its "<" in "!=<<".
+LIGATURE_FIRST = ("||", ">>", "<<", "<|")
+
+# The suffix of the names of unencoded run pieces. A run is a line of any
+# length, such as "---->" or "<====": each of its characters becomes a piece.
+# The name lists the glyph names of the characters the piece stands for, then
+# the line character and its role, "start", "middle" or "end", joined by
+# underscores: "hyphen_middle.seq" for a "-" inside a run, "less_hyphen_start.seq"
+# for the "<" of "<--".
+SEQUENCE_SUFFIX = ".seq"
+
+# The roles of the pieces of a run.
+SEQUENCE_ROLES = ("start", "middle", "end")
+
+# The lines whose heads are tried first, in order, where a head could join
+# either of two lines: as in Fira Code, the ">" of "-->==" starts "==", and
+# the ">" of "==>--" ends it. Other lines follow in character order.
+SEQUENCE_LINE_ORDER = "=-"
+
+# The suffix of the names of unencoded numeric forms: the form a character
+# takes between two digits, or between "0" and a hexadecimal letter, such as
+# "x.num" for the "x" of "1920x1080" or "0xFF".
+NUMERIC_SUFFIX = ".num"
+
 # The empty glyph that a monospace ligature puts in place of each of its
 # characters but the last.
 LIGATURE_SPACER_NAME = "LIG"
+
+# The OpenType features that substitute alternate glyphs. An alternate glyph is
+# an unencoded glyph named after the glyph it replaces, with the feature tag as
+# suffix, such as "zero.zero" for the slashed zero of the "zero" feature.
+ALTERNATE_FEATURES = ("zero",)
 
 AXES_INFO = {
     "wght": {"name": "Weight", "min": 100, "max": 700, "default": 400},

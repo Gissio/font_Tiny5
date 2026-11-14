@@ -10,6 +10,7 @@ License: MIT
 import itertools
 import logging
 import os
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 import random
 
@@ -30,8 +31,9 @@ from .utils import (
     get_width_class,
     split_family_style_names,
 )
+from .alternates import build_alternates
 from .bdf_font import BDFFont
-from .decomposition import build_decomposition
+from .decomposition import build_decomposition, get_precomposed_glyphs
 from .anchors import build_anchors
 from .ccmp import build_ccmp
 from .ligatures import build_ligatures
@@ -110,6 +112,9 @@ class DesignSpace:
         # Ligatures, added after all other glyphs
         ligatures = build_ligatures(bdf_font)
 
+        # Alternates (such as the slashed zero), added after the ligatures
+        alternates = build_alternates(bdf_font)
+
         # UFO font generation parameters
         self.ufo_config["glyph_offset"] = Vec2(config.get("glyph_offset", [0, 0]))
         self.ufo_config["strike_num"] = (
@@ -133,10 +138,12 @@ class DesignSpace:
             config.get("italic_angle", DEFAULT_ITALIC_ANGLE)
         )
         self.ufo_config["components"] = components
+        self.ufo_config["precomposed"] = get_precomposed_glyphs(bdf_font, components)
         self.ufo_config["anchors"] = anchors
         self.ufo_config["ccmp"] = ccmp
         self.ufo_config["small_caps"] = small_caps
         self.ufo_config["ligatures"] = ligatures
+        self.ufo_config["alternates"] = alternates
         self.ufo_config["kerning"] = config.get("kerning", [])
 
         # Default axis values
@@ -287,17 +294,18 @@ class DesignSpace:
             for axis_tag, axis_value in user_location.items()
         }
 
-    def build(self, output_path: Path) -> None:
+    def build(self, output_path: Path, jobs: int = 1) -> None:
         """Build the design space by writing masters and designspace document.
 
         Args:
             output_path: The directory path where master UFO files and designspace document will be written.
+            jobs: The number of processes that build the masters.
         """
         output_path = Path(output_path)
 
         os.makedirs(output_path, exist_ok=True)
 
-        self._write_masters(output_path)
+        self._write_masters(output_path, jobs)
 
         self._write_designspace(output_path)
 
@@ -417,46 +425,68 @@ class DesignSpace:
 
         return " ".join(style_components) or self.bdf_font.style_name or "Regular"
 
-    def _write_masters(self, output_path: Path) -> None:
-        # The glyf table takes its overlap bits from the default master, so the
-        # default master is saved last, flagged with the overlaps of all masters
-        overlapping_glyph_names = set()
-        default_ufo_font = None
+    def _write_masters(self, output_path: Path, jobs: int) -> None:
+        """Build and save the masters, on up to `jobs` processes.
 
-        for master in self._get_masters():
-            master_name = master["name"]
-            master_location = master["location"]
-            master_user_location = master["user_location"]
-            master_style_name = self._get_master_style_name(master_user_location)
+        The glyf table takes its overlap bits from the default master, so the
+        default master is saved last, flagged with the overlaps of all masters.
+        The main process builds it while the other processes build the other
+        masters. Each master seeds the random numbers of its jitter itself, so
+        the masters do not depend on the order they are built in.
+        """
+        default_master, *other_masters = self._get_masters()
+        workers = min(jobs - 1, len(other_masters))
 
-            ufo_file_name = (
-                self._get_file_name(self.bdf_font.family_name, master_name) + ".ufo"
-            )
+        if workers <= 0:
+            overlapping_glyph_names = set()
+            for master in other_masters:
+                overlapping_glyph_names |= self._write_master(master, output_path)
+            default_ufo_font = self._build_master(default_master)
+        else:
+            with ProcessPoolExecutor(
+                max_workers=workers,
+                initializer=_init_worker,
+                initargs=(self, logging.getLogger().getEffectiveLevel()),
+            ) as executor:
+                futures = [
+                    executor.submit(_write_master_in_worker, master, output_path)
+                    for master in other_masters
+                ]
+                default_ufo_font = self._build_master(default_master)
+                overlapping_glyph_names = set().union(
+                    *(future.result() for future in futures)
+                )
 
-            logger.info("Building %s...", ufo_file_name)
-
-            random.seed(self.random_seed)
-
-            ufo_font = UFOFont()
-
-            ufo_font.setup(
-                self.bdf_font,
-                self.ufo_config,
-                master_location,
-                master_user_location,
-                master_style_name,
-            )
-
-            overlapping_glyph_names |= ufo_font.get_overlapping_glyph_names()
-
-            if default_ufo_font is None:
-                default_ufo_font = ufo_font
-                default_ufo_path = output_path / ufo_file_name
-            else:
-                ufo_font.save(output_path / ufo_file_name)
-
+        overlapping_glyph_names |= default_ufo_font.get_overlapping_glyph_names()
         default_ufo_font.set_overlap_flags(overlapping_glyph_names)
-        default_ufo_font.save(default_ufo_path)
+        default_ufo_font.save(output_path / self._get_ufo_file_name(default_master))
+
+    def _build_master(self, master: dict) -> UFOFont:
+        """Build the UFO font of a master."""
+        logger.info("Building %s...", self._get_ufo_file_name(master))
+
+        random.seed(self.random_seed)
+
+        ufo_font = UFOFont()
+        ufo_font.setup(
+            self.bdf_font,
+            self.ufo_config,
+            master["location"],
+            master["user_location"],
+            self._get_master_style_name(master["user_location"]),
+        )
+
+        return ufo_font
+
+    def _write_master(self, master: dict, output_path: Path) -> set:
+        """Build and save a master, and return its overlapping glyphs."""
+        ufo_font = self._build_master(master)
+        ufo_font.save(output_path / self._get_ufo_file_name(master))
+
+        return ufo_font.get_overlapping_glyph_names()
+
+    def _get_ufo_file_name(self, master: dict) -> str:
+        return self._get_file_name(self.bdf_font.family_name, master["name"]) + ".ufo"
 
     def _write_designspace(self, output_path: Path) -> None:
         designspace_filename = (
@@ -560,3 +590,19 @@ class DesignSpace:
             return family_name
         else:
             return f"{family_name}-{style_name}"
+
+
+# The design space of a worker process, set once when the process starts, so
+# that it is not sent again with every master
+_worker_design_space = None
+
+
+def _init_worker(design_space: DesignSpace, log_level: int) -> None:
+    global _worker_design_space  # pylint: disable=global-statement
+    logging.basicConfig(level=log_level)
+    logging.getLogger().setLevel(log_level)
+    _worker_design_space = design_space
+
+
+def _write_master_in_worker(master: dict, output_path: Path) -> set:
+    return _worker_design_space._write_master(master, output_path)  # pylint: disable=protected-access

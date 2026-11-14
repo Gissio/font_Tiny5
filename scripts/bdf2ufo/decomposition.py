@@ -196,6 +196,36 @@ def get_element_positions(bdf_font: BDFFont, components: dict, glyph_name: str) 
     return positions
 
 
+def get_precomposed_glyphs(bdf_font: BDFFont, components: dict) -> set:
+    """Return the composed glyphs that draw an element twice at one place.
+
+    Their components would put two identical elements on top of each other,
+    so these glyphs are drawn from their bitmaps instead. The positions are in
+    .bdf pixel space, which every master shares, so the result holds for the
+    whole design space.
+
+    Args:
+        bdf_font: The BDF font object.
+        components: Dictionary of glyph components.
+
+    Returns:
+        A set of glyph names.
+    """
+    precomposed = set()
+    for glyph_name in components:
+        if glyph_name not in bdf_font.glyphs:
+            continue
+        positions = get_element_positions(bdf_font, components, glyph_name)
+        if len(positions) != len(set(positions)):
+            logger.info(
+                "Glyph '%s' composes overlapping elements, storing precomposed glyph.",
+                glyph_name,
+            )
+            precomposed.add(glyph_name)
+
+    return precomposed
+
+
 def get_bitmap(positions: set) -> tuple:
     """Draw element positions into a cropped bitmap.
 

@@ -24,7 +24,10 @@ from .utils import (
     get_glyph_name,
 )
 from .data import (
+    ALTERNATE_FEATURES,
     LIGATURE_SUFFIX,
+    NUMERIC_SUFFIX,
+    SEQUENCE_SUFFIX,
     SLOPE_FROM_SLANT,
     SMALL_CAPS_SUFFIX,
     WIDTH_CLASSES,
@@ -50,9 +53,12 @@ class BDFFont:
     Attributes:
         glyphs: Dictionary mapping glyph names to Glyph objects.
         names: Dictionary mapping Unicode characters to glyph names.
-        ligature_glyphs: Dictionary mapping the names of the ligature glyphs
-            (".liga") to Glyph objects, as drawn. Only loaded if the
+        ligature_glyphs: Dictionary mapping the names of the contextual
+            alternates, ligatures (".liga"), run pieces (".seq") and numeric
+            forms (".num"), to Glyph objects, as drawn. Only loaded if the
             "ligatures" configuration option is set.
+        alternate_glyphs: Dictionary mapping the names of the alternate glyphs
+            of the ALTERNATE_FEATURES (such as "zero.zero") to Glyph objects.
 
         family_name: Font family name.
         style_name: Font style name (e.g., "Bold", "Italic").
@@ -90,6 +96,7 @@ class BDFFont:
         self.glyphs = {}
         self.names = {}
         self.ligature_glyphs = {}
+        self.alternate_glyphs = {}
 
         self.family_name = ""
         self.style_name = ""
@@ -149,19 +156,25 @@ class BDFFont:
         # Set font glyphs
         ligatures_enabled = config.get("ligatures", False)
 
+        alternate_suffixes = tuple("." + tag for tag in ALTERNATE_FEATURES)
+        calt_suffixes = (LIGATURE_SUFFIX, SEQUENCE_SUFFIX, NUMERIC_SUFFIX)
+
         for glyph in bdf_glyphs:
             codepoint = glyph.codepoint
             is_ligature = False
+            is_alternate = False
 
             # Unencoded glyphs (ENCODING -1) keep their BDF name and have no
-            # character. Only small caps ("x.sc") and, if enabled, ligatures
-            # ("hyphen_greater.liga") are used; other unencoded glyphs would
-            # be unreachable.
+            # character. Only small caps ("x.sc"), alternates ("zero.zero")
+            # and, if enabled, contextual alternates (ligatures such as
+            # "hyphen_hyphen.liga", run pieces such as "hyphen_middle.seq",
+            # numeric forms such as "x.num") are used; other unencoded glyphs
+            # would be unreachable.
             if codepoint < 0:
                 character = None
                 name = glyph.name.decode("utf-8")
 
-                if name.endswith(LIGATURE_SUFFIX):
+                if name.endswith(calt_suffixes):
                     if not ligatures_enabled:
                         logger.info(
                             "Skipping ligature glyph '%s', as ligatures are disabled",
@@ -170,6 +183,8 @@ class BDFFont:
                         continue
 
                     is_ligature = True
+                elif name.endswith(alternate_suffixes):
+                    is_alternate = True
                 elif not name.endswith(SMALL_CAPS_SUFFIX):
                     logger.info("Skipping unencoded glyph '%s'", name)
                     continue
@@ -202,7 +217,11 @@ class BDFFont:
                     [c if (c.isalnum() or c == ".") else "_" for c in name]
                 )
 
-                while name in self.glyphs or name in self.ligature_glyphs:
+                while (
+                    name in self.glyphs
+                    or name in self.ligature_glyphs
+                    or name in self.alternate_glyphs
+                ):
                     name += "_"
 
             # Build bitmap
@@ -257,10 +276,13 @@ class BDFFont:
             elif character == "x":
                 x_height = bitmap.shape[0]
 
-            # Ligatures are kept apart until build_ligatures() adds them, after
-            # all other glyphs
+            # Ligatures and alternates are kept apart until build_ligatures()
+            # and build_alternates() add them, after all other glyphs
             if is_ligature:
                 self.ligature_glyphs[name] = glyph
+                continue
+            if is_alternate:
+                self.alternate_glyphs[name] = glyph
                 continue
 
             self.glyphs[name] = glyph
@@ -319,39 +341,44 @@ class BDFFont:
             0, DEFAULT_SUBSCRIPT_OFFSET_Y_CAP_HEIGHT_RATIO * cap_height
         )
 
-        # Font properties
-        self._set_property(config, "style_name", style_name)
-        self._set_property(config, "family_name", family_name)
-        self._set_property(config, "font_version", font_version)
-        self._set_property(config, "font_copyright", font_copyright)
-        self._set_property(config, "designer", "")
-        self._set_property(config, "designer_url", "")
-        self._set_property(config, "manufacturer", manufacturer)
-        self._set_property(config, "manufacturer_url", "")
-        self._set_property(config, "license", "")
-        self._set_property(config, "license_url", "")
-
         self.boundingbox_min = boundingbox_min
         self.boundingbox_max = boundingbox_max
 
-        self._set_property(config, "ascent", ascent)
-        self._set_property(config, "descent", descent)
-        self._set_property(config, "cap_height", cap_height)
-        self._set_property(config, "x_height", x_height)
+        # Font properties: the configuration overrides the values of the BDF font
+        properties = {
+            "style_name": style_name,
+            "family_name": family_name,
+            "font_version": font_version,
+            "font_copyright": font_copyright,
+            "designer": "",
+            "designer_url": "",
+            "manufacturer": manufacturer,
+            "manufacturer_url": "",
+            "license": "",
+            "license_url": "",
+            "ascent": ascent,
+            "descent": descent,
+            "cap_height": cap_height,
+            "x_height": x_height,
+            "monospace": 0,
+            "underline_position": underline_position,
+            "underline_thickness": underline_thickness,
+            "strikeout_position": strikeout_position,
+            "strikeout_thickness": strikeout_thickness,
+            "superscript_scale": superscript_scale,
+            "superscript_offset": superscript_offset,
+            "subscript_scale": subscript_scale,
+            "subscript_offset": subscript_offset,
+        }
+        for key, default_value in properties.items():
+            if key not in config:
+                setattr(self, key, default_value)
+            elif isinstance(default_value, Vec2):
+                setattr(self, key, Vec2(config[key]))
+            else:
+                setattr(self, key, config[key])
 
-        self._set_property(config, "monospace", 0)
         self._verify_monospace()
-
-        self._set_property(config, "underline_position", underline_position)
-        self._set_property(config, "underline_thickness", underline_thickness)
-        self._set_property(config, "strikeout_position", strikeout_position)
-        self._set_property(config, "strikeout_thickness", strikeout_thickness)
-
-        self._set_property(config, "superscript_scale", superscript_scale)
-        self._set_property(config, "superscript_offset", superscript_offset)
-
-        self._set_property(config, "subscript_scale", subscript_scale)
-        self._set_property(config, "subscript_offset", subscript_offset)
 
     def _verify_monospace(self) -> None:
         """Warn about glyphs whose advance differs from the monospace advance.
@@ -421,12 +448,3 @@ class BDFFont:
                 return value
 
         return default_value
-
-    def _set_property(self, config: Any, key: str, default_value: Any) -> None:
-        if key in config:
-            if isinstance(default_value, Vec2):
-                setattr(self, key, Vec2(config[key]))
-            else:
-                setattr(self, key, config[key])
-        else:
-            setattr(self, key, default_value)
