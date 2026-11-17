@@ -1461,48 +1461,48 @@ variable_instances:
     "wght": 700
     "ital": 1
   "LCD":
-    "wght": 350
+    "wght": 300
   "LCD Bold":
-    "wght": 650
-  "LCD Italic":
     "wght": 350
+  "LCD Italic":
+    "wght": 300
     "ital": 1
   "LCD Bold Italic":
-    "wght": 650
+    "wght": 350
     "ital": 1
   "CRT":
     "wght": 300
-    "ROND": 100
-    "BLED": 100
+    "ROND": 50
+    "BLED": 50
   "CRT Bold":
-    "wght": 600
-    "ROND": 100
-    "BLED": 100
+    "wght": 350
+    "ROND": 50
+    "BLED": 50
   "CRT Italic":
     "wght": 300
     "ital": 1
-    "ROND": 100
-    "BLED": 100
+    "ROND": 50
+    "BLED": 50
   "CRT Bold Italic":
-    "wght": 600
+    "wght": 350
     "ital": 1
     "ROND": 100
     "BLED": 100
   "Matrix":
-    "wght": 350
+    "wght": 300
     "ROND": 100
     "JITT": 50
   "Matrix Bold":
-    "wght": 650
+    "wght": 350
     "ROND": 100
     "JITT": 50
   "Matrix Italic":
-    "wght": 350
+    "wght": 300
     "ital": 1
     "ROND": 100
     "JITT": 50
   "Matrix Bold Italic":
-    "wght": 650
+    "wght": 350
     "ital": 1
     "ROND": 100
     "JITT": 50

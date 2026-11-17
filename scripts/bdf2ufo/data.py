@@ -81,6 +81,7 @@ SCRIPTS = {
     "\u0391": ("grek", "Grek"),  # Greek capital letter alpha
     "\u0410": ("cyrl", "Cyrl"),  # Cyrillic capital letter a
     "\u0531": ("armn", "Armn"),  # Armenian capital letter ayb
+    "\u05d0": ("hebr", "Hebr"),  # Hebrew letter alef
     "\u4e2d": ("hani", "Hani"),  # CJK unified ideograph 4e2d
     "\uac00": ("hang", "Hang"),  # Hangul syllable ga
 }
@@ -242,6 +243,71 @@ MARKS = {
     "\u1dc6": ("top", 0),  # Macron grave
     "\u1dc7": ("top", 0),  # Acute macron
     "\u1dca": ("bottom", 0),  # Small r below
+    # Hebrew accents (cantillation marks)
+    "\u0591": ("bottom", 0),  # Etnahta
+    "\u0592": ("top", 0),  # Segol
+    "\u0593": ("top", 0),  # Shalshelet
+    "\u0594": ("top", 0),  # Zaqef qatan
+    "\u0595": ("top", 0),  # Zaqef gadol
+    "\u0596": ("bottom", 0),  # Tipeha
+    "\u0597": ("top", 0),  # Revia
+    "\u0598": ("top", 0),  # Zarqa
+    "\u0599": ("top", 0),  # Pashta
+    "\u059a": ("bottom", 0),  # Yetiv
+    "\u059b": ("bottom", 0),  # Tevir
+    "\u059c": ("top", 0),  # Geresh
+    "\u059d": ("top", 0),  # Geresh muqdam
+    "\u059e": ("top", 0),  # Gershayim
+    "\u059f": ("top", 0),  # Qarney para
+    "\u05a0": ("top", 0),  # Telisha gedola
+    "\u05a1": ("top", 0),  # Pazer
+    "\u05a2": ("bottom", 0),  # Atnah hafukh
+    "\u05a3": ("bottom", 0),  # Munah
+    "\u05a4": ("bottom", 0),  # Mahapakh
+    "\u05a5": ("bottom", 0),  # Merkha
+    "\u05a6": ("bottom", 0),  # Merkha kefula
+    "\u05a7": ("bottom", 0),  # Darga
+    "\u05a8": ("top", 0),  # Qadma
+    "\u05a9": ("top", 0),  # Telisha qetana
+    "\u05aa": ("bottom", 0),  # Yerah ben yomo
+    "\u05ab": ("top", 0),  # Ole
+    "\u05ac": ("top", 0),  # Iluy
+    "\u05ad": ("bottom", 0),  # Dehi
+    "\u05ae": ("top", 0),  # Zinor
+    "\u05af": ("top", 0),  # Masora circle
+    # Hebrew points. Holam and the sin dot sit at the upper left of a letter,
+    # the shin dot at its upper right.
+    "\u05b0": ("bottom", 0),  # Sheva
+    "\u05b1": ("bottom", 0),  # Hataf segol
+    "\u05b2": ("bottom", 0),  # Hataf patah
+    "\u05b3": ("bottom", 0),  # Hataf qamats
+    "\u05b4": ("bottom", 0),  # Hiriq
+    "\u05b5": ("bottom", 0),  # Tsere
+    "\u05b6": ("bottom", 0),  # Segol
+    "\u05b7": ("bottom", 0),  # Patah
+    "\u05b8": ("bottom", 0),  # Qamats
+    "\u05b9": ("topLeft", 0),  # Holam
+    "\u05ba": ("topLeft", 0),  # Holam haser for vav
+    "\u05bb": ("bottom", 0),  # Qubuts
+    "\u05bc": ("center", 0),  # Dagesh or mapiq
+    "\u05bd": ("bottom", 0),  # Meteg
+    "\u05bf": ("top", 0),  # Rafe
+    "\u05c1": ("topRight", 0),  # Shin dot
+    "\u05c2": ("topLeft", 0),  # Sin dot
+    "\u05c4": ("top", 0),  # Upper dot
+    "\u05c5": ("bottom", 0),  # Lower dot
+    "\u05c7": ("bottom", 0),  # Qamats qatan
+    "\ufb1e": ("top", 0),  # Judeo-Spanish varika
+}
+
+# Scripts whose marks attach to every letter, also without a precomposed
+# glyph to take the anchors from. A letter of such a script that lacks the
+# anchor of one of its marks gets a default anchor, which centres the mark on
+# the letter's pixels (or aligns their left or right edges, for anchors named
+# "...Left" or "...Right") at the height the mark is drawn. Each script lists
+# the code point ranges of its letters and marks, as (first, last) pairs.
+DEFAULT_ANCHOR_SCRIPTS = {
+    "hebr": (("\u0590", "\u05ff"), ("\ufb1d", "\ufb4f")),
 }
 
 BASE_ANCHORS_EXCEPTIONS = [
