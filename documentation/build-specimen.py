@@ -21,6 +21,7 @@
 # page, and tiny5-github.jpg, the social preview of their GitHub repository.
 # All three are built for Tiny5 alone.
 
+import itertools
 import math
 import random
 from pathlib import Path
@@ -37,10 +38,6 @@ TINY5_PATH = ROOT_PATH / "fonts/variable/Tiny5[BLED,JITT,ROND,wdth,wght].ttf"
 TINY5_DUO_PATH = ROOT_PATH / "fonts/variable/Tiny5Duo[BLED,JITT,ROND,wdth,wght].ttf"
 TINY5_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5-Italic[BLED,JITT,ROND,wdth,wght].ttf"
 TINY5_DUO_ITALIC_PATH = ROOT_PATH / "fonts/variable/Tiny5Duo-Italic[BLED,JITT,ROND,wdth,wght].ttf"
-
-# Font version, as the devices display it; keep in sync with the font's
-# version (name ID 5)
-VERSION = "V3.002"
 
 # Tiny5 draws one font pixel per 8 font units, and is 5 font pixels tall
 FONT_PIXEL_SIZE = 8
@@ -102,7 +99,7 @@ class Display:
         the interior of each font-pixel square, so edge antialiasing cannot
         double or erode pixels the way block averaging does.
         """
-        reduced = self.fine.resize(self.size, Image.NEAREST)
+        reduced = self.fine.resize(self.size, Image.Resampling.NEAREST)
         mask = ImageChops.lighter(self.mask, reduced)
 
         return mask.point(lambda v: 255 if v >= 128 else 0)
@@ -113,7 +110,7 @@ class Display:
 
     def lit(self, cell):
         """Return the lit-cell mask, at `cell` image pixels per display cell."""
-        return self.cells().resize(self.image_size(cell), Image.NEAREST)
+        return self.cells().resize(self.image_size(cell), Image.Resampling.NEAREST)
 
     def pen(self, scale, duo):
         """Return the layer to write text at `scale` cells per font pixel on:
@@ -152,6 +149,17 @@ class Display:
         draw, font, unit = self.pen(scale, duo)
 
         return draw.textlength(string, font=font) / unit - scale
+
+    def fit(self, scale, chars, max_width, duo=False):
+        """Return as many of the characters, from the first, as ink no wider
+        than `max_width` cells."""
+        line = ""
+        for char in chars:
+            if self.text_width(scale, line + char, duo) > max_width:
+                break
+            line += char
+
+        return line
 
     def char_row(self, left, baseline, pitch, scale, chars, duo=False):
         """Draw characters on a fixed pitch, centered in each column.
@@ -206,7 +214,7 @@ def light_field(size, level):
     small.putdata([level(x / (FIELD_SIZE[0] - 1), y / (FIELD_SIZE[1] - 1))
                    for y in range(FIELD_SIZE[1]) for x in range(FIELD_SIZE[0])])
 
-    return small.resize(size, Image.BICUBIC)
+    return small.resize(size, Image.Resampling.BICUBIC)
 
 
 def sheen(size, strength=10):
@@ -215,15 +223,18 @@ def sheen(size, strength=10):
         strength * math.exp(-(u + v - 0.55) ** 2 / 0.065)))
 
 
+def corner_distance(u, v):
+    """Return how far a point of a field lies from its center: 0 there, 1 at
+    the middle of each edge, and no further than 1 towards the corners."""
+    du, dv = u - 0.5, v - 0.5
+
+    return min(1.0, (du * du * 4 + dv * dv * 4) ** 0.5)
+
+
 def radial_light(size, center_level, edge_level):
     """Build a smooth radial lighting field, brightest in the center."""
-    def level(u, v):
-        du, dv = u - 0.5, v - 0.5
-        d = min(1.0, (du * du * 4 + dv * dv * 4) ** 0.5)
-
-        return round(center_level + (edge_level - center_level) * d ** 1.5)
-
-    return light_field(size, level)
+    return light_field(size, lambda u, v: round(
+        center_level + (edge_level - center_level) * corner_distance(u, v) ** 1.5))
 
 
 def edge_shadow(size, level=205):
@@ -231,9 +242,9 @@ def edge_shadow(size, level=205):
     small = Image.new("L", FIELD_SIZE, 255)
     ImageDraw.Draw(small).rectangle(
         xy=[(0, 0), (FIELD_SIZE[0] - 1, FIELD_SIZE[1] - 1)], outline=level, width=2)
-    small = small.filter(ImageFilter.GaussianBlur(1.2))
+    small = blur(small, 1.2)
 
-    return small.resize(size, Image.BICUBIC)
+    return small.resize(size, Image.Resampling.BICUBIC)
 
 
 def cell_pattern(size, cell):
@@ -249,11 +260,34 @@ def cell_pattern(size, cell):
     return Image.frombytes("L", size, rows)
 
 
-def colorize(mask_img, color):
+def blur(mask, radius, percent=100):
+    """Blur a mask, optionally weakened to `percent` of its strength: the
+    spread of light or ink around what casts it."""
+    blurred = mask.filter(ImageFilter.GaussianBlur(radius))
+    if percent == 100:
+        return blurred
+
+    return blurred.point(lambda v: v * percent // 100)
+
+
+def colorize(mask, color):
     """Build an image that fades from black to the color over the mask."""
-    return Image.composite(Image.new("RGB", mask_img.size, color),
-                           Image.new("RGB", mask_img.size, (0, 0, 0)),
-                           mask_img)
+    img = Image.new("RGB", mask.size)
+    img.paste(color, mask=mask)
+
+    return img
+
+
+def tint(img, color, lift=(0, 0, 0)):
+    """Filter an RGB image through a color, channel by channel, as
+    multiplying it by a solid image of that color would, then lift each
+    channel by `lift`.
+
+    A lookup table does what the solid image would, without building an
+    image the size of the canvas only to hold one color.
+    """
+    return img.point([min(255, v * c // 255 + l)
+                      for c, l in zip(color, lift) for v in range(256)])
 
 
 def shade(img, field):
@@ -267,9 +301,16 @@ def save_image(img, name, duo, google=True):
     stem = ("tiny5duo-" if duo else "tiny5-") + name
     img.save(OUT_PATH / (stem + ".jpg"), optimize=True, quality=JPG_QUALITY)
     if google:
-        resampled = img.resize(GOOGLE_SIZE, Image.LANCZOS)
+        resampled = img.resize(GOOGLE_SIZE, Image.Resampling.LANCZOS)
         resampled.save(OUT_PATH / (stem + "-google.jpg"),
                        optimize=True, quality=JPG_QUALITY)
+
+
+def save_shared(img, name):
+    """Save a specimen that already shows both families, under both
+    prefixes."""
+    for duo in (False, True):
+        save_image(img, name, duo)
 
 
 # --- Reflective LCD: the hero ------------------------------------------------
@@ -313,6 +354,14 @@ GITHUB_SIZE = (1280, 640)
 GITHUB_GRID = (128, 48)
 GITHUB_CELL = 9
 
+# The three of them: the image's name, the module's grid, its cell and the
+# frame it is centered on
+COVERS = [
+    ("itch", ITCH_GRID, ITCH_CELL, ITCH_SIZE),
+    ("itch-banner", BANNER_GRID, BANNER_CELL, BANNER_SIZE),
+    ("github", GITHUB_GRID, GITHUB_CELL, GITHUB_SIZE),
+]
+
 
 def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     """Render as a reflective LCD: pixels floating over a pale ground.
@@ -335,11 +384,10 @@ def render_reflective(display, cell, bg_color, fg_color, canvas_size=None):
     img = shade(img, pattern.point(lambda v: 246 if v else 255))
 
     # Drop shadow of the lit pixels on the reflector
-    shadow = lit.filter(ImageFilter.GaussianBlur(cell * 0.6))
-    shadow = ImageChops.offset(shadow, cell // 2, cell * 2 // 3)
+    shadow = ImageChops.offset(blur(lit, cell * 0.6), cell // 2, cell * 2 // 3)
     img = shade(img, shadow.point(lambda v: 255 - v * 60 // 255))
 
-    img.paste(Image.new("RGB", full, fg_color), (0, 0), lit)
+    img.paste(fg_color, mask=lit)
 
     # The screen sits recessed in the bezel, which shades its edges; light
     # catches the polarizer film in a soft diagonal sheen
@@ -389,7 +437,7 @@ def draw_phone_chrome(d):
     d.text((width - 6, 7), 1, "7:55", anchor="rs")
 
 
-def compose_hero(duo, grid=NOKIA_GRID):
+def compose_hero(duo, grid):
     """Compose the home screen of that phone: the furniture, the title with
     its subtitle, and the softkey label, all centered on the screen's
     width."""
@@ -414,40 +462,30 @@ def compose_hero(duo, grid=NOKIA_GRID):
     return d
 
 
+def render_hero(duo, grid, cell, canvas_size):
+    """Render that home screen on a module of the given grid, centered on a
+    canvas of the given size."""
+    return render_reflective(compose_hero(duo, grid), cell,
+                             NOKIA_BG, NOKIA_FG, canvas_size)
+
+
 def build_hero(duo):
     """The hero is that screen, filling the specimen canvas."""
-    img = render_reflective(compose_hero(duo), NOKIA_CELL,
-                            NOKIA_BG, NOKIA_FG, CANVAS)
-    save_image(img, "presentation", duo)
+    save_image(render_hero(duo, NOKIA_GRID, NOKIA_CELL, CANVAS),
+               "presentation", duo)
 
 
-def build_itch():
-    """The itch.io cover is the hero screen again, narrowed to the cover's
-    frame.
+def build_covers():
+    """The itch.io cover, its page banner and the GitHub social preview: the
+    hero screen again, each time on the module that fits its frame.
 
-    The two families share one itch.io project, so there is one cover, and it
-    is set in Tiny5 — as in the hero, only the softkey label sets in Duo.
+    The two families share one itch.io project and one repository, so each
+    image stands for both, and is set in Tiny5 — as in the hero, only the
+    softkey label sets in Duo.
     """
-    img = render_reflective(compose_hero(False, ITCH_GRID), ITCH_CELL,
-                            NOKIA_BG, NOKIA_FG, ITCH_SIZE)
-    save_image(img, "itch", False, google=False)
-
-
-def build_banner():
-    """The itch.io page banner is that screen drawn out to a strip, across the
-    head of the page."""
-    img = render_reflective(compose_hero(False, BANNER_GRID), BANNER_CELL,
-                            NOKIA_BG, NOKIA_FG, BANNER_SIZE)
-    save_image(img, "itch-banner", False, google=False)
-
-
-def build_github():
-    """The GitHub social preview is the hero screen once more, on the
-    preview's frame. Like the itch.io cover, it stands for both families, so
-    it is set in Tiny5."""
-    img = render_reflective(compose_hero(False, GITHUB_GRID), GITHUB_CELL,
-                            NOKIA_BG, NOKIA_FG, GITHUB_SIZE)
-    save_image(img, "github", False, google=False)
+    for name, grid, cell, size in COVERS:
+        save_image(render_hero(False, grid, cell, size), name, False,
+                   google=False)
 
 
 # --- Vacuum fluorescent display: the character ROM ---------------------------
@@ -503,12 +541,10 @@ def render_emissive(display, cell, bg_color, fg_color, glow_color):
     img = ImageChops.add(img, colorize(ghost, tuple(c // 3 for c in glow_color)))
 
     # A tight halo around the segments, and a wide haze across the glass
-    halo = colorize(lit.filter(ImageFilter.GaussianBlur(cell * 0.6)), glow_color)
-    img = ImageChops.screen(img, halo)
-    haze = lit.filter(ImageFilter.GaussianBlur(cell * 2.2)).point(lambda v: v * 55 // 100)
-    img = ImageChops.screen(img, colorize(haze, glow_color))
+    img = ImageChops.screen(img, colorize(blur(lit, cell * 0.6), glow_color))
+    img = ImageChops.screen(img, colorize(blur(lit, cell * 2.2, percent=55), glow_color))
 
-    img.paste(Image.new("RGB", full, fg_color), (0, 0), lit)
+    img.paste(fg_color, mask=lit)
 
     return img
 
@@ -517,12 +553,12 @@ def build_charset(duo):
     """A character ROM chart on a HiFi deck's fluorescent display, with the
     glyphs at the native size: one font pixel per display cell."""
     d = Display(VFD_GRID)
-    width, height = VFD_GRID
+    width = VFD_GRID[0]
     margin = 3
     pitch = 9
 
     d.text((margin, 7), 1, family_name(duo).upper())
-    d.text((width - margin, 7), 1, f"ROM {VERSION}", anchor="rs")
+    d.text((width - margin, 7), 1, "CHAR ROM", anchor="rs")
 
     # The six charset rows on a uniform 9-cell baseline rhythm, the block
     # centered in the space below the header. The exact left edge of the
@@ -614,23 +650,19 @@ def render_tft(layers, cell, bg_color, backlight=(90, 96, 100),
     # Backlight leaking through the closed cells, brighter at the center
     img = Image.new("RGB", full, bg_color)
     img = shade(img, radial_light(full, 255, falloff))
-    img = ImageChops.add(img, ImageChops.multiply(
-        stripes, Image.new("RGB", full, TFT_LEAK)))
+    img = ImageChops.add(img, tint(stripes, TFT_LEAK))
 
     # Each layer's pixels open their subpixels to the layer's color, boosted
     # so the pixel reads as the intended color at viewing distance
     for lit, color in lits:
         boost = tuple(c * b // 255 for c, b in zip(color, TFT_BOOST))
-        colored = ImageChops.multiply(stripes, Image.new("RGB", full, color))
-        colored = ImageChops.add(colored, Image.new("RGB", full, boost))
-        img.paste(colored, (0, 0), lit)
+        img.paste(tint(stripes, color, boost), mask=lit)
 
     # Slight backlight bloom around the lit pixels
     all_lit = lits[0][0]
     for lit, _ in lits[1:]:
         all_lit = ImageChops.lighter(all_lit, lit)
-    glow = all_lit.filter(ImageFilter.GaussianBlur(sub * 0.8)).point(lambda v: v * 30 // 100)
-    img = ImageChops.screen(img, colorize(glow, backlight))
+    img = ImageChops.screen(img, colorize(blur(all_lit, sub * 0.8, percent=30), backlight))
 
     img = shade(img, edge_shadow(full, bezel))
     img = ImageChops.add(img, sheen(full, 8).convert("RGB"))
@@ -652,7 +684,6 @@ def build_ramp(duo):
 
     chrome = Display(TFT_GRID)
     chrome.text((left, margin + CAP_PIXELS), 1, f"{family_name(duo)} display test")
-    chrome.text((right, margin + CAP_PIXELS), 1, VERSION, anchor="rs")
     layers = [(chrome, TFT_CHROME)]
 
     # The labels take a column at the right; the text fills what is left
@@ -671,11 +702,7 @@ def build_ramp(duo):
     for scale, row in zip(RAMP_SCALES, rows):
         y += gap
         baseline = round(y + scale * CAP_PIXELS)
-        line = ""
-        for char in RAMP_TEXT:
-            if d.text_width(scale, line + char, duo) > measure:
-                break
-            line += char
+        line = d.fit(scale, RAMP_TEXT, measure, duo)
         d.text((left, baseline), scale, line.rstrip(), duo=duo)
         d.text((right, baseline), 1, f"{scale * 6} pt", anchor="rs", duo=duo)
         y += row
@@ -785,11 +812,15 @@ def disc_shading(cell, radius, top, bottom, rim, gloss):
 
 
 def tile_pattern(size, tile):
-    """Tile a small image over the full size."""
+    """Tile a small image over the full size: across a strip first, and then
+    the strip down the image."""
+    width, height = tile.size
+    strip = Image.new("L", (size[0], height))
+    for x in range(0, size[0], width):
+        strip.paste(tile, (x, 0))
     img = Image.new("L", size)
-    for y in range(0, size[1], tile.size[1]):
-        for x in range(0, size[0], tile.size[0]):
-            img.paste(tile, (x, y))
+    for y in range(0, size[1], height):
+        img.paste(strip, (0, y))
 
     return img
 
@@ -867,13 +898,8 @@ def draw_faces(size, layout, rng):
 def hall_light(size):
     """Build the light of the hall: falling on the board from above and a
     little from the left, and dropping off towards the corners."""
-    def level(u, v):
-        du, dv = u - 0.5, v - 0.5
-        corner = min(1.0, (du * du * 4 + dv * dv * 4) ** 0.5)
-
-        return round(255 - 16 * v - 6 * u - 12 * corner ** 2)
-
-    return light_field(size, level)
+    return light_field(size, lambda u, v: round(
+        255 - 16 * v - 6 * u - 12 * corner_distance(u, v) ** 2))
 
 
 def render_flipdisc(display, cell, rng):
@@ -917,9 +943,8 @@ def render_flipdisc(display, cell, rng):
 
     # Each disc stands off the panel, and drops a shadow onto it, away from
     # the light
-    shadow = discs.filter(ImageFilter.GaussianBlur(sub * 0.16))
-    shadow = ImageChops.offset(shadow, *(max(1, round(sub * drop))
-                                         for drop in FLIP_SHADOW_DROP))
+    shadow = ImageChops.offset(blur(discs, sub * 0.16),
+                               *(max(1, round(sub * drop)) for drop in FLIP_SHADOW_DROP))
     img = shade(img, shadow.point(lambda v: 255 - v * FLIP_SHADOW // 255))
 
     # The black faces: graphite, dark enough that the board reads as black
@@ -956,9 +981,7 @@ def build_departures():
         for (_, x), field in zip(DEPARTURE_COLUMNS, fields):
             d.text((x, baseline), 1, field)
 
-    img = render_flipdisc(d, FLIP_CELL, rng)
-    for duo in (False, True):
-        save_image(img, "sample3", duo)
+    save_shared(render_flipdisc(d, FLIP_CELL, rng), "sample3")
 
 
 # --- Paper -------------------------------------------------------------------
@@ -1008,7 +1031,7 @@ def render_inkjet(mask, rng):
     size = mask.size
     dot = INKJET_DOT
     grid = (size[0] // dot, size[1] // dot)
-    dots = mask.resize(grid, Image.BOX).point(lambda v: 255 if v >= 128 else 0)
+    dots = mask.resize(grid, Image.Resampling.BOX).point(lambda v: 255 if v >= 128 else 0)
     px = dots.load()
 
     ink = Image.new("L", size, 0)
@@ -1039,22 +1062,22 @@ def render_inkjet(mask, rng):
 
     # Ink wicks along the paper fibers: soften the droplets, then re-harden
     # the edge with a little correlated noise so the outline turns fibrous
-    ink = ink.filter(ImageFilter.GaussianBlur(dot * 0.25))
-    fibers = noise_image(size, rng).filter(ImageFilter.GaussianBlur(1.6))
-    fibers = fibers.point(lambda v: 128 + (v - 128) * 1.8)
+    ink = blur(ink, dot * 0.25)
+    fibers = blur(noise_image(size, rng), 1.6).point(lambda v: 128 + (v - 128) * 1.8)
     ink = ImageChops.add(ink, fibers, scale=1.0, offset=-128)
     ink = ink.point(lambda v: min(255, max(0, (v - 128) * 4 + 128)))
-    ink = ink.filter(ImageFilter.GaussianBlur(0.5))
+    ink = blur(ink, 0.5)
 
     # Uneven absorption: the ink density drifts a little across the page
     density = noise_image((size[0] // 96 + 1, size[1] // 96 + 1), rng)
-    density = density.resize(size, Image.BICUBIC).point(lambda v: 222 + v * 33 // 255)
-    ink = ImageChops.multiply(ink, density)
+    density = density.resize(size, Image.Resampling.BICUBIC)
+    ink = ImageChops.multiply(ink, density.point(lambda v: 222 + v * 33 // 255))
 
     paper = shade(Image.new("RGB", size, PAPER_COLOR),
                   grain_field(size, rng, PAPER_GRAIN))
+    paper.paste(INKJET_INK, mask=ink)
 
-    return Image.composite(Image.new("RGB", size, INKJET_INK), paper, ink)
+    return paper
 
 
 def build_axes(duo):
@@ -1122,7 +1145,7 @@ def build_axes(duo):
     word_scale = PROOF_WORD_SCALE_DUO if duo else PROOF_WORD_SCALE
     # The running head and the tags are set in Tiny5, whichever family the
     # card proves
-    head = [(title, {"duo": False}), (VERSION, {"duo": False})]
+    head = [(title, {"duo": False})]
     rows = [AXIS_ROWS[i:i + 2] for i in range(0, len(AXIS_ROWS), 2)]
 
     # Measure every line, then share out what the blocks leave: one gap
@@ -1139,7 +1162,6 @@ def build_axes(duo):
 
     y = PROOF_MARGIN_Y + head_above
     put((left, y), PROOF_TAG_SCALE, title, duo=False)
-    put((right, y), PROOF_TAG_SCALE, VERSION, anchor="rs", duo=False)
     y += head_below
 
     for row, (above, tag_offset, tag_below) in zip(rows, blocks):
@@ -1193,7 +1215,6 @@ TERMINAL_LINES = [
     "",
     "$ fc-query --brief Tiny5",
     "    family: \"Tiny5\"",
-    "    version: " + VERSION,
     "    glyphs: 4094",
     "    languages: 974",
     "    axes: weight width italic round bleed jitter",
@@ -1238,7 +1259,7 @@ def beam_profile(size, pitch, sigma):
         levels.append(round(BEAM_FLOOR + (255 - BEAM_FLOOR) * weight))
     column.putdata(levels)
 
-    return column.resize(size, Image.NEAREST)
+    return column.resize(size, Image.Resampling.NEAREST)
 
 
 def barrel(img, k):
@@ -1266,7 +1287,7 @@ def barrel(img, k):
                         for px, py in [(x0, y0), (x0, y1), (x1, y1), (x1, y0)]), ())
             mesh.append(((x0, y0, x1, y1), quad))
 
-    return img.transform(img.size, Image.MESH, mesh, Image.BILINEAR)
+    return img.transform(img.size, Image.Transform.MESH, mesh, Image.Resampling.BILINEAR)
 
 
 def glass_reflection(size):
@@ -1277,10 +1298,10 @@ def glass_reflection(size):
     draw.rounded_rectangle(xy=[(width * 0.58, height * 0.10),
                                (width * 0.80, height * 0.36)],
                            radius=height // 12, fill=255)
-    mask = mask.rotate(6, resample=Image.BILINEAR, center=(width * 0.69, height * 0.23))
-    mask = mask.filter(ImageFilter.GaussianBlur(width / 30))
+    mask = mask.rotate(6, resample=Image.Resampling.BILINEAR,
+                       center=(width * 0.69, height * 0.23))
 
-    return mask.point(lambda v: v * 42 // 255)
+    return blur(mask, width / 30).point(lambda v: v * 42 // 255)
 
 
 def render_crt(display, cell, bg_color):
@@ -1295,7 +1316,7 @@ def render_crt(display, cell, bg_color):
     pitch = cell           # one scanline per font pixel
 
     # The spot is round, so it smears horizontally as it sweeps
-    lit = display.lit(cell).filter(ImageFilter.GaussianBlur((cell * 0.22, cell * 0.05)))
+    lit = blur(display.lit(cell), (cell * 0.22, cell * 0.05))
 
     # Beam current modulates the scanline width: bright lines run wide,
     # dim ones stay narrow
@@ -1308,10 +1329,8 @@ def render_crt(display, cell, bg_color):
     # Phosphor emission adds light: the saturated cores, the halation
     # around them, and the wide haze scattered inside the glass
     img = ImageChops.screen(img, phosphor(beam, CORE_CURVES))
-    halo = beam.filter(ImageFilter.GaussianBlur(cell * 1.1)).point(lambda v: v * 72 // 100)
-    img = ImageChops.screen(img, phosphor(halo, GLOW_CURVES))
-    haze = beam.filter(ImageFilter.GaussianBlur(cell * 3.2)).point(lambda v: v * 30 // 100)
-    img = ImageChops.screen(img, phosphor(haze, GLOW_CURVES))
+    img = ImageChops.screen(img, phosphor(blur(beam, cell * 1.1, percent=72), GLOW_CURVES))
+    img = ImageChops.screen(img, phosphor(blur(beam, cell * 3.2, percent=30), GLOW_CURVES))
 
     # The phosphor coating is granular
     img = shade(img, grain_field(full, random.Random(NOISE_SEED), CRT_GRAIN))
@@ -1377,9 +1396,7 @@ def build_terminal():
     d.draw.rectangle(xy=[(cursor_left, cursor_top),
                          (cursor_right, cursor_top + CAP_PIXELS - 1)], fill=255)
 
-    img = render_crt(d, CRT_CELL, CRT_BG)
-    for duo in (False, True):
-        save_image(img, "sample5", duo)
+    save_shared(render_crt(d, CRT_CELL, CRT_BG), "sample5")
 
 
 # --- 9-pin dot matrix: the printer self test ---------------------------------
@@ -1465,9 +1482,9 @@ def draw_paper(size, cell, bar_top, rng):
 
 
 def build_printout(duo):
-    """A 9-pin self test, struck dot by dot onto tractor paper: the ROM
-    version, the character set streaming in a continuous wrap, and the
-    international set, printed single-spaced on every line.
+    """A 9-pin self test, struck dot by dot onto tractor paper: a header, the
+    character set streaming in a continuous wrap, and the international set,
+    printed single-spaced on every line.
 
     The imperfections: the ribbon inks in patches, worn pins strike faintly,
     the head lands slightly off between passes, and the paper feeds in a
@@ -1485,17 +1502,12 @@ def build_printout(duo):
 
     # The character set streams continuously: each line picks up where the
     # last one left off, wrapping around the set
-    lines = [f"{family_name(duo).upper()} ROM {VERSION}  SELF TEST  9 PIN", ""]
+    lines = [f"{family_name(duo).upper()} SELF TEST  9 PIN", ""]
     position = 0
     for _ in range(ROLLING_LINES):
-        line = ""
-        while True:
-            char = CHARSET_STREAM[position % len(CHARSET_STREAM)]
-            if d.text_width(1, line + char, duo) > max_width:
-                break
-            line += char
-            position += 1
-        lines.append(line)
+        stream = itertools.islice(itertools.cycle(CHARSET_STREAM), position, None)
+        lines.append(d.fit(1, stream, max_width, duo))
+        position += len(lines[-1])
     lines += [""] + (INTL_LINES_DUO if duo else INTL_LINES)
 
     for i, line in enumerate(lines):
@@ -1505,7 +1517,7 @@ def build_printout(duo):
     # The ribbon inks unevenly in patches
     blotch_size = (max(MATRIX_GRID[0] // MATRIX_PATCH_SIZE, 1),
                    max(MATRIX_GRID[1] // MATRIX_PATCH_SIZE, 1))
-    blotch = noise_image(blotch_size, rng).resize(MATRIX_GRID, Image.BICUBIC)
+    blotch = noise_image(blotch_size, rng).resize(MATRIX_GRID, Image.Resampling.BICUBIC)
     blotch = blotch.point(lambda level: MATRIX_PATCH_LEVEL
                           + level * (255 - MATRIX_PATCH_LEVEL) // 255).load()
 
@@ -1533,24 +1545,25 @@ def build_printout(duo):
                              fill=level)
 
     # Ink soaks into the paper, and the paper feeds in slightly askew
-    ink = ink.filter(ImageFilter.GaussianBlur(MATRIX_INK_SPREAD))
-    ink = ink.rotate(MATRIX_SKEW, resample=Image.BILINEAR)
+    ink = blur(ink, MATRIX_INK_SPREAD).rotate(MATRIX_SKEW, resample=Image.Resampling.BILINEAR)
 
     img = draw_paper(size, MATRIX_CELL, glyph_top - 2, rng)
-    img.paste(Image.new("RGB", size, MATRIX_INK), (0, 0), ink)
+    img.paste(MATRIX_INK, mask=ink)
 
     save_image(img, "sample6", duo)
 
 
-if __name__ == "__main__":
+def main():
     build_departures()                          # 3: departures board, flip discs
     build_terminal()                            # 5: login session on an amber CRT
-    build_itch()                                # the itch.io cover image
-    build_banner()                              # and its page banner
-    build_github()                              # the GitHub social preview
+    build_covers()                              # the itch.io and GitHub images
     for duo in (False, True):
         build_hero(duo)
         build_charset(duo)                      # 1: character ROM on a VFD
         build_ramp(duo)                         # 2: size ramp on a color TFT
         build_axes(duo)                         # 4: variation axes, inkjet proof
         build_printout(duo)                     # 6: 9-pin printer self test
+
+
+if __name__ == "__main__":
+    main()
